@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "674023205180",
+    "firebase_url": "https://ayo-belanja-7bc1e.firebaseio.com",
+    "project_id": "ayo-belanja-7bc1e",
+    "storage_bucket": "ayo-belanja-7bc1e.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:674023205180:android:1bbc232da0441eee851639",
+        "android_client_info": {
+          "package_name": "com.ayobelanja.ayo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "674023205180-6erv5r0lbijugec31at4qesnlm0rngta.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDD4WmeqwlzDRvYS9sLcaRDnoJDQWVgeCI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "674023205180-6erv5r0lbijugec31at4qesnlm0rngta.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
