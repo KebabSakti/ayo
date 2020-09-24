@@ -82,8 +82,8 @@ Widget _app(BuildContext context) {
             builder: (context) {
               var pages = [
                 Home(),
-                Container(),
                 Order(),
+                Container(),
                 Container(),
                 User(),
               ];
@@ -102,27 +102,24 @@ Widget _app(BuildContext context) {
             showUnselectedLabels: true,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: FaIcon(FontAwesomeIcons.burn),
-                title: Text('Home'),
+                icon: FaIcon(FontAwesomeIcons.burn, size: 20,),
+                title: Text('Home', style: TextStyle(fontSize: 12),),
               ),
               BottomNavigationBarItem(
-                icon: FaIcon(
-                  FontAwesomeIcons.store,
-                  size: 20,
-                ),
-                title: Text('Mitra'),
+                icon: Icon(Icons.assignment, size: 20),
+                title: Text('Order', style: TextStyle(fontSize: 12),),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.assignment),
-                title: Text('Order'),
+                icon: Icon(FontAwesomeIcons.commentDots, size: 20),
+                title: Text('Chat', style: TextStyle(fontSize: 12),),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.notifications),
-                title: Text('Notifikasi'),
+                icon: Icon(Icons.notifications, size: 20),
+                title: Text('Notifikasi', style: TextStyle(fontSize: 12),),
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.account_circle),
-                title: Text('Akun'),
+                icon: Icon(Icons.account_circle, size: 20),
+                title: Text('Akun', style: TextStyle(fontSize: 12),),
               ),
             ],
           ),

@@ -120,6 +120,7 @@ class _HomeMainState extends State<HomeMain> {
       onRefresh: _refreshData,
       child: CustomScrollView(
         controller: _scrollController,
+        physics: BouncingScrollPhysics(),
         slivers: [
           AyoAppBar(scrollController: _scrollController),
           SliverToBoxAdapter(
@@ -302,14 +303,14 @@ class _HomeMainState extends State<HomeMain> {
             sliver: SliverGrid(
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
-                childAspectRatio: (itemWidth - 5) / 270,
+                childAspectRatio: (itemWidth - 5) / 275,
                 mainAxisSpacing: 5,
                 crossAxisSpacing: 5,
               ),
               delegate: SliverChildBuilderDelegate(
                 (BuildContext context, int index) {
                   return Container(
-                    height: 270,
+                    height: 275,
                     color: Colors.white,
                     child: Column(
                       children: [
@@ -338,6 +339,7 @@ class _HomeMainState extends State<HomeMain> {
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceEvenly,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Text(
                                       'Rp 100.000',
@@ -368,7 +370,7 @@ class _HomeMainState extends State<HomeMain> {
                                   allowHalfRating: true,
                                   itemCount: 5,
                                   ignoreGestures: true,
-                                  itemSize: 14,
+                                  itemSize: 20,
                                   itemPadding:
                                       EdgeInsets.symmetric(horizontal: 2.0),
                                   itemBuilder: (context, _) => Icon(

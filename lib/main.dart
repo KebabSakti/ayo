@@ -16,7 +16,7 @@ void main() {
   final DB db = DB();
   final Location location = Location();
   final Dio dio = Dio(new BaseOptions(
-    baseUrl: 'https://dc2ddc169f05.ngrok.io/api/',
+    baseUrl: 'https://f81e3a1812d9.ngrok.io/api/',
     connectTimeout: 30000,
     receiveTimeout: 30000,
   ));
@@ -67,11 +67,13 @@ class MainBaseApp extends StatefulWidget {
   _MainBaseAppState createState() => _MainBaseAppState();
 }
 
-class _MainBaseAppState extends State<MainBaseApp> {
+class _MainBaseAppState extends State<MainBaseApp> with WidgetsBindingObserver {
   ConnectionCubit connectionCubit;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
+
     connectionCubit = context.bloc<ConnectionCubit>();
     //start connection listener
     connectionCubit.connectionListener();
@@ -79,10 +81,20 @@ class _MainBaseAppState extends State<MainBaseApp> {
     super.initState();
   }
 
+
+
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     connectionCubit.closeConnectionListener();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state == AppLifecycleState.resumed){
+      connectionCubit.connectionListener();
+    }
   }
 
   @override
