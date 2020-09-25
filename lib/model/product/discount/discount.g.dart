@@ -10,7 +10,7 @@ Discount _$DiscountFromJson(Map<String, dynamic> json) {
   return Discount(
     discountId: json['discount_id'] as String,
     productId: json['product_id'] as String,
-    amount: (json['amount'] as num)?.toDouble(),
+    amount: json['amount'] as String,
     active: json['active'] as int,
     expiredAt: json['expired_at'] as String,
     created_at: json['created_at'] as String,

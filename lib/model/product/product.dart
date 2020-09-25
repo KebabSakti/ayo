@@ -1,5 +1,5 @@
-import 'package:ayo/model/delivery_type/delivery_type.dart';
-import 'package:ayo/model/discount/discount.dart';
+import 'package:ayo/model/product/delivery_type/delivery_type.dart';
+import 'package:ayo/model/product/discount/discount.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product.g.dart';
@@ -13,7 +13,7 @@ class Product {
   final String cover;
   final String name;
   final String caption;
-  final double price;
+  final String price;
   @JsonKey(nullable: true)
   final String tag;
   @JsonKey(nullable: true)

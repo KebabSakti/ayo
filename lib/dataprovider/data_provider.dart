@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'package:ayo/dependency/dependency.dart';
 import 'package:ayo/model/banner/slide_banner.dart';
 import 'package:ayo/model/main_category/main_category_model.dart';
+import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product.dart';
+import 'package:ayo/model/product/product_paginate.dart';
+import 'package:ayo/model/query/query.dart' as model;
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/util/helper.dart';
 import 'package:dio/dio.dart';
@@ -160,18 +163,34 @@ class DataProvider {
     }
   }
 
-  Future<dynamic> fetchProductTerlarisKategori() async {
+  Future<dynamic> fetchProduct(
+      {@required UserData user, @required model.Query query}) async {
     try {
-      var response = await dependency.dio.get("product.json?key=c82617f0",
-          options: Options(headers: {"Accept": "application/json"}));
-      List<dynamic> parsed = await response.data;
-      List<Product> products = [];
-      parsed.forEach((item) async {
-        // products.add(Product.fromJson(item));
-        print(item);
-      });
+      var response = await dependency.dio.post(
+        "product/terbaru",
+        options: Options(headers: {
+          "Accept": "application/json",
+          "Authorization": "Bearer ${user.token}",
+          "User-Id": user.id,
+        }),
+        data: {
+          'keyword': query.keyword,
+          'kategori_id': query.filter.kategoriId,
+          'price_min': query.filter.priceMin,
+          'price_max': query.filter.priceMax,
+          'instant': query.filter.instant,
+          'rating': query.filter.rating,
+          'price': query.sorting.price,
+          'date': query.sorting.date,
+        },
+      );
 
-      return products;
+      var parsed = json.decode(response.toString());
+      var pagination = Pagination.fromJson(parsed);
+      List<Product> products = List<Product>.from(
+          parsed['data'].map((item) => Product.fromJson(item)).toList());
+
+      return ProductPaginate(pagination: pagination, products: products);
     } on DioError catch (error) {
       return error;
     }

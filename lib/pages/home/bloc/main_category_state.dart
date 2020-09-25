@@ -33,7 +33,7 @@ class MainCategoryCompleted extends MainCategoryState {
 
 class MainCategoryError extends MainCategoryState {
   final String message;
-  MainCategoryError({this.message}) : super(null);
+  MainCategoryError({this.message}) : super([]);
 
   @override
   // TODO: implement props

@@ -13,7 +13,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) {
     cover: json['cover'] as String,
     name: json['name'] as String,
     caption: json['caption'] as String,
-    price: (json['price'] as num)?.toDouble(),
+    price: json['price'] as String,
     tag: json['tag'] as String,
     link: json['link'] as String,
     active: json['active'] as int,

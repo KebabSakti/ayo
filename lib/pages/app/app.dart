@@ -1,8 +1,8 @@
 import 'package:ayo/bloc/repository_cubit.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
-import 'package:ayo/pages/app/bloc/product_terlaris_kategori_cubit.dart';
-import 'package:ayo/pages/app/bloc/scroll_position_cubit.dart';
+import 'package:ayo/pages/app/bloc/product_rekomendasi_cubit.dart';
+import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/pages/home/bloc/main_category_cubit.dart';
 import 'package:ayo/pages/home/home.dart';
 import 'package:ayo/pages/order/order.dart';
@@ -50,9 +50,6 @@ class App extends StatelessWidget {
         BlocProvider<NavigationCubit>(
           create: (context) => NavigationCubit(),
         ),
-        BlocProvider<ScrollPositionCubit>(
-          create: (context) => ScrollPositionCubit(),
-        ),
         BlocProvider<BannerCubit>(
           create: (context) => BannerCubit(repositoryCubit.state.repository),
         ),
@@ -60,9 +57,12 @@ class App extends StatelessWidget {
           create: (context) =>
               MainCategoryCubit(repositoryCubit.state.repository),
         ),
-        BlocProvider<ProductTerlarisKategoriCubit>(
+        BlocProvider<QueryCubit>(
+          create: (context) => QueryCubit(),
+        ),
+        BlocProvider<ProductRekomendasiCubit>(
           create: (context) =>
-              ProductTerlarisKategoriCubit(repositoryCubit.state.repository),
+              ProductRekomendasiCubit(repositoryCubit.state.repository),
         ),
       ],
       child: Builder(
@@ -73,23 +73,26 @@ class App extends StatelessWidget {
 }
 
 Widget _app(BuildContext context) {
+  final PageController _pageController = PageController();
+
   return ConnectionListener(
-    child: BlocBuilder<NavigationCubit, NavigationState>(
+    child: BlocConsumer<NavigationCubit, NavigationState>(
+      listener: (context, state) {
+        _pageController.jumpToPage(state.index);
+      },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.grey[100],
-          body: Builder(
-            builder: (context) {
-              var pages = [
-                Home(),
-                Order(),
-                Container(),
-                Container(),
-                User(),
-              ];
-
-              return pages[state.index];
-            },
+          body: PageView(
+            controller: _pageController,
+            physics: NeverScrollableScrollPhysics(),
+            children: [
+              Home(),
+              Order(),
+              Container(),
+              Container(),
+              User(),
+            ],
           ),
           bottomNavigationBar: BottomNavigationBar(
             onTap: (value) =>
@@ -102,24 +105,42 @@ Widget _app(BuildContext context) {
             showUnselectedLabels: true,
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: FaIcon(FontAwesomeIcons.burn, size: 20,),
-                title: Text('Home', style: TextStyle(fontSize: 12),),
+                icon: FaIcon(
+                  FontAwesomeIcons.burn,
+                  size: 20,
+                ),
+                title: Text(
+                  'Home',
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.assignment, size: 20),
-                title: Text('Order', style: TextStyle(fontSize: 12),),
+                title: Text(
+                  'Order',
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
               BottomNavigationBarItem(
                 icon: Icon(FontAwesomeIcons.commentDots, size: 20),
-                title: Text('Chat', style: TextStyle(fontSize: 12),),
+                title: Text(
+                  'Chat',
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.notifications, size: 20),
-                title: Text('Notifikasi', style: TextStyle(fontSize: 12),),
+                title: Text(
+                  'Notifikasi',
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.account_circle, size: 20),
-                title: Text('Akun', style: TextStyle(fontSize: 12),),
+                title: Text(
+                  'Akun',
+                  style: TextStyle(fontSize: 12),
+                ),
               ),
             ],
           ),

@@ -37,8 +37,16 @@ class Helper {
   }
 
   String getFormattedNumber(var number) {
-    var f = NumberFormat.currency(locale: 'id_ID', name: 'Rp ');
+    var f = NumberFormat.currency(
+      locale: 'id_ID',
+      name: 'Rp ',
+      decimalDigits: 0,
+    );
     return f.format(number);
+  }
+
+  double getDiscountedProce(double discount, double price) {
+    return ((100 - discount) * price) / 100;
   }
 
   List<DateTime> getPeriode() {

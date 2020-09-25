@@ -8,7 +8,7 @@ class Discount {
   final String discountId;
   @JsonKey(name: 'product_id')
   final String productId;
-  final double amount;
+  final String amount;
   final int active;
   @JsonKey(name: 'expired_at')
   final String expiredAt;

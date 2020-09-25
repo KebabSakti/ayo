@@ -1,7 +1,8 @@
 import 'package:ayo/dataprovider/data_provider.dart';
 import 'package:ayo/dependency/dependency.dart';
+import 'package:ayo/model/query/query.dart';
 import 'package:ayo/moor/db.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 
 class Repository {
   final Dependency dependency;
@@ -40,7 +41,8 @@ class Repository {
     return await providers.fetchMainCategory(user: user);
   }
 
-  Future<dynamic> fetchProductTerlarisKategori() async {
-    return await providers.fetchProductTerlarisKategori();
+  Future<dynamic> fetchProductTerlarisKategori(
+      {@required UserData user, @required Query query}) async {
+    return await providers.fetchProduct(user: user, query: query);
   }
 }
