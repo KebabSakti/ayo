@@ -74,7 +74,7 @@ class _CarouselBannerState extends State<CarouselBanner> {
               width: 100,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: Colors.red[600],
+                color: Colors.red.withOpacity(0.8),
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(15),
                 ),

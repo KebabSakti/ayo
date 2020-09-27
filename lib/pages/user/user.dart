@@ -1,4 +1,3 @@
-import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -59,28 +58,79 @@ class _UserState extends State<User> {
 
   @override
   Widget build(BuildContext context) {
+    final screen = MediaQuery.of(context);
+    final height = (screen.size.height - 56 - 30) / 2;
+    final width = (screen.size.width - 30) / 2;
     return Scaffold(
-      body: ListView.builder(
-        shrinkWrap: true,
-        controller: _scrollController,
-        itemBuilder: (context, index) {
-          if (index + 1 == myList.length) {
-            return loading
-                ? Container(
-                    padding: EdgeInsets.only(left: 4, right: 4),
-                    height: 50,
-                    width: double.infinity,
-                    child: boxRadiusShimmer(),
-                  )
-                : SizedBox.shrink();
-          }
-
-          return Card(
-            child: myList[index],
-          );
-        },
-        itemCount: myList.length,
-      ),
-    );
+        body: Column(
+      children: [
+        SizedBox(height: 10),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(width: 10),
+            Container(
+              // margin: EdgeInsets.only(left: 10, right: 5),
+              color: Colors.green,
+              height: height,
+              width: width,
+            ),
+            SizedBox(width: 10),
+            Container(
+              // margin: EdgeInsets.only(left: 5, right: 10),
+              color: Colors.amber,
+              height: height,
+              width: width,
+            ),
+            SizedBox(width: 10),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            SizedBox(width: 10),
+            Container(
+              // margin: EdgeInsets.only(left: 10, right: 5),
+              color: Colors.red,
+              height: height,
+              width: width,
+            ),
+            SizedBox(width: 10),
+            Container(
+              // margin: EdgeInsets.only(left: 5, right: 10),
+              color: Colors.blue,
+              height: height,
+              width: width,
+            ),
+            SizedBox(width: 10),
+          ],
+        ),
+        SizedBox(height: 10),
+      ],
+    ));
   }
 }
+
+// ListView.builder(
+// shrinkWrap: true,
+// controller: _scrollController,
+// itemBuilder: (context, index) {
+// if (index + 1 == myList.length) {
+// return loading
+// ? Container(
+// padding: EdgeInsets.only(left: 4, right: 4),
+// height: 50,
+// width: double.infinity,
+// child: boxRadiusShimmer(),
+// )
+//     : SizedBox.shrink();
+// }
+//
+// return Card(
+// child: myList[index],
+// );
+// },
+// itemCount: myList.length,
+// )

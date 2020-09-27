@@ -24,7 +24,7 @@ class AuthenticationCubit extends Cubit<AuthenticationState> {
         await repository.insertUser(response);
         emit(AuthenticationComplete(response));
       } else {
-        emit(AuthenticationError(message: 'Network fail'));
+        emit(AuthenticationError());
       }
     }
   }

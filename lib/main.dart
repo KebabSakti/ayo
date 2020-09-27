@@ -15,8 +15,8 @@ import 'package:location/location.dart';
 void main() {
   final DB db = DB();
   final Location location = Location();
-  final Dio dio = Dio(new BaseOptions(
-    baseUrl: 'https://7119d8be4638.ngrok.io/api/',
+  final Dio dio = Dio(BaseOptions(
+    baseUrl: 'https://b05c45fcf5b7.ngrok.io/api/',
     connectTimeout: 30000,
     receiveTimeout: 30000,
   ));

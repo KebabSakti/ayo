@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
 import 'package:sa_stateless_animation/sa_stateless_animation.dart';
@@ -48,6 +49,7 @@ class HomeMain extends StatefulWidget {
 class _HomeMainState extends State<HomeMain>
     with AutomaticKeepAliveClientMixin {
   ScrollController _scrollController = ScrollController();
+  GlobalKey _filterWidgetKey = GlobalKey();
 
   AuthenticationCubit authenticateCubit;
   BannerCubit bannerCubit;
@@ -103,8 +105,17 @@ class _HomeMainState extends State<HomeMain>
     await _fetchProdukRekomendasi();
   }
 
+  void _getFilterWidgetPosition() {
+    final RenderBox renderBoxRed =
+        _filterWidgetKey.currentContext.findRenderObject();
+    final positionRed = renderBoxRed.localToGlobal(Offset.zero);
+    print("POSITION of filter widget: $positionRed ");
+  }
+
   void _scrollListener() {
     var scrollPos = _scrollController.position;
+
+    _getFilterWidgetPosition();
 
     if (scrollPos.pixels == scrollPos.maxScrollExtent) {
       print(_scrollController.position.pixels);
@@ -226,72 +237,648 @@ class _HomeMainState extends State<HomeMain>
           ),
           SliverToBoxAdapter(
             child: Container(
-              height: 100,
-              margin: EdgeInsets.only(left: 10, right: 10),
-              child: BlocBuilder<MainCategoryCubit, MainCategoryState>(
-                builder: (context, state) {
-                  return GridView.builder(
-                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 1,
-                      childAspectRatio: itemWidth / itemHeight,
-                      mainAxisSpacing: 10,
-                      crossAxisSpacing: 10,
-                    ),
-                    scrollDirection: Axis.horizontal,
-                    itemCount: state.mainCategories.length > 0
-                        ? state.mainCategories.length
-                        : 3,
-                    itemBuilder: (context, index) {
-                      if (state is MainCategoryCompleted) {
-                        return GestureDetector(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.rectangle,
-                              borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
-                                image: CachedNetworkImageProvider(
-                                  state.mainCategories[index].image,
-                                ),
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            child: Stack(
-                              children: [
-                                Container(
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.5),
-                                    shape: BoxShape.rectangle,
-                                    border: Border.all(color: Colors.grey[200]),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                  child: Text(
-                                    '${state.mainCategories[index].title}',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ],
+              height: 200,
+              color: Colors.white,
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10, right: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: Text(
+                            'Kategori',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
-                          onTap: () {},
-                        );
-                      }
-                      return boxRadiusShimmer();
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            print('kategori');
+                          },
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Lihat Semua',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_right,
+                                size: 15,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  BlocBuilder<MainCategoryCubit, MainCategoryState>(
+                    builder: (context, state) {
+                      return Expanded(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: (state is MainCategoryCompleted)
+                              ? state.mainCategories.length
+                              : 2,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: (size.width - 30) / 2,
+                              margin: EdgeInsets.only(left: 5, right: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                color: Colors.grey[100],
+                              ),
+                              child: Builder(
+                                builder: (context) {
+                                  if (state is MainCategoryCompleted) {
+                                    var category = state?.mainCategories[index];
+                                    return Padding(
+                                      padding:
+                                          EdgeInsets.only(left: 10, right: 10),
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.network(
+                                            category.image,
+                                            width: 60,
+                                            height: 60,
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            category.title,
+                                            textAlign: TextAlign.center,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: TextStyle(
+                                              color: Colors.grey[800],
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  }
+
+                                  return boxRadiusShimmer();
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      );
                     },
-                  );
-                },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 10,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              height: 200,
+              color: Colors.white,
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10, right: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: Text(
+                            'Promo',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Lihat Semua',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_right,
+                                size: 15,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Builder(
+                    builder: (context) {
+                      var images = [
+                        'https://image.freepik.com/free-vector/discount-social-media-banner-sale-liquid-background_92715-50.jpg',
+                        'https://image.freepik.com/free-vector/abstract-colorful-big-sale-banner_23-2148345098.jpg',
+                        'https://image.freepik.com/free-vector/end-season-summer-sale-horizontal-banner_23-2148633748.jpg',
+                      ];
+
+                      return Expanded(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: images.length,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: size.width - 20,
+                              margin: EdgeInsets.only(left: 5, right: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                image: DecorationImage(
+                                  image: CachedNetworkImageProvider(
+                                    images[index],
+                                  ),
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 10,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              height: 250,
+              color: Colors.white,
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10, right: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: Text(
+                            'Produk Terlaris',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Lihat Semua',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_right,
+                                size: 15,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  BlocBuilder<ProductRekomendasiCubit, ProductRekomendasiState>(
+                    builder: (context, state) {
+                      return Expanded(
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: (state is ProductRekomendasiCompleted)
+                              ? state.productPaginate.products.length
+                              : 4,
+                          itemBuilder: (context, index) {
+                            return Container(
+                              width: (size.width - 30) / 2.2,
+                              margin: EdgeInsets.only(left: 5, right: 5),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.grey[200]),
+                              ),
+                              child: Builder(
+                                builder: (context) {
+                                  if (state is ProductRekomendasiCompleted) {
+                                    var product =
+                                        state.productPaginate.products[index];
+                                    return Column(
+                                      children: [
+                                        Container(
+                                          height: 100,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.only(
+                                              topLeft: Radius.circular(10),
+                                              topRight: Radius.circular(10),
+                                            ),
+                                            image: DecorationImage(
+                                              image: CachedNetworkImageProvider(
+                                                  product.cover),
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              Container(
+                                                padding: EdgeInsets.all(4),
+                                                margin: EdgeInsets.only(
+                                                    top: 6, right: 6),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.black
+                                                      .withOpacity(0.5),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  '1 kg',
+                                                  style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    bottom: 6, right: 10),
+                                                child: Icon(
+                                                  FontAwesomeIcons.solidHeart,
+                                                  size: 20,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(height: 4),
+                                        Padding(
+                                          padding: EdgeInsets.only(
+                                              left: 4, right: 4),
+                                          child: Text(
+                                            product.name,
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(height: 10),
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: [
+                                            Builder(
+                                              builder: (context) {
+                                                if (product.discount != null) {
+                                                  var discount = product
+                                                      ?.discount.amount
+                                                      .toDouble();
+                                                  var price =
+                                                      product.price.toDouble();
+                                                  var discountPrice = Helper()
+                                                      .getDiscountedProce(
+                                                          discount, price);
+
+                                                  return Row(
+                                                    children: [
+                                                      Text(
+                                                        Helper()
+                                                            .getFormattedNumber(
+                                                                discountPrice),
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: TextStyle(
+                                                          fontSize: 8,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          color:
+                                                              Colors.grey[400],
+                                                          decoration:
+                                                              TextDecoration
+                                                                  .lineThrough,
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 4),
+                                                    ],
+                                                  );
+                                                }
+
+                                                return SizedBox.shrink();
+                                              },
+                                            ),
+                                            Text(
+                                              Helper().getFormattedNumber(
+                                                product.price.toDouble(),
+                                              ),
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w800,
+                                                color: Colors.redAccent,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 5),
+                                        RatingBar(
+                                          initialRating: 3,
+                                          minRating: 0,
+                                          direction: Axis.horizontal,
+                                          allowHalfRating: true,
+                                          itemCount: 5,
+                                          ignoreGestures: true,
+                                          itemSize: 12,
+                                          itemPadding: EdgeInsets.symmetric(
+                                              horizontal: 2.0),
+                                          itemBuilder: (context, _) => Icon(
+                                            Icons.star,
+                                            color: Colors.amber,
+                                          ),
+                                          onRatingUpdate: (_) {},
+                                        ),
+                                        Spacer(),
+                                        Text(
+                                          'Pengiriman Instan',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: Colors.green[600],
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        SizedBox(height: 8),
+                                      ],
+                                    );
+                                  }
+
+                                  return boxRadiusShimmer();
+                                },
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: SizedBox(
+              height: 10,
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              height: 180,
+              color: Colors.white,
+              padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 10, right: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: Text(
+                            'Paling Dicari',
+                            style: TextStyle(
+                              color: Colors.grey[800],
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () {},
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Lihat Semua',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_right,
+                                size: 15,
+                                color: Colors.red,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Builder(
+                    builder: (context) {
+                      var populer = [
+                        {
+                          'caption': 'Kentang Impor',
+                          'image':
+                              'https://images.unsplash.com/photo-1590165482129-1b8b27698780?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=564&q=80',
+                        },
+                      ];
+
+                      return Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 5, right: 5),
+                          child: Column(
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        height: double.infinity,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          border: Border.all(
+                                            color: Colors.grey[300],
+                                          ),
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Flexible(
+                                              flex: 2,
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: Colors.grey[200],
+                                                  image: DecorationImage(
+                                                      fit: BoxFit.cover,
+                                                      image: CachedNetworkImageProvider(
+                                                          'https://images.unsplash.com/photo-1590165482129-1b8b27698780?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=564&q=80')),
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(10),
+                                                    bottomLeft:
+                                                        Radius.circular(10),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            Flexible(
+                                              flex: 3,
+                                              child: InkWell(
+                                                onTap: () {},
+                                                child: Ink(
+                                                  height: double.infinity,
+                                                  padding: EdgeInsets.only(
+                                                    left: 4,
+                                                    right: 4,
+                                                  ),
+                                                  child: Center(
+                                                    child: Text(
+                                                      'Kentang impor mahal sekali',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      maxLines: 3,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: TextStyle(
+                                                        fontSize: 10,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                        color: Colors.grey[800],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {},
+                                        child: Ink(
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: Colors.grey[300],
+                                            ),
+                                          ),
+                                          child: Text('asd'),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: 5),
+                              Expanded(
+                                child: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Container(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      width: 5,
+                                    ),
+                                    Expanded(
+                                      child: Container(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
               ),
             ),
           ),
@@ -308,7 +895,7 @@ class _HomeMainState extends State<HomeMain>
               child: Align(
                 alignment: Alignment.centerLeft,
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 10, right: 10),
+                  padding: const EdgeInsets.only(left: 15, right: 10),
                   child: Text(
                     'Rekomendasi',
                     style: TextStyle(
@@ -327,144 +914,154 @@ class _HomeMainState extends State<HomeMain>
           ),
           SliverToBoxAdapter(
             child: Container(
-              height: 50,
-              padding: EdgeInsets.only(left: 5, right: 5),
-              child: GridView(
+              key: _filterWidgetKey,
+              height: 60,
+              padding: EdgeInsets.only(left: 2.5, right: 2.5),
+              child: ListView(
                 scrollDirection: Axis.horizontal,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 1,
-                  childAspectRatio: ((itemWidth / 2) - 5) / 230,
-                  mainAxisSpacing: 5,
-                  crossAxisSpacing: 5,
-                ),
                 children: [
-                  Card(
-                    margin: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0)),
-                    elevation: 0,
-                    child: ListTile(
-                      onTap: () {},
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.thumb_up,
-                            size: 20,
-                            color: Colors.redAccent,
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Lihat Semua',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 8),
-                          ),
-                          SizedBox(height: 6),
-                        ],
+                  Padding(
+                    padding: EdgeInsets.only(left: 2.5, right: 2.5),
+                    child: InkWell(
+                      onTap: () {}, // needed
+                      child: Ink(
+                        width: (size.width - 30) / 5,
+                        padding: EdgeInsets.only(left: 2, right: 2),
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.thumb_up,
+                              size: 20,
+                              color: Colors.redAccent,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Semua',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0)),
-                    elevation: 0,
-                    child: ListTile(
-                      onTap: () {},
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.monetization_on,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Lagi Diskon',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 8),
-                          ),
-                          SizedBox(height: 6),
-                        ],
+                  Padding(
+                    padding: EdgeInsets.only(left: 2.5, right: 2.5),
+                    child: InkWell(
+                      onTap: () {}, // needed
+                      child: Ink(
+                        width: (size.width - 30) / 5,
+                        padding: EdgeInsets.only(left: 2, right: 2),
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.monetization_on,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Diskon',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0)),
-                    elevation: 0,
-                    child: ListTile(
-                      onTap: () {},
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.star_half,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Rating Tinggi',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 8),
-                          ),
-                          SizedBox(height: 6),
-                        ],
+                  Padding(
+                    padding: EdgeInsets.only(left: 2.5, right: 2.5),
+                    child: InkWell(
+                      onTap: () {}, // needed
+                      child: Ink(
+                        width: (size.width - 30) / 5,
+                        padding: EdgeInsets.only(left: 2, right: 2),
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.star_half,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Rating',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0)),
-                    elevation: 0,
-                    child: ListTile(
-                      onTap: () {},
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.remove_red_eye,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Banyak Dilihat',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 8),
-                          ),
-                          SizedBox(height: 6),
-                        ],
+                  Padding(
+                    padding: EdgeInsets.only(left: 2.5, right: 2.5),
+                    child: InkWell(
+                      onTap: () {}, // needed
+                      child: Ink(
+                        width: (size.width - 30) / 5,
+                        padding: EdgeInsets.only(left: 2, right: 2),
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.remove_red_eye,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Populer',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                  Card(
-                    margin: EdgeInsets.zero,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0)),
-                    elevation: 0,
-                    child: ListTile(
-                      onTap: () {},
-                      title: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.search,
-                            size: 20,
-                            color: Colors.grey,
-                          ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Paling Dicari',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(fontSize: 8),
-                          ),
-                          SizedBox(height: 6),
-                        ],
+                  Padding(
+                    padding: EdgeInsets.only(left: 2.5, right: 2.5),
+                    child: InkWell(
+                      onTap: () {}, // needed
+                      child: Ink(
+                        width: (size.width - 30) / 5,
+                        padding: EdgeInsets.only(left: 2, right: 2),
+                        color: Colors.white,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.search,
+                              size: 20,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 4),
+                            Text(
+                              'Diminati',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(fontSize: 10),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -477,14 +1074,15 @@ class _HomeMainState extends State<HomeMain>
               height: 5,
             ),
           ),
-          BlocBuilder<ProductRekomendasiCubit, ProductRekomendasiState>(
-            builder: (context, state) {
-              return SliverPadding(
-                padding: EdgeInsets.only(left: 5, right: 5),
-                sliver: SliverGrid(
+          SliverPadding(
+            padding: EdgeInsets.only(left: 5, right: 5),
+            sliver:
+                BlocBuilder<ProductRekomendasiCubit, ProductRekomendasiState>(
+              builder: (context, state) {
+                return SliverGrid(
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
-                    childAspectRatio: ((itemWidth / 2) - 5) / 220,
+                    childAspectRatio: ((size.width - 15) / 2) / 230,
                     mainAxisSpacing: 5,
                     crossAxisSpacing: 5,
                   ),
@@ -531,7 +1129,7 @@ class _HomeMainState extends State<HomeMain>
                                         margin:
                                             EdgeInsets.only(top: 6, right: 6),
                                         decoration: BoxDecoration(
-                                          color: Colors.black.withOpacity(0.2),
+                                          color: Colors.black.withOpacity(0.5),
                                           borderRadius:
                                               BorderRadius.circular(4),
                                         ),
@@ -540,6 +1138,7 @@ class _HomeMainState extends State<HomeMain>
                                           style: TextStyle(
                                             color: Colors.white,
                                             fontSize: 10,
+                                            fontWeight: FontWeight.w600,
                                           ),
                                         ),
                                       ),
@@ -674,55 +1273,15 @@ class _HomeMainState extends State<HomeMain>
                         ? state.productPaginate.products.length
                         : 2,
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 10,
+              height: 5,
             ),
           ),
-          // SliverToBoxAdapter(
-          //   child: Container(
-          //     height: 200,
-          //     width: double.infinity,
-          //     color: Colors.white,
-          //     child: BlocBuilder<BannerCubit, BannerState>(
-          //       builder: (context, state) {
-          //         if (state is BannerCompleted) {
-          //           return Container(
-          //             child: Column(
-          //               crossAxisAlignment: CrossAxisAlignment.start,
-          //               children: [
-          //                 Padding(
-          //                   padding:
-          //                       EdgeInsets.only(left: 6, top: 6, bottom: 6),
-          //                   child: Text('Kamu mungkin tertarik'),
-          //                 ),
-          //                 Expanded(
-          //                   child: Container(
-          //                     height: double.infinity,
-          //                     width: double.infinity,
-          //                     decoration: BoxDecoration(
-          //                       image: DecorationImage(
-          //                         image: CachedNetworkImageProvider(
-          //                             state.banners[0].url),
-          //                         fit: BoxFit.cover,
-          //                       ),
-          //                     ),
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //           );
-          //         }
-          //
-          //         return bannerShimmer();
-          //       },
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
