@@ -1,4 +1,3 @@
-import 'package:ayo/bloc/repository_cubit.dart';
 import 'package:ayo/pages/intro/bloc/intro_cubit.dart';
 import 'package:ayo/widget/connection_listener.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +8,7 @@ class Intro extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<IntroCubit>(
-      create: (context) =>
-          IntroCubit(context.bloc<RepositoryCubit>().repository),
+      create: (context) => IntroCubit(),
       child: Builder(
         builder: (context) => _intro(context),
       ),

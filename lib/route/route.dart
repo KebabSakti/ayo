@@ -1,5 +1,6 @@
 import 'package:ayo/pages/app/app.dart';
 import 'package:ayo/pages/intro/intro.dart';
+import 'package:ayo/pages/main_category.dart';
 import 'package:ayo/pages/order/order.dart';
 import 'package:ayo/pages/slider/slider_intro.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,16 @@ class RouteGenerator {
       case '/order':
         return PageTransition(
           child: Order(),
+          type: PageTransitionType.rightToLeft,
+          settings: settings,
+        );
+        break;
+
+      case '/main_category':
+        return PageTransition(
+          child: MainCategory(
+            categoryId: settings.arguments,
+          ),
           type: PageTransitionType.rightToLeft,
           settings: settings,
         );

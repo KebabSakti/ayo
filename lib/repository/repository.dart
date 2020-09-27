@@ -1,16 +1,11 @@
 import 'package:ayo/dataprovider/data_provider.dart';
-import 'package:ayo/dependency/dependency.dart';
 import 'package:ayo/model/query/query.dart';
 import 'package:ayo/moor/db.dart';
+import 'package:ayo/provider/provider.dart';
 import 'package:flutter/material.dart';
 
 class Repository {
-  final Dependency dependency;
-  DataProvider providers;
-
-  Repository(this.dependency) {
-    providers = DataProvider(dependency);
-  }
+  final DataProvider providers = locator<DataProvider>();
 
   Future<UserData> validateUser() async {
     return await providers.validateUser();

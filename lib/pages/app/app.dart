@@ -1,4 +1,4 @@
-import 'package:ayo/bloc/repository_cubit.dart';
+import 'package:ayo/bloc/scroll_show_cubit.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
 import 'package:ayo/pages/app/bloc/product_rekomendasi_cubit.dart';
@@ -16,8 +16,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var repositoryCubit = context.bloc<RepositoryCubit>();
-
     void _initDynamicLinks() async {
       FirebaseDynamicLinks.instance.onLink(
           onSuccess: (PendingDynamicLinkData dynamicLink) async {
@@ -51,18 +49,19 @@ class App extends StatelessWidget {
           create: (context) => NavigationCubit(),
         ),
         BlocProvider<BannerCubit>(
-          create: (context) => BannerCubit(repositoryCubit.state.repository),
+          create: (context) => BannerCubit(),
         ),
         BlocProvider<MainCategoryCubit>(
-          create: (context) =>
-              MainCategoryCubit(repositoryCubit.state.repository),
+          create: (context) => MainCategoryCubit(),
         ),
         BlocProvider<QueryCubit>(
           create: (context) => QueryCubit(),
         ),
         BlocProvider<ProductRekomendasiCubit>(
-          create: (context) =>
-              ProductRekomendasiCubit(repositoryCubit.state.repository),
+          create: (context) => ProductRekomendasiCubit(),
+        ),
+        BlocProvider<ScrollShowCubit>(
+          create: (context) => ScrollShowCubit(),
         ),
       ],
       child: Builder(

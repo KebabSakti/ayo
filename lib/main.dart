@@ -1,40 +1,19 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/connection_cubit.dart';
-import 'package:ayo/bloc/repository_cubit.dart';
 import 'package:ayo/bloc/theme_cubit.dart';
 import 'package:ayo/bloc/theme_state.dart';
-import 'package:ayo/dependency/dependency.dart';
-import 'package:ayo/moor/db.dart';
-import 'package:ayo/repository/repository.dart';
+import 'package:ayo/provider/provider.dart';
 import 'package:ayo/route/route.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:location/location.dart';
 
 void main() {
-  final DB db = DB();
-  final Location location = Location();
-  final Dio dio = Dio(BaseOptions(
-    baseUrl: 'https://b05c45fcf5b7.ngrok.io/api/',
-    connectTimeout: 30000,
-    receiveTimeout: 30000,
-  ));
-  dio.interceptors.add(LogInterceptor(responseBody: false));
-
-  final Dependency dependency =
-      Dependency(db: db, dio: dio, location: location);
-
-  final Repository repository = Repository(dependency);
-
-  runApp(MyApp(repository: repository));
+  //init service locator
+  serviceLocator();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Repository repository;
-
-  const MyApp({Key key, @required this.repository}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -46,10 +25,7 @@ class MyApp extends StatelessWidget {
           create: (context) => ConnectionCubit(),
         ),
         BlocProvider<AuthenticationCubit>(
-          create: (context) => AuthenticationCubit(repository),
-        ),
-        BlocProvider<RepositoryCubit>(
-          create: (context) => RepositoryCubit(repository),
+          create: (context) => AuthenticationCubit(),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

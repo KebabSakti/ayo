@@ -1,5 +1,6 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/moor/db.dart';
+import 'package:ayo/provider/provider.dart';
 import 'package:ayo/repository/repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
@@ -10,8 +11,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'intro_state.dart';
 
 class IntroCubit extends Cubit<IntroState> {
-  final Repository repository;
-  IntroCubit(this.repository) : super(IntroInitial());
+  IntroCubit() : super(IntroInitial());
+
+  final Repository repository = locator<Repository>();
 
   Future<dynamic> _downloadIntroData(UserData user) async {
     try {

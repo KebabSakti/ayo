@@ -2,6 +2,7 @@ import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product_paginate.dart';
 import 'package:ayo/model/query/query.dart';
 import 'package:ayo/moor/db.dart';
+import 'package:ayo/provider/provider.dart';
 import 'package:ayo/repository/repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
@@ -11,12 +12,13 @@ import 'package:flutter/cupertino.dart';
 part 'product_rekomendasi_state.dart';
 
 class ProductRekomendasiCubit extends Cubit<ProductRekomendasiState> {
-  final Repository repository;
-  ProductRekomendasiCubit(this.repository)
+  ProductRekomendasiCubit()
       : super(ProductRekomendasiInitial(ProductPaginate(
           products: [],
           pagination: Pagination(),
         )));
+
+  final Repository repository = locator<Repository>();
 
   void fetchProduct({
     @required UserData user,

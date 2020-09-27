@@ -1,4 +1,5 @@
 import 'package:ayo/moor/db.dart';
+import 'package:ayo/provider/provider.dart';
 import 'package:ayo/repository/repository.dart';
 import 'package:bloc/bloc.dart';
 import 'package:dio/dio.dart';
@@ -7,8 +8,9 @@ import 'package:equatable/equatable.dart';
 part 'authentication_state.dart';
 
 class AuthenticationCubit extends Cubit<AuthenticationState> {
-  final Repository repository;
-  AuthenticationCubit(this.repository) : super(AuthenticationInitial(null));
+  AuthenticationCubit() : super(AuthenticationInitial(null));
+
+  final Repository repository = locator<Repository>();
 
   Future validateUser() async {
     emit(AuthenticationLoading(state.userData));

@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:ayo/dependency/dependency.dart';
 import 'package:ayo/model/banner/slide_banner.dart';
 import 'package:ayo/model/main_category/main_category_model.dart';
 import 'package:ayo/model/pagination/pagination.dart';
@@ -8,17 +7,18 @@ import 'package:ayo/model/product/product.dart';
 import 'package:ayo/model/product/product_paginate.dart';
 import 'package:ayo/model/query/query.dart' as model;
 import 'package:ayo/moor/db.dart';
+import 'package:ayo/provider/provider.dart';
 import 'package:ayo/util/helper.dart';
 import 'package:dio/dio.dart';
 import 'package:moor_flutter/moor_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DataProvider {
-  final Dependency dependency;
-  const DataProvider(this.dependency);
+  final DB db = locator<DB>();
+  final DioInstance dioInstance = locator<DioInstance>();
 
   Future<UserData> validateUser() async {
-    var user = await dependency.db.userDao.fetchUser();
+    var user = await db.userDao.fetchUser();
     if (user != null) {
       return user;
     } else {
@@ -28,7 +28,7 @@ class DataProvider {
 
   Future<dynamic> fetchGuestUser() async {
     try {
-      var response = await dependency.dio.get("auth/customer/guest_access/",
+      var response = await dioInstance.dio.get("auth/customer/guest_access/",
           options: Options(headers: {
             "Accept": "application/json",
           }));
@@ -47,7 +47,7 @@ class DataProvider {
   }
 
   Future insertUser(UserData userData) async {
-    await dependency.db.userDao.insertUser(UserCompanion.insert(
+    await db.userDao.insertUser(UserCompanion.insert(
       id: userData.id,
       token: userData.token,
       createdAt: userData.createdAt,
@@ -57,9 +57,9 @@ class DataProvider {
 
   Future<dynamic> downloadIntroData(UserData user) async {
     try {
-      List<IntroData> intros = await dependency.db.introDao.fetchIntro(user.id);
+      List<IntroData> intros = await db.introDao.fetchIntro(user.id);
 
-      var response = await dependency.dio.post("intro_slider",
+      var response = await dioInstance.dio.post("intro_slider",
           options: Options(headers: {
             "Accept": "application/json",
             "Authorization": "Bearer ${user.token}",
@@ -102,10 +102,10 @@ class DataProvider {
   Future<dynamic> insertIntroData(IntroData introData, {String path}) async {
     try {
       //download image
-      await dependency.dio.download(introData.url, path);
+      await dioInstance.dio.download(introData.url, path);
 
       //insert to local database
-      await dependency.db.introDao.insertIntro(IntroCompanion.insert(
+      await db.introDao.insertIntro(IntroCompanion.insert(
         id: introData.id,
         userId: Value(introData.userId),
         url: introData.url,
@@ -125,7 +125,7 @@ class DataProvider {
   Future<dynamic> fetchBanner(
       {@required String target, @required UserData user}) async {
     try {
-      var response = await dependency.dio.get("banner_slide/target/$target",
+      var response = await dioInstance.dio.get("banner_slide/target/$target",
           options: Options(headers: {
             "Accept": "application/json",
             "Authorization": "Bearer ${user.token}",
@@ -145,7 +145,7 @@ class DataProvider {
 
   Future<dynamic> fetchMainCategory({@required UserData user}) async {
     try {
-      var response = await dependency.dio.get("main_category",
+      var response = await dioInstance.dio.get("main_category",
           options: Options(headers: {
             "Accept": "application/json",
             "Authorization": "Bearer ${user.token}",
@@ -166,7 +166,7 @@ class DataProvider {
   Future<dynamic> fetchProduct(
       {@required UserData user, @required model.Query query}) async {
     try {
-      var response = await dependency.dio.post(
+      var response = await dioInstance.dio.post(
         "product/terbaru",
         options: Options(headers: {
           "Accept": "application/json",
