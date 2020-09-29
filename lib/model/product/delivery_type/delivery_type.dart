@@ -11,13 +11,13 @@ class DeliveryType {
   @JsonKey(nullable: true)
   final int day;
   @JsonKey(nullable: true, name: 'order_start')
-  final DateTime orderStart;
+  final String orderStart;
   @JsonKey(nullable: true, name: 'order_end')
-  final DateTime orderEnd;
+  final String orderEnd;
   @JsonKey(nullable: true, name: 'delivery_start')
-  final DateTime deliveryStart;
+  final String deliveryStart;
   @JsonKey(nullable: true, name: 'delivery_end')
-  final DateTime deliveryEnd;
+  final String deliveryEnd;
   final String caption;
 
   DeliveryType({

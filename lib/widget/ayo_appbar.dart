@@ -1,17 +1,19 @@
-import 'package:ayo/pages/app/bloc/banner_cubit.dart';
-import 'package:ayo/pages/app/bloc/banner_state.dart';
-import 'package:ayo/widget/carousel_banner.dart';
 import 'package:ayo/widget/search_bar.dart';
-import 'package:ayo/widget/shimmer/banner_shimmer.dart';
 import 'package:ayo/widget/shopping_cart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AyoAppBar extends StatefulWidget {
   final ScrollController scrollController;
+  final Widget flexibleSpace;
+  final double titleSpacing;
 
-  AyoAppBar({Key key, @required this.scrollController}) : super(key: key);
+  AyoAppBar(
+      {Key key,
+      @required this.scrollController,
+      @required this.flexibleSpace,
+      this.titleSpacing})
+      : super(key: key);
 
   @override
   _AyoAppBarState createState() => _AyoAppBarState();
@@ -23,7 +25,7 @@ class _AyoAppBarState extends State<AyoAppBar> {
   void _changeIconColor(double value) {
     setState(() {
       if (value > 120.0) {
-        _appBarIcon = Colors.pink[300];
+        _appBarIcon = Theme.of(context).primaryColor;
       } else {
         _appBarIcon = Colors.white;
       }
@@ -50,41 +52,33 @@ class _AyoAppBarState extends State<AyoAppBar> {
   Widget build(BuildContext context) {
     return SliverAppBar(
       expandedHeight: 220.0,
+      titleSpacing: widget.titleSpacing ?? NavigationToolbar.kMiddleSpacing,
       pinned: true,
       backgroundColor: Colors.white,
       title: SearchBar(
         scrollController: widget.scrollController,
       ),
       actions: [
+        (widget.titleSpacing != null) ? SizedBox(width: 15) : SizedBox.shrink(),
         Stack(
           alignment: Alignment.center,
           overflow: Overflow.visible,
           children: [
             Icon(
-              FontAwesomeIcons.shoppingBag,
+              FontAwesomeIcons.shoppingBasket,
               color: _appBarIcon,
               size: 20,
             ),
             Positioned(
               left: 8,
-              top: 10,
+              top: 8,
               child: ShoppingCart(animate: true),
             ),
           ],
         ),
         SizedBox(width: 15),
       ],
-      flexibleSpace: FlexibleSpaceBar(
-        background: BlocBuilder<BannerCubit, BannerState>(
-          builder: (context, state) {
-            if (state is BannerCompleted) {
-              return CarouselBanner(banners: state.banners);
-            }
-
-            return bannerShimmer();
-          },
-        ),
-      ),
+      flexibleSpace: widget.flexibleSpace ?? SizedBox.shrink(),
     );
   }
 }

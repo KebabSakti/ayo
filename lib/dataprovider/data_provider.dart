@@ -6,6 +6,7 @@ import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product.dart';
 import 'package:ayo/model/product/product_paginate.dart';
 import 'package:ayo/model/query/query.dart' as model;
+import 'package:ayo/model/sub_category/sub_category.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/provider/provider.dart';
 import 'package:ayo/util/helper.dart';
@@ -123,14 +124,19 @@ class DataProvider {
   }
 
   Future<dynamic> fetchBanner(
-      {@required String target, @required UserData user}) async {
+      {@required String target, String id, @required UserData user}) async {
     try {
-      var response = await dioInstance.dio.get("banner_slide/target/$target",
+      var response = await dioInstance.dio.post("banner_slide",
           options: Options(headers: {
             "Accept": "application/json",
             "Authorization": "Bearer ${user.token}",
             "User-Id": user.id,
-          }));
+          }),
+          data: {
+            'target': target,
+            'id': id,
+          });
+
       List<dynamic> parsed = await response.data;
       List<SlideBanner> banners = [];
       parsed.forEach((item) async {
@@ -191,6 +197,29 @@ class DataProvider {
           parsed['data'].map((item) => Product.fromJson(item)).toList());
 
       return ProductPaginate(pagination: pagination, products: products);
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> fetchSubCategory(
+      {@required UserData user, @required String mainCategoryId}) async {
+    try {
+      var response =
+          await dioInstance.dio.get("api/sub_category/id/$mainCategoryId",
+              options: Options(headers: {
+                "Accept": "application/json",
+                "Authorization": "Bearer ${user.token}",
+                "User-Id": user.id,
+              }));
+
+      List<dynamic> parsed = await response.data;
+      List<SubCategory> datas = [];
+      parsed.forEach((item) async {
+        datas.add(SubCategory.fromJson(item));
+      });
+
+      return datas;
     } on DioError catch (error) {
       return error;
     }

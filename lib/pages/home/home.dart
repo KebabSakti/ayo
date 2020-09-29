@@ -1,16 +1,17 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/scroll_show_cubit.dart';
-import 'package:ayo/bloc/theme_cubit.dart';
 import 'package:ayo/model/product/product.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/banner_state.dart';
 import 'package:ayo/pages/app/bloc/product_rekomendasi_cubit.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/pages/home/bloc/main_category_cubit.dart';
-import 'package:ayo/theme/theme.dart';
 import 'package:ayo/util/helper.dart';
 import 'package:ayo/widget/ayo_appbar.dart';
+import 'package:ayo/widget/carousel_banner.dart';
 import 'package:ayo/widget/filter_bar.dart';
+import 'package:ayo/widget/horizontal_product_list.dart';
+import 'package:ayo/widget/shimmer/banner_shimmer.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,7 +22,6 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:qrscan/qrscan.dart' as scanner;
-import 'package:supercharged/supercharged.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -60,6 +60,7 @@ class _HomeMainState extends State<HomeMain>
     bannerCubit.fetchBanner(
       target: 'home',
       user: authenticateCubit.state.userData,
+      id: 'home',
     );
   }
 
@@ -126,8 +127,6 @@ class _HomeMainState extends State<HomeMain>
 
   @override
   void initState() {
-    context.bloc<ThemeCubit>().loadTheme(appThemeData[AppTheme.gas]);
-
     authenticateCubit = context.bloc<AuthenticationCubit>();
     bannerCubit = context.bloc<BannerCubit>();
     mainCategoryCubit = context.bloc<MainCategoryCubit>();
@@ -163,7 +162,20 @@ class _HomeMainState extends State<HomeMain>
           CustomScrollView(
             controller: _scrollController,
             slivers: [
-              AyoAppBar(scrollController: _scrollController),
+              AyoAppBar(
+                scrollController: _scrollController,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: BlocBuilder<BannerCubit, BannerState>(
+                    builder: (context, state) {
+                      if (state is BannerCompleted) {
+                        return CarouselBanner(banners: state.banners['home']);
+                      }
+
+                      return bannerShimmer();
+                    },
+                  ),
+                ),
+              ),
               SliverToBoxAdapter(
                 child: SizedBox(
                   height: 10,
@@ -189,7 +201,7 @@ class _HomeMainState extends State<HomeMain>
                             icon: Icon(
                               FontAwesomeIcons.qrcode,
                               size: 20,
-                              color: Colors.pink[300],
+                              color: Theme.of(context).primaryColor,
                             ),
                             onPressed: () async {
                               String cameraScanResult = await scanner.scan();
@@ -200,8 +212,8 @@ class _HomeMainState extends State<HomeMain>
                             'scan kode promo',
                             style: TextStyle(
                               fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
                             ),
                           ),
                         ],
@@ -220,8 +232,8 @@ class _HomeMainState extends State<HomeMain>
                               '9999',
                               style: TextStyle(
                                 fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.green,
+                                fontWeight: FontWeight.w600,
+                                color: Theme.of(context).primaryColor,
                               ),
                             ),
                           ],
@@ -273,14 +285,14 @@ class _HomeMainState extends State<HomeMain>
                                     'Lihat Semua',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: Colors.red,
+                                      color: Theme.of(context).primaryColor,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Icon(
                                     Icons.arrow_right,
                                     size: 15,
-                                    color: Colors.red,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                 ],
                               ),
@@ -314,7 +326,6 @@ class _HomeMainState extends State<HomeMain>
                                       },
                                       child: Ink(
                                         width: (size.width - 30) / 2,
-                                        // margin: EdgeInsets.only(left: 5, right: 5),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(10),
@@ -416,14 +427,14 @@ class _HomeMainState extends State<HomeMain>
                                     'Lihat Semua',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: Colors.red,
+                                      color: Theme.of(context).primaryColor,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Icon(
                                     Icons.arrow_right,
                                     size: 15,
-                                    color: Colors.red,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                 ],
                               ),
@@ -509,14 +520,14 @@ class _HomeMainState extends State<HomeMain>
                                     'Lihat Semua',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: Colors.red,
+                                      color: Theme.of(context).primaryColor,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Icon(
                                     Icons.arrow_right,
                                     size: 15,
-                                    color: Colors.red,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                 ],
                               ),
@@ -531,196 +542,11 @@ class _HomeMainState extends State<HomeMain>
                           ProductRekomendasiState>(
                         builder: (context, state) {
                           return Expanded(
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: (state is ProductRekomendasiCompleted)
-                                  ? state.productPaginate.products.length
-                                  : 4,
-                              itemBuilder: (context, index) {
-                                return Container(
-                                  width: (size.width - 30) / 2.2,
-                                  margin: EdgeInsets.only(left: 5, right: 5),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(color: Colors.grey[200]),
-                                  ),
-                                  child: Builder(
-                                    builder: (context) {
-                                      if (state
-                                          is ProductRekomendasiCompleted) {
-                                        var product = state
-                                            .productPaginate.products[index];
-                                        return Column(
-                                          children: [
-                                            Container(
-                                              height: 100,
-                                              width: double.infinity,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.only(
-                                                  topLeft: Radius.circular(10),
-                                                  topRight: Radius.circular(10),
-                                                ),
-                                                image: DecorationImage(
-                                                  image:
-                                                      CachedNetworkImageProvider(
-                                                          product.cover),
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              ),
-                                              child: Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.end,
-                                                children: [
-                                                  Container(
-                                                    padding: EdgeInsets.all(4),
-                                                    margin: EdgeInsets.only(
-                                                        top: 6, right: 6),
-                                                    decoration: BoxDecoration(
-                                                      color: Colors.black
-                                                          .withOpacity(0.5),
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4),
-                                                    ),
-                                                    child: Text(
-                                                      '1 kg',
-                                                      style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 10,
-                                                        fontWeight:
-                                                            FontWeight.w600,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        bottom: 6, right: 10),
-                                                    child: Icon(
-                                                      FontAwesomeIcons
-                                                          .solidHeart,
-                                                      size: 20,
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                            SizedBox(height: 4),
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: 4, right: 4),
-                                              child: Text(
-                                                product.name,
-                                                maxLines: 2,
-                                                overflow: TextOverflow.ellipsis,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 12,
-                                                ),
-                                              ),
-                                            ),
-                                            SizedBox(height: 10),
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
-                                              children: [
-                                                Builder(
-                                                  builder: (context) {
-                                                    if (product.discount !=
-                                                        null) {
-                                                      var discount = product
-                                                          ?.discount.amount
-                                                          .toDouble();
-                                                      var price = product.price
-                                                          .toDouble();
-                                                      var discountPrice = Helper()
-                                                          .getDiscountedProce(
-                                                              discount, price);
-
-                                                      return Row(
-                                                        children: [
-                                                          Text(
-                                                            Helper()
-                                                                .getFormattedNumber(
-                                                                    discountPrice),
-                                                            textAlign: TextAlign
-                                                                .center,
-                                                            style: TextStyle(
-                                                              fontSize: 8,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              color: Colors
-                                                                  .grey[400],
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .lineThrough,
-                                                            ),
-                                                          ),
-                                                          SizedBox(width: 4),
-                                                        ],
-                                                      );
-                                                    }
-
-                                                    return SizedBox.shrink();
-                                                  },
-                                                ),
-                                                Text(
-                                                  Helper().getFormattedNumber(
-                                                    product.price.toDouble(),
-                                                  ),
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w800,
-                                                    color: Colors.redAccent,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(height: 5),
-                                            RatingBar(
-                                              initialRating: 3,
-                                              minRating: 0,
-                                              direction: Axis.horizontal,
-                                              allowHalfRating: true,
-                                              itemCount: 5,
-                                              ignoreGestures: true,
-                                              itemSize: 12,
-                                              itemPadding: EdgeInsets.symmetric(
-                                                  horizontal: 2.0),
-                                              itemBuilder: (context, _) => Icon(
-                                                Icons.star,
-                                                color: Colors.amber,
-                                              ),
-                                              onRatingUpdate: (_) {},
-                                            ),
-                                            Spacer(),
-                                            Text(
-                                              'Pengiriman Instan',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                color: Colors.green[600],
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                            ),
-                                            SizedBox(height: 8),
-                                          ],
-                                        );
-                                      }
-
-                                      return boxRadiusShimmer();
-                                    },
-                                  ),
-                                );
-                              },
+                            child: HorizontalProductList(
+                              isLoading: (state is ProductRekomendasiCompleted)
+                                  ? false
+                                  : true,
+                              products: state.productPaginate.products,
                             ),
                           );
                         },
@@ -769,14 +595,14 @@ class _HomeMainState extends State<HomeMain>
                                     'Lihat Semua',
                                     style: TextStyle(
                                       fontSize: 10,
-                                      color: Colors.red,
+                                      color: Theme.of(context).primaryColor,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Icon(
                                     Icons.arrow_right,
                                     size: 15,
-                                    color: Colors.red,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                                 ],
                               ),
@@ -1195,29 +1021,31 @@ class _HomeMainState extends State<HomeMain>
                     children: [
                       Padding(
                         padding: EdgeInsets.only(left: 2.5, right: 2.5),
-                        child: InkWell(
-                          onTap: () {}, // needed
-                          child: Ink(
-                            width: (size.width - 30) / 5,
-                            padding: EdgeInsets.only(left: 2, right: 2),
-                            color: Colors.white,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.thumb_up,
-                                  size: 20,
-                                  color: Colors.redAccent,
-                                ),
-                                SizedBox(height: 4),
-                                Text(
-                                  'Semua',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(fontSize: 10),
-                                ),
-                              ],
+                        child: Material(
+                          child: InkWell(
+                            onTap: () {}, // needed
+                            child: Ink(
+                              width: (size.width - 30) / 5,
+                              padding: EdgeInsets.only(left: 2, right: 2),
+                              color: Colors.white,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.thumb_up,
+                                    size: 20,
+                                    color: Theme.of(context).primaryColor,
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Semua',
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(fontSize: 10),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -1321,13 +1149,14 @@ class _HomeMainState extends State<HomeMain>
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(
-                                  Icons.search,
+                                  Icons.keyboard_arrow_up,
                                   size: 20,
-                                  color: Colors.grey,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
                                 SizedBox(height: 4),
                                 Text(
-                                  'Diminati',
+                                  'Harga',
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                   textAlign: TextAlign.center,
@@ -1424,7 +1253,8 @@ class _HomeMainState extends State<HomeMain>
                                             child: Icon(
                                               FontAwesomeIcons.solidHeart,
                                               size: 20,
-                                              color: Colors.red,
+                                              color: Theme.of(context)
+                                                  .primaryColor,
                                             ),
                                           ),
                                         ],
@@ -1453,25 +1283,16 @@ class _HomeMainState extends State<HomeMain>
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.center,
                                               children: [
-                                                Builder(
-                                                  builder: (context) {
-                                                    if (product.discount !=
-                                                        null) {
-                                                      var discount = product
-                                                          ?.discount.amount
-                                                          .toDouble();
-                                                      var price = product.price
-                                                          .toDouble();
-                                                      var discountPrice = Helper()
-                                                          .getDiscountedProce(
-                                                              discount, price);
-
-                                                      return Row(
+                                                (product.discount != null)
+                                                    ? Row(
                                                         children: [
                                                           Text(
                                                             Helper()
                                                                 .getFormattedNumber(
-                                                                    discountPrice),
+                                                              double.parse(
+                                                                product.price,
+                                                              ),
+                                                            ),
                                                             textAlign: TextAlign
                                                                 .center,
                                                             style: TextStyle(
@@ -1488,21 +1309,31 @@ class _HomeMainState extends State<HomeMain>
                                                           ),
                                                           SizedBox(width: 4),
                                                         ],
-                                                      );
-                                                    }
-
-                                                    return SizedBox.shrink();
-                                                  },
-                                                ),
+                                                      )
+                                                    : SizedBox.shrink(),
                                                 Text(
                                                   Helper().getFormattedNumber(
-                                                    product.price.toDouble(),
+                                                    (product.discount != null)
+                                                        ? Helper()
+                                                            .getDiscountedPrice(
+                                                            double.parse(
+                                                              product.discount
+                                                                  .amount,
+                                                            ),
+                                                            double.parse(
+                                                              product.price,
+                                                            ),
+                                                          )
+                                                        : double.parse(
+                                                            product.price,
+                                                          ),
                                                   ),
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
                                                     fontSize: 12,
-                                                    fontWeight: FontWeight.w800,
-                                                    color: Colors.redAccent,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Theme.of(context)
+                                                        .primaryColor,
                                                   ),
                                                 ),
                                               ],

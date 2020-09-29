@@ -128,7 +128,7 @@ class _SliderIntroState extends State<SliderIntro> {
                         child: Text(
                           'Mulai',
                           style: TextStyle(
-                            color: Colors.green,
+                            color: Theme.of(context).colorScheme.secondary,
                           ),
                         ),
                         onPressed: () {

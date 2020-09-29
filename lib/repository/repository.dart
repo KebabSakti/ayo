@@ -28,8 +28,8 @@ class Repository {
   }
 
   Future<dynamic> fetchBanner(
-      {@required String target, @required UserData user}) async {
-    return await providers.fetchBanner(target: target, user: user);
+      {@required String target, String id, @required UserData user}) async {
+    return await providers.fetchBanner(target: target, user: user, id: id);
   }
 
   Future<dynamic> fetchMainCategory({@required UserData user}) async {
@@ -39,5 +39,11 @@ class Repository {
   Future<dynamic> fetchProductTerlarisKategori(
       {@required UserData user, @required Query query}) async {
     return await providers.fetchProduct(user: user, query: query);
+  }
+
+  Future<dynamic> fetchSubCategory(
+      {@required UserData user, @required String mainCategoryId}) async {
+    return await providers.fetchSubCategory(
+        user: user, mainCategoryId: mainCategoryId);
   }
 }

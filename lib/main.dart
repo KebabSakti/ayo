@@ -1,9 +1,13 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/connection_cubit.dart';
+import 'package:ayo/bloc/scroll_show_cubit.dart';
 import 'package:ayo/bloc/theme_cubit.dart';
 import 'package:ayo/bloc/theme_state.dart';
+import 'package:ayo/pages/app/bloc/banner_cubit.dart';
+import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/provider/provider.dart';
 import 'package:ayo/route/route.dart';
+import 'package:ayo/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -27,6 +31,15 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthenticationCubit>(
           create: (context) => AuthenticationCubit(),
         ),
+        BlocProvider<BannerCubit>(
+          create: (context) => BannerCubit(),
+        ),
+        BlocProvider<QueryCubit>(
+          create: (context) => QueryCubit(),
+        ),
+        BlocProvider<ScrollShowCubit>(
+          create: (context) => ScrollShowCubit(),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) => MainBaseApp(theme: state.themeData),
@@ -37,6 +50,7 @@ class MyApp extends StatelessWidget {
 
 class MainBaseApp extends StatefulWidget {
   final ThemeData theme;
+
   MainBaseApp({Key key, @required this.theme}) : super(key: key);
 
   @override
@@ -49,9 +63,8 @@ class _MainBaseAppState extends State<MainBaseApp> with WidgetsBindingObserver {
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
-
-    connectionCubit = context.bloc<ConnectionCubit>();
     //start connection listener
+    connectionCubit = context.bloc<ConnectionCubit>();
     connectionCubit.connectionListener();
 
     super.initState();
@@ -76,7 +89,7 @@ class _MainBaseAppState extends State<MainBaseApp> with WidgetsBindingObserver {
     return MaterialApp(
       title: 'Segala kebutuhan kamu dalam satu aplikasi',
       debugShowCheckedModeBanner: false,
-      theme: widget.theme,
+      theme: appThemeData[AppTheme.base],
       initialRoute: '/',
       onGenerateRoute: RouteGenerator.generateRoute,
     );

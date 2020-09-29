@@ -8,7 +8,7 @@ part of 'main_category_model.dart';
 
 MainCategoryModel _$MainCategoryModelFromJson(Map<String, dynamic> json) {
   return MainCategoryModel(
-    categoryId: json['category_id'] as String,
+    categoryId: json['main_category_id'] as String,
     deliveryTypeId: json['delivery_type_id'] as String,
     title: json['title'] as String,
     caption: json['caption'] as String,
@@ -22,7 +22,7 @@ MainCategoryModel _$MainCategoryModelFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$MainCategoryModelToJson(MainCategoryModel instance) =>
     <String, dynamic>{
-      'category_id': instance.categoryId,
+      'main_category_id': instance.categoryId,
       'delivery_type_id': instance.deliveryTypeId,
       'title': instance.title,
       'caption': instance.caption,

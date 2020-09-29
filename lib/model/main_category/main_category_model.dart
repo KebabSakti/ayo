@@ -4,7 +4,7 @@ part 'main_category_model.g.dart';
 
 @JsonSerializable(nullable: false)
 class MainCategoryModel {
-  @JsonKey(name: 'category_id')
+  @JsonKey(name: 'main_category_id')
   final String categoryId;
   @JsonKey(name: 'delivery_type_id')
   final String deliveryTypeId;

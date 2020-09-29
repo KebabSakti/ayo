@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 
 class SearchBar extends StatefulWidget {
   final ScrollController scrollController;
-  const SearchBar({Key key, @required this.scrollController}) : super(key: key);
+  final String hint;
+
+  const SearchBar({Key key, @required this.scrollController, this.hint})
+      : super(key: key);
 
   @override
   _SearchBarState createState() => _SearchBarState();
@@ -61,7 +64,7 @@ class _SearchBarState extends State<SearchBar> {
             child: Container(
               width: 200,
               child: Text(
-                'Cari di sini',
+                widget.hint ?? 'Cari di sini',
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
               ),
             ),

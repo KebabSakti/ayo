@@ -34,14 +34,19 @@ class _ShoppingCartState extends State<ShoppingCart> {
       curve: Curves.elasticInOut,
       duration: Duration(milliseconds: 500),
       tween: 0.0.tweenTo(1.0), // <-- d
-      child: SizedBox(
-        height: 15,
-        width: 15,
+      child: Container(
+        height: 20,
+        width: 20,
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.white, width: 1.5),
+          borderRadius: BorderRadius.circular(10),
+        ),
         child: CircleAvatar(
           backgroundColor: Colors.red,
           child: Text(
             '99',
-            style: TextStyle(color: Colors.white, fontSize: 7),
+            style: TextStyle(
+                color: Colors.white, fontSize: 7, fontWeight: FontWeight.w600),
           ),
         ),
       ), // efine tween of colors

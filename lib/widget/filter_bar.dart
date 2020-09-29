@@ -49,7 +49,7 @@ class _FilterBarState extends State<FilterBar> {
                                     Icon(
                                       Icons.thumb_up,
                                       size: 20,
-                                      color: Colors.redAccent,
+                                      color: Theme.of(context).primaryColor,
                                     ),
                                     SizedBox(height: 4),
                                     Text(

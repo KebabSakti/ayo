@@ -10,6 +10,8 @@ class Product {
   final String productId;
   @JsonKey(name: 'sub_category_id')
   final String subCategoryId;
+  @JsonKey(name: 'delivery_type_id')
+  final String deliveryTypeId;
   final String cover;
   final String name;
   final String caption;
@@ -31,6 +33,7 @@ class Product {
   Product({
     this.productId,
     this.subCategoryId,
+    this.deliveryTypeId,
     this.cover,
     this.name,
     this.caption,

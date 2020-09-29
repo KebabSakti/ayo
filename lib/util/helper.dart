@@ -45,7 +45,7 @@ class Helper {
     return f.format(number);
   }
 
-  double getDiscountedProce(double discount, double price) {
+  double getDiscountedPrice(double discount, double price) {
     return ((100 - discount) * price) / 100;
   }
 

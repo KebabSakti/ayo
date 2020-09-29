@@ -1,3 +1,4 @@
+import 'package:ayo/constant/constant.dart';
 import 'package:ayo/dataprovider/data_provider.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/repository/repository.dart';
@@ -30,7 +31,7 @@ class DioInstance {
   DioInstance({BaseOptions baseOptions}) {
     var option = baseOptions ??
         BaseOptions(
-          baseUrl: 'https://b05c45fcf5b7.ngrok.io/api/',
+          baseUrl: baseUrl,
           connectTimeout: 30000,
           receiveTimeout: 30000,
         );
