@@ -1,5 +1,8 @@
+import 'package:ayo/model/favourite/favourite.dart';
 import 'package:ayo/model/product/delivery_type/delivery_type.dart';
 import 'package:ayo/model/product/discount/discount.dart';
+import 'package:ayo/model/rating/rating.dart';
+import 'package:ayo/model/unit/unit.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'product.g.dart';
@@ -15,7 +18,8 @@ class Product {
   final String cover;
   final String name;
   final String caption;
-  final String price;
+  @JsonKey(fromJson: _fromDouble)
+  final double price;
   @JsonKey(nullable: true)
   final String tag;
   @JsonKey(nullable: true)
@@ -29,6 +33,14 @@ class Product {
   final DeliveryType deliveryType;
   @JsonKey(nullable: true)
   final Discount discount;
+  @JsonKey(nullable: true, name: 'rating_weight')
+  final RatingWeight ratingWeight;
+  final Unit unit;
+  @JsonKey(nullable: true)
+  final Favourite favourite;
+
+  static double _fromDouble(String value) =>
+      value == null ? null : double.parse(value);
 
   Product({
     this.productId,
@@ -45,6 +57,9 @@ class Product {
     this.updatedAt,
     this.deliveryType,
     this.discount,
+    this.ratingWeight,
+    this.unit,
+    this.favourite,
   });
 
   factory Product.fromJson(Map<String, dynamic> json) =>

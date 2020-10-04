@@ -36,11 +36,12 @@ class Helper {
     return dateFormat.format(dateTime);
   }
 
-  String getFormattedNumber(var number) {
+  String getFormattedNumber(var number,
+      {String locale, String name, int digit}) {
     var f = NumberFormat.currency(
-      locale: 'id_ID',
-      name: 'Rp ',
-      decimalDigits: 0,
+      locale: locale ?? 'id_ID',
+      name: name ?? 'Rp ',
+      decimalDigits: digit ?? 0,
     );
     return f.format(number);
   }

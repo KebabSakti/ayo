@@ -22,16 +22,47 @@ class ProductRekomendasiCubit extends Cubit<ProductRekomendasiState> {
 
   void fetchProduct({
     @required UserData user,
-    @required Query query,
+    @required QueryModel query,
+    String url,
   }) async {
     emit(ProductRekomendasiLoading(state.productPaginate));
 
-    var response =
-        await repository.fetchProductTerlarisKategori(user: user, query: query);
+    var response = await repository.fetchProduct(user: user, query: query);
+
     if (response is! DioError) {
       emit(ProductRekomendasiCompleted(response));
     } else {
-      emit(ProductRekomendasiError());
+      emit(ProductRekomendasiError(ProductPaginate(
+        products: [],
+        pagination: Pagination(),
+      )));
+    }
+  }
+
+  void fetchMoreProduct({
+    @required UserData user,
+    @required QueryModel query,
+  }) async {
+    emit(ProductRekomendasiPagingLoading(state.productPaginate));
+
+    var products = state.productPaginate.products;
+
+    var response = await repository.fetchProduct(
+      user: user,
+      query: query,
+      page: state.productPaginate.pagination.currentPage + 1,
+    );
+
+    if (response is! DioError) {
+      products.addAll(response.products);
+
+      emit(ProductRekomendasiCompleted(ProductPaginate(
+          products: products, pagination: response.pagination)));
+    } else {
+      emit(ProductRekomendasiError(ProductPaginate(
+        products: [],
+        pagination: Pagination(),
+      )));
     }
   }
 }

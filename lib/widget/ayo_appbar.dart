@@ -64,10 +64,19 @@ class _AyoAppBarState extends State<AyoAppBar> {
           alignment: Alignment.center,
           overflow: Overflow.visible,
           children: [
-            Icon(
-              FontAwesomeIcons.shoppingBasket,
-              color: _appBarIcon,
-              size: 20,
+            Ink(
+              width: 20,
+              child: IconButton(
+                onPressed: () {},
+                splashRadius: 20,
+                splashColor: Theme.of(context).accentColor.withOpacity(0.3),
+                padding: EdgeInsets.zero,
+                icon: Icon(
+                  FontAwesomeIcons.shoppingBasket,
+                  color: _appBarIcon,
+                  size: 20,
+                ),
+              ),
             ),
             Positioned(
               left: 8,

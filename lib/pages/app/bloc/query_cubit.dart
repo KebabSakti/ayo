@@ -8,13 +8,9 @@ part 'query_state.dart';
 
 class QueryCubit extends Cubit<QueryState> {
   QueryCubit()
-      : super(QueryInitial(Query(
-          keyword: '',
-          sorting: Sorting(date: 1),
-          filter: Filter(),
-        )));
+      : super(QueryInitial(QueryModel(filter: Filter(), sorting: Sorting())));
 
-  void setQuery(Query query) {
+  void setQuery(QueryModel query) {
     emit(QueryLoading(state.query));
     emit(QueryCompleted(query));
   }

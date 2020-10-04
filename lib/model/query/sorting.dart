@@ -1,16 +1,13 @@
 class Sorting {
-  final int price;
-  final int date;
+  final String sorting;
 
   Sorting({
-    this.price,
-    this.date,
+    this.sorting,
   });
 
-  Sorting copyWith({int price, int date}) {
+  Sorting copyWith({String sorting}) {
     return Sorting(
-      price: price ?? this.price,
-      date: date ?? this.date,
+      sorting: sorting ?? this.sorting,
     );
   }
 }

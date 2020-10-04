@@ -33,7 +33,37 @@ class ProductRekomendasiCompleted extends ProductRekomendasiState {
 
 class ProductRekomendasiError extends ProductRekomendasiState {
   final String message;
-  ProductRekomendasiError({this.message}) : super(null);
+  ProductRekomendasiError(ProductPaginate productPaginate, {this.message})
+      : super(productPaginate);
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [];
+}
+
+class ProductRekomendasiPagingLoading extends ProductRekomendasiState {
+  ProductRekomendasiPagingLoading(ProductPaginate productPaginate)
+      : super(productPaginate);
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [];
+}
+
+class ProductRekomendasiPagingComplete extends ProductRekomendasiState {
+  final ProductPaginate productPaginate;
+  ProductRekomendasiPagingComplete(this.productPaginate)
+      : super(productPaginate);
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [productPaginate];
+}
+
+class ProductRekomendasiPagingError extends ProductRekomendasiState {
+  final String message;
+  ProductRekomendasiPagingError(ProductPaginate productPaginate, {this.message})
+      : super(productPaginate);
 
   @override
   // TODO: implement props

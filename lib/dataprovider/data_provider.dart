@@ -5,7 +5,7 @@ import 'package:ayo/model/main_category/main_category_model.dart';
 import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product.dart';
 import 'package:ayo/model/product/product_paginate.dart';
-import 'package:ayo/model/query/query.dart' as model;
+import 'package:ayo/model/query/query.dart';
 import 'package:ayo/model/sub_category/sub_category.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/provider/provider.dart';
@@ -138,10 +138,9 @@ class DataProvider {
           });
 
       List<dynamic> parsed = await response.data;
-      List<SlideBanner> banners = [];
-      parsed.forEach((item) async {
-        banners.add(SlideBanner.fromJson(item));
-      });
+
+      List<SlideBanner> banners = List<SlideBanner>.from(
+          parsed.map((item) => SlideBanner.fromJson(item)).toList());
 
       return banners;
     } on DioError catch (error) {
@@ -169,25 +168,31 @@ class DataProvider {
     }
   }
 
-  Future<dynamic> fetchProduct(
-      {@required UserData user, @required model.Query query}) async {
+  Future<dynamic> fetchProduct({
+    @required UserData user,
+    @required QueryModel query,
+    int page,
+  }) async {
     try {
       var response = await dioInstance.dio.post(
-        "product/terbaru",
+        "product?page=${page ?? 1}",
         options: Options(headers: {
           "Accept": "application/json",
           "Authorization": "Bearer ${user.token}",
           "User-Id": user.id,
         }),
         data: {
-          'keyword': query.keyword,
-          'kategori_id': query.filter.kategoriId,
-          'price_min': query.filter.priceMin,
-          'price_max': query.filter.priceMax,
-          'instant': query.filter.instant,
+          'sub_category_id': query.filter.subCategoryId,
+          'keyword': query.filter.keyword,
+          'terlaris': query.filter.terlaris,
+          'diskon': query.filter.diskon,
+          'search': query.filter.search,
+          'view': query.filter.view,
           'rating': query.filter.rating,
-          'price': query.sorting.price,
-          'date': query.sorting.date,
+          'pengiriman': query.filter.pengiriman,
+          'harga_min': query.filter.hargaMin,
+          'harga_max': query.filter.hargaMax,
+          'sorting': query.sorting.sorting,
         },
       );
 

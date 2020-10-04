@@ -1,19 +1,19 @@
 part of 'query_cubit.dart';
 
 abstract class QueryState extends Equatable {
-  final Query query;
+  final QueryModel query;
   const QueryState(this.query);
 }
 
 class QueryInitial extends QueryState {
-  QueryInitial(query) : super(query);
+  QueryInitial(QueryModel query) : super(query);
 
   @override
   List<Object> get props => [];
 }
 
 class QueryLoading extends QueryState {
-  QueryLoading(Query query) : super(query);
+  QueryLoading(QueryModel query) : super(query);
 
   @override
   // TODO: implement props
@@ -21,7 +21,7 @@ class QueryLoading extends QueryState {
 }
 
 class QueryCompleted extends QueryState {
-  final Query query;
+  final QueryModel query;
   QueryCompleted(this.query) : super(query);
 
   @override

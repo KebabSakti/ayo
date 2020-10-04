@@ -1,12 +1,14 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
-import 'package:ayo/pages/app/bloc/banner_cubit.dart';
+import 'package:ayo/model/query/filter.dart';
+import 'package:ayo/model/query/query.dart';
+import 'package:ayo/model/query/sorting.dart';
+import 'package:ayo/pages/app/bloc/query_cubit.dart';
+import 'package:ayo/pages/main_category/bloc/main_category_banner_cubit.dart';
 import 'package:ayo/widget/ayo_appbar.dart';
 import 'package:ayo/widget/carousel_banner.dart';
 import 'package:ayo/widget/shimmer/banner_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-import 'app/bloc/banner_state.dart';
 
 class MainCategory extends StatefulWidget {
   final String categoryId;
@@ -19,11 +21,18 @@ class MainCategory extends StatefulWidget {
 
 class _MainCategoryState extends State<MainCategory> {
   final ScrollController _scrollController = ScrollController();
-  BannerCubit _bannerCubit;
+
+  MainCategoryBannerCubit _mainCategoryBannerCubit;
   AuthenticationCubit _authenticationCubit;
+  QueryCubit _queryCubit;
+
+  void _resetQuery() {
+    _queryCubit.setQuery(QueryModel(
+        filter: Filter(mainCategoryId: widget.categoryId), sorting: Sorting()));
+  }
 
   void _fetchBanner() {
-    _bannerCubit.fetchBanner(
+    _mainCategoryBannerCubit.fetchBanner(
       id: widget.categoryId,
       target: 'kategori',
       user: _authenticationCubit.state.userData,
@@ -47,7 +56,10 @@ class _MainCategoryState extends State<MainCategory> {
   void initState() {
     _scrollController.addListener(_scrollListener);
     _authenticationCubit = context.bloc<AuthenticationCubit>();
-    _bannerCubit = context.bloc<BannerCubit>();
+    _mainCategoryBannerCubit = context.bloc<MainCategoryBannerCubit>();
+    _queryCubit = context.bloc<QueryCubit>();
+
+    _resetQuery();
 
     _fetchData();
 
@@ -75,11 +87,11 @@ class _MainCategoryState extends State<MainCategory> {
                 AyoAppBar(
                   scrollController: _scrollController,
                   flexibleSpace: FlexibleSpaceBar(
-                    background: BlocBuilder<BannerCubit, BannerState>(
+                    background: BlocBuilder<MainCategoryBannerCubit,
+                        MainCategoryBannerState>(
                       builder: (context, state) {
-                        if (state is BannerCompleted) {
-                          return CarouselBanner(
-                              banners: state.banners[widget.categoryId]);
+                        if (state is MainCategoryBannerComplete) {
+                          return CarouselBanner(banners: state.banners);
                         }
 
                         return bannerShimmer();

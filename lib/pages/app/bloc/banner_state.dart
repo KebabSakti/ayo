@@ -2,19 +2,19 @@ import 'package:ayo/model/banner/slide_banner.dart';
 import 'package:equatable/equatable.dart';
 
 abstract class BannerState extends Equatable {
-  final Map<String, List<SlideBanner>> banners;
+  final List<SlideBanner> banners;
   const BannerState(this.banners);
 }
 
 class BannerInitial extends BannerState {
-  BannerInitial(Map<String, List<SlideBanner>> banners) : super(banners);
+  BannerInitial(List<SlideBanner> banners) : super(banners);
 
   @override
   List<Object> get props => [];
 }
 
 class BannerLoading extends BannerState {
-  BannerLoading(Map<String, List<SlideBanner>> banners) : super(banners);
+  BannerLoading(List<SlideBanner> banners) : super(banners);
 
   @override
   // TODO: implement props
@@ -22,7 +22,7 @@ class BannerLoading extends BannerState {
 }
 
 class BannerCompleted extends BannerState {
-  final Map<String, List<SlideBanner>> banners;
+  final List<SlideBanner> banners;
   BannerCompleted({this.banners}) : super(banners);
 
   @override
@@ -32,7 +32,7 @@ class BannerCompleted extends BannerState {
 
 class BannerError extends BannerState {
   final String message;
-  BannerError({this.message}) : super(null);
+  BannerError({this.message}) : super(List<SlideBanner>());
 
   @override
   // TODO: implement props

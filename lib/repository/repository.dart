@@ -36,9 +36,9 @@ class Repository {
     return await providers.fetchMainCategory(user: user);
   }
 
-  Future<dynamic> fetchProductTerlarisKategori(
-      {@required UserData user, @required Query query}) async {
-    return await providers.fetchProduct(user: user, query: query);
+  Future<dynamic> fetchProduct(
+      {@required UserData user, @required QueryModel query, int page}) async {
+    return await providers.fetchProduct(user: user, query: query, page: page);
   }
 
   Future<dynamic> fetchSubCategory(

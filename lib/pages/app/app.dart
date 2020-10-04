@@ -1,5 +1,6 @@
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
 import 'package:ayo/pages/app/bloc/product_rekomendasi_cubit.dart';
+import 'package:ayo/pages/app/bloc/product_terlaris_home_cubit.dart';
 import 'package:ayo/pages/home/bloc/main_category_cubit.dart';
 import 'package:ayo/pages/home/home.dart';
 import 'package:ayo/pages/order/order.dart';
@@ -52,6 +53,9 @@ class App extends StatelessWidget {
         BlocProvider<ProductRekomendasiCubit>(
           create: (context) => ProductRekomendasiCubit(),
         ),
+        BlocProvider<ProductTerlarisHomeCubit>(
+          create: (context) => ProductTerlarisHomeCubit(),
+        ),
       ],
       child: ConnectionListener(
         child: BlocConsumer<NavigationCubit, NavigationState>(
@@ -60,7 +64,7 @@ class App extends StatelessWidget {
           },
           builder: (context, state) {
             return Scaffold(
-              backgroundColor: Colors.grey[100],
+              backgroundColor: Colors.white,
               body: PageView(
                 controller: _pageController,
                 physics: NeverScrollableScrollPhysics(),

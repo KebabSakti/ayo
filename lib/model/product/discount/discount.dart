@@ -8,7 +8,8 @@ class Discount {
   final String discountId;
   @JsonKey(name: 'product_id')
   final String productId;
-  final String amount;
+  @JsonKey(fromJson: _fromDouble)
+  final double amount;
   final int active;
   @JsonKey(name: 'expired_at')
   final String expiredAt;
@@ -16,6 +17,9 @@ class Discount {
   final String created_at;
   @JsonKey(name: 'updated_at')
   final String updatedAt;
+
+  static double _fromDouble(String value) =>
+      value == null ? null : double.parse(value);
 
   Discount({
     this.discountId,

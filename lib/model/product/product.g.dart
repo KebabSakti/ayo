@@ -14,7 +14,7 @@ Product _$ProductFromJson(Map<String, dynamic> json) {
     cover: json['cover'] as String,
     name: json['name'] as String,
     caption: json['caption'] as String,
-    price: json['price'] as String,
+    price: Product._fromDouble(json['price'] as String),
     tag: json['tag'] as String,
     link: json['link'] as String,
     active: json['active'] as int,
@@ -26,6 +26,15 @@ Product _$ProductFromJson(Map<String, dynamic> json) {
     discount: json['discount'] == null
         ? null
         : Discount.fromJson(json['discount'] as Map<String, dynamic>),
+    ratingWeight: json['rating_weight'] == null
+        ? null
+        : RatingWeight.fromJson(json['rating_weight'] as Map<String, dynamic>),
+    unit: json['unit'] == null
+        ? null
+        : Unit.fromJson(json['unit'] as Map<String, dynamic>),
+    favourite: json['favourite'] == null
+        ? null
+        : Favourite.fromJson(json['favourite'] as Map<String, dynamic>),
   );
 }
 
@@ -44,4 +53,7 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'updated_at': instance.updatedAt,
       'delivery_type': instance.deliveryType?.toJson(),
       'discount': instance.discount?.toJson(),
+      'rating_weight': instance.ratingWeight?.toJson(),
+      'unit': instance.unit?.toJson(),
+      'favourite': instance.favourite?.toJson(),
     };

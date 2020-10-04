@@ -44,7 +44,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
         child: CircleAvatar(
           backgroundColor: Colors.red,
           child: Text(
-            '99',
+            '99+',
             style: TextStyle(
                 color: Colors.white, fontSize: 7, fontWeight: FontWeight.w600),
           ),

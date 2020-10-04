@@ -5,6 +5,7 @@ import 'package:ayo/bloc/theme_cubit.dart';
 import 'package:ayo/bloc/theme_state.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
+import 'package:ayo/pages/main_category/bloc/main_category_banner_cubit.dart';
 import 'package:ayo/provider/provider.dart';
 import 'package:ayo/route/route.dart';
 import 'package:ayo/theme/theme.dart';
@@ -33,6 +34,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<BannerCubit>(
           create: (context) => BannerCubit(),
+        ),
+        BlocProvider<MainCategoryBannerCubit>(
+          create: (context) => MainCategoryBannerCubit(),
         ),
         BlocProvider<QueryCubit>(
           create: (context) => QueryCubit(),
