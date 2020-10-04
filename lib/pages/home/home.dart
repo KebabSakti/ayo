@@ -33,23 +33,6 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
-  @override
-  Widget build(BuildContext context) {
-    super.build(context);
-    return HomeMain();
-  }
-
-  @override
-  bool get wantKeepAlive => true;
-}
-
-class HomeMain extends StatefulWidget {
-  @override
-  _HomeMainState createState() => _HomeMainState();
-}
-
-class _HomeMainState extends State<HomeMain>
-    with AutomaticKeepAliveClientMixin {
   ScrollController _scrollController = ScrollController();
   GlobalKey _filterWidgetKey = GlobalKey();
 
@@ -191,7 +174,6 @@ class _HomeMainState extends State<HomeMain>
   Widget build(BuildContext context) {
     super.build(context);
     var size = MediaQuery.of(context).size;
-
     return MultiBlocListener(
       listeners: [
         BlocListener<QueryCubit, QueryState>(
