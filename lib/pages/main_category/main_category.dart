@@ -1,9 +1,7 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
-import 'package:ayo/model/query/filter.dart';
-import 'package:ayo/model/query/query.dart';
-import 'package:ayo/model/query/sorting.dart';
+import 'package:ayo/pages/app/bloc/banner_cubit.dart';
+import 'package:ayo/pages/app/bloc/banner_state.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
-import 'package:ayo/pages/main_category/bloc/main_category_banner_cubit.dart';
 import 'package:ayo/widget/ayo_appbar.dart';
 import 'package:ayo/widget/carousel_banner.dart';
 import 'package:ayo/widget/shimmer/banner_shimmer.dart';
@@ -22,17 +20,12 @@ class MainCategory extends StatefulWidget {
 class _MainCategoryState extends State<MainCategory> {
   final ScrollController _scrollController = ScrollController();
 
-  MainCategoryBannerCubit _mainCategoryBannerCubit;
+  BannerCubit _bannerCubit;
   AuthenticationCubit _authenticationCubit;
   QueryCubit _queryCubit;
 
-  void _resetQuery() {
-    _queryCubit.setQuery(QueryModel(
-        filter: Filter(mainCategoryId: widget.categoryId), sorting: Sorting()));
-  }
-
   void _fetchBanner() {
-    _mainCategoryBannerCubit.fetchBanner(
+    _bannerCubit.fetchBanner(
       id: widget.categoryId,
       target: 'kategori',
       user: _authenticationCubit.state.userData,
@@ -56,10 +49,8 @@ class _MainCategoryState extends State<MainCategory> {
   void initState() {
     _scrollController.addListener(_scrollListener);
     _authenticationCubit = context.bloc<AuthenticationCubit>();
-    _mainCategoryBannerCubit = context.bloc<MainCategoryBannerCubit>();
+    _bannerCubit = context.bloc<BannerCubit>();
     _queryCubit = context.bloc<QueryCubit>();
-
-    _resetQuery();
 
     _fetchData();
 
@@ -87,10 +78,9 @@ class _MainCategoryState extends State<MainCategory> {
                 AyoAppBar(
                   scrollController: _scrollController,
                   flexibleSpace: FlexibleSpaceBar(
-                    background: BlocBuilder<MainCategoryBannerCubit,
-                        MainCategoryBannerState>(
+                    background: BlocBuilder<BannerCubit, BannerState>(
                       builder: (context, state) {
-                        if (state is MainCategoryBannerComplete) {
+                        if (state is BannerCompleted) {
                           return CarouselBanner(banners: state.banners);
                         }
 

@@ -1,10 +1,10 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
+import 'package:ayo/bloc/product_cubit.dart';
 import 'package:ayo/model/query/filter.dart';
 import 'package:ayo/model/query/query.dart';
 import 'package:ayo/model/query/sorting.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/banner_state.dart';
-import 'package:ayo/pages/app/bloc/product_rekomendasi_cubit.dart';
 import 'package:ayo/pages/app/bloc/product_terlaris_home_cubit.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/pages/home/bloc/main_category_cubit.dart';
@@ -57,7 +57,7 @@ class _HomeMainState extends State<HomeMain>
   BannerCubit bannerCubit;
   MainCategoryCubit mainCategoryCubit;
   QueryCubit queryCubit;
-  ProductRekomendasiCubit productRekomendasiCubit;
+  ProductCubit productCubit;
   ProductTerlarisHomeCubit productTerlarisHomeCubit;
 
   QueryModel queryModel = QueryModel(filter: Filter(), sorting: Sorting());
@@ -77,14 +77,14 @@ class _HomeMainState extends State<HomeMain>
   }
 
   Future<void> _fetchProdukRekomendasi() async {
-    productRekomendasiCubit.fetchProduct(
+    productCubit.fetchProduct(
       user: authenticateCubit.state.userData,
       query: queryCubit.state.query,
     );
   }
 
   Future<void> _fetchMoreProdukRekomendasi() async {
-    productRekomendasiCubit.fetchMoreProduct(
+    productCubit.fetchMoreProduct(
       user: authenticateCubit.state.userData,
       query: queryCubit.state.query,
     );
@@ -100,7 +100,7 @@ class _HomeMainState extends State<HomeMain>
   Future<void> _fetchFilteredProduct(QueryModel queryModel) async {
     queryModel = queryModel;
 
-    productRekomendasiCubit.fetchProduct(
+    productCubit.fetchProduct(
       user: authenticateCubit.state.userData,
       query: queryModel,
     );
@@ -118,7 +118,7 @@ class _HomeMainState extends State<HomeMain>
     }
 
     //fetch prodiuct
-    if (productRekomendasiCubit.state is ProductRekomendasiInitial) {
+    if (productCubit.state is ProductInitial) {
       await _fetchProdukRekomendasi();
     }
 
@@ -152,12 +152,10 @@ class _HomeMainState extends State<HomeMain>
   void _scrollListener() async {
     var scrollPos = _scrollController.position;
 
-    if (productRekomendasiCubit.state is! ProductRekomendasiError) {
+    if (productCubit.state is! ProductError) {
       if (scrollPos.pixels >= scrollPos.maxScrollExtent - 300 &&
-          productRekomendasiCubit
-                  .state.productPaginate.pagination.nextPageUrl !=
-              null &&
-          productRekomendasiCubit.state is! ProductRekomendasiPagingLoading) {
+          productCubit.state.productPaginate.pagination.nextPageUrl != null &&
+          productCubit.state is! ProductPagingLoading) {
         await _fetchMoreProdukRekomendasi();
       }
     }
@@ -169,7 +167,7 @@ class _HomeMainState extends State<HomeMain>
     bannerCubit = context.bloc<BannerCubit>();
     mainCategoryCubit = context.bloc<MainCategoryCubit>();
     queryCubit = context.bloc<QueryCubit>();
-    productRekomendasiCubit = context.bloc<ProductRekomendasiCubit>();
+    productCubit = context.bloc<ProductCubit>();
     productTerlarisHomeCubit = context.bloc<ProductTerlarisHomeCubit>();
 
     _scrollController.addListener(_scrollListener);
@@ -1126,10 +1124,9 @@ class _HomeMainState extends State<HomeMain>
                 ),
                 SliverPadding(
                   padding: EdgeInsets.only(left: 10, right: 10),
-                  sliver: BlocBuilder<ProductRekomendasiCubit,
-                      ProductRekomendasiState>(
+                  sliver: BlocBuilder<ProductCubit, ProductState>(
                     builder: (context, state) {
-                      if (state is ProductRekomendasiError) {
+                      if (state is ProductError) {
                         return SliverToBoxAdapter(
                           child: Center(
                             child: ErrorState(
@@ -1148,11 +1145,9 @@ class _HomeMainState extends State<HomeMain>
                       // }
 
                       return VerticalProductList(
-                        isLoading:
-                            (state is ProductRekomendasiLoading) ? true : false,
-                        moreLoading: (state is ProductRekomendasiPagingLoading)
-                            ? true
-                            : false,
+                        isLoading: (state is ProductLoading) ? true : false,
+                        moreLoading:
+                            (state is ProductPagingLoading) ? true : false,
                         products: state.productPaginate.products,
                       );
                     },

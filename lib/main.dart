@@ -3,9 +3,6 @@ import 'package:ayo/bloc/connection_cubit.dart';
 import 'package:ayo/bloc/scroll_show_cubit.dart';
 import 'package:ayo/bloc/theme_cubit.dart';
 import 'package:ayo/bloc/theme_state.dart';
-import 'package:ayo/pages/app/bloc/banner_cubit.dart';
-import 'package:ayo/pages/app/bloc/query_cubit.dart';
-import 'package:ayo/pages/main_category/bloc/main_category_banner_cubit.dart';
 import 'package:ayo/provider/provider.dart';
 import 'package:ayo/route/route.dart';
 import 'package:ayo/theme/theme.dart';
@@ -32,15 +29,15 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthenticationCubit>(
           create: (context) => AuthenticationCubit(),
         ),
-        BlocProvider<BannerCubit>(
-          create: (context) => BannerCubit(),
-        ),
-        BlocProvider<MainCategoryBannerCubit>(
-          create: (context) => MainCategoryBannerCubit(),
-        ),
-        BlocProvider<QueryCubit>(
-          create: (context) => QueryCubit(),
-        ),
+        // BlocProvider<BannerCubit>(
+        //   create: (context) => BannerCubit(),
+        // ),
+        // BlocProvider<MainCategoryBannerCubit>(
+        //   create: (context) => MainCategoryBannerCubit(),
+        // ),
+        // BlocProvider<QueryCubit>(
+        //   create: (context) => QueryCubit(),
+        // ),
         BlocProvider<ScrollShowCubit>(
           create: (context) => ScrollShowCubit(),
         ),
@@ -62,6 +59,8 @@ class MainBaseApp extends StatefulWidget {
 }
 
 class _MainBaseAppState extends State<MainBaseApp> with WidgetsBindingObserver {
+  final _routeGenerator = RouteGenerator();
+
   ConnectionCubit connectionCubit;
 
   @override
@@ -95,7 +94,7 @@ class _MainBaseAppState extends State<MainBaseApp> with WidgetsBindingObserver {
       debugShowCheckedModeBanner: false,
       theme: appThemeData[AppTheme.base],
       initialRoute: '/',
-      onGenerateRoute: RouteGenerator.generateRoute,
+      onGenerateRoute: _routeGenerator.generateRoute,
     );
   }
 }

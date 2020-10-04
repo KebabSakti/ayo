@@ -1,4 +1,7 @@
 import 'package:ayo/pages/app/app.dart';
+import 'package:ayo/pages/app/bloc/banner_cubit.dart';
+import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
+import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/pages/filter/filter_page.dart';
 import 'package:ayo/pages/intro/intro.dart';
 import 'package:ayo/pages/main_category/main_category.dart';
@@ -6,10 +9,13 @@ import 'package:ayo/pages/order/order.dart';
 import 'package:ayo/pages/slider/slider_intro.dart';
 import 'package:ayo/pages/sorting/sorting_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 
 class RouteGenerator {
-  static Route<dynamic> generateRoute(RouteSettings settings) {
+  final _queryCubit = QueryCubit();
+
+  Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/':
         return PageTransition(
@@ -39,8 +45,18 @@ class RouteGenerator {
 
       case '/main_category':
         return PageTransition(
-          child: MainCategory(
-            categoryId: settings.arguments,
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<QueryCubit>(
+                create: (context) => QueryCubit(),
+              ),
+              BlocProvider<BannerCubit>(
+                create: (context) => BannerCubit(),
+              ),
+            ],
+            child: MainCategory(
+              categoryId: settings.arguments,
+            ),
           ),
           type: PageTransitionType.rightToLeft,
           settings: settings,
@@ -49,7 +65,10 @@ class RouteGenerator {
 
       case '/filter_page':
         return PageTransition(
-          child: FilterPage(),
+          child: BlocProvider.value(
+            value: _queryCubit,
+            child: FilterPage(),
+          ),
           type: PageTransitionType.downToUp,
           settings: settings,
         );
@@ -57,14 +76,35 @@ class RouteGenerator {
 
       case '/sorting_page':
         return PageTransition(
-          child: SortingPage(),
+          child: BlocProvider.value(
+            value: _queryCubit,
+            child: SortingPage(),
+          ),
           type: PageTransitionType.downToUp,
           settings: settings,
         );
         break;
 
       default:
-        return MaterialPageRoute(builder: (_) => App());
+        return PageTransition(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<NavigationCubit>(
+                create: (context) => NavigationCubit(),
+              ),
+              BlocProvider<QueryCubit>(
+                create: (context) => _queryCubit,
+              ),
+            ],
+            child: App(),
+          ),
+          type: PageTransitionType.rightToLeft,
+          settings: settings,
+        );
     }
+  }
+
+  void dispose() {
+    _queryCubit.close();
   }
 }
