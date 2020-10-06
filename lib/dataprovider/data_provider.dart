@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ayo/model/banner/slide_banner.dart';
+import 'package:ayo/model/cart/cart.dart';
 import 'package:ayo/model/main_category/main_category_model.dart';
 import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product.dart';
@@ -183,6 +184,7 @@ class DataProvider {
         }),
         data: {
           'sub_category_id': query.filter.subCategoryId,
+          'main_category_id': query.filter.mainCategoryId,
           'keyword': query.filter.keyword,
           'terlaris': query.filter.terlaris,
           'diskon': query.filter.diskon,
@@ -207,11 +209,35 @@ class DataProvider {
     }
   }
 
+  Future<dynamic> fetchProductDetail({
+    @required UserData user,
+    @required String productId,
+  }) async {
+    try {
+      var response = await dioInstance.dio.post(
+        "product/detail",
+        options: Options(headers: {
+          "Accept": "application/json",
+          "Authorization": "Bearer ${user.token}",
+          "User-Id": user.id,
+        }),
+        data: {'product_id': productId},
+      );
+
+      var parsed = json.decode(response.toString());
+      var data = Product.fromJson(parsed);
+
+      return data;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
   Future<dynamic> fetchSubCategory(
       {@required UserData user, @required String mainCategoryId}) async {
     try {
       var response =
-          await dioInstance.dio.get("api/sub_category/id/$mainCategoryId",
+          await dioInstance.dio.get("sub_category/id/$mainCategoryId",
               options: Options(headers: {
                 "Accept": "application/json",
                 "Authorization": "Bearer ${user.token}",
@@ -219,10 +245,53 @@ class DataProvider {
               }));
 
       List<dynamic> parsed = await response.data;
-      List<SubCategory> datas = [];
-      parsed.forEach((item) async {
-        datas.add(SubCategory.fromJson(item));
-      });
+      List<SubCategory> datas = List<SubCategory>.from(
+          parsed.map((item) => SubCategory.fromJson(item)).toList());
+
+      return datas;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> fetchCart({@required UserData user}) async {
+    try {
+      var response = await dioInstance.dio.get("cart",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }));
+
+      List<dynamic> parsed = await response.data;
+      List<Cart> datas =
+          List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
+
+      return datas;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> addCart(
+      {@required UserData user, @required Cart cartData}) async {
+    try {
+      var response = await dioInstance.dio.post("cart",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }),
+          data: {
+            'product_id': cartData.productId,
+            'price': cartData.price,
+            'qty': cartData.qty,
+            'total': cartData.total,
+          });
+
+      List<dynamic> parsed = await response.data;
+      List<Cart> datas =
+          List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
 
       return datas;
     } on DioError catch (error) {

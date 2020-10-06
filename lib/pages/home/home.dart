@@ -8,15 +8,16 @@ import 'package:ayo/pages/app/bloc/banner_state.dart';
 import 'package:ayo/pages/app/bloc/product_terlaris_home_cubit.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/pages/home/bloc/main_category_cubit.dart';
-import 'package:ayo/widget/ayo_appbar.dart';
 import 'package:ayo/widget/carousel_banner.dart';
 import 'package:ayo/widget/error_state.dart';
 import 'package:ayo/widget/filter_sort_bar.dart';
 import 'package:ayo/widget/horizontal_product_list.dart';
 import 'package:ayo/widget/product_filter.dart';
 import 'package:ayo/widget/scroll_top.dart';
+import 'package:ayo/widget/search_bar.dart';
 import 'package:ayo/widget/shimmer/banner_shimmer.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
+import 'package:ayo/widget/shopping_cart_icon.dart';
 import 'package:ayo/widget/vertical_product_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -80,15 +81,6 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     );
   }
 
-  Future<void> _fetchFilteredProduct(QueryModel queryModel) async {
-    queryModel = queryModel;
-
-    productCubit.fetchProduct(
-      user: authenticateCubit.state.userData,
-      query: queryModel,
-    );
-  }
-
   Future<void> _fetchData() async {
     //fetch banner
     if (bannerCubit.state is BannerInitial) {
@@ -122,14 +114,6 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     await _fetchProdukRekomendasi();
 
     await _fetchProdukTerlarisHome();
-  }
-
-  void _scrollToTop() {
-    _scrollController.animateTo(_scrollController.position.minScrollExtent,
-        duration: Duration(
-          milliseconds: 1000,
-        ),
-        curve: Curves.easeIn);
   }
 
   void _scrollListener() async {
@@ -191,21 +175,20 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             CustomScrollView(
               controller: _scrollController,
               slivers: [
-                AyoAppBar(
-                  scrollController: _scrollController,
+                SliverAppBar(
+                  expandedHeight: 220.0,
+                  pinned: true,
+                  actions: [
+                    ShoppingCartIcon(),
+                  ],
+                  title: SearchBar(
+                    scrollController: _scrollController,
+                  ),
                   flexibleSpace: FlexibleSpaceBar(
                     background: BlocBuilder<BannerCubit, BannerState>(
                       builder: (context, state) {
                         if (state is BannerCompleted) {
                           return CarouselBanner(banners: state.banners);
-                        }
-
-                        if (state is BannerError) {
-                          return Center(
-                            child: ErrorState(
-                              retryFunction: _fetchBanner,
-                            ),
-                          );
                         }
 
                         return bannerShimmer();
@@ -358,6 +341,8 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                   return Padding(
                                     padding: EdgeInsets.only(left: 5, right: 5),
                                     child: Material(
+                                      color: Colors.grey[100],
+                                      borderRadius: BorderRadius.circular(20),
                                       child: InkWell(
                                         onTap: () {
                                           Navigator.of(context).pushNamed(
@@ -367,17 +352,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                 .categoryId,
                                           );
                                         },
-                                        borderRadius: BorderRadius.circular(10),
+                                        borderRadius: BorderRadius.circular(20),
                                         splashColor: Theme.of(context)
                                             .accentColor
                                             .withOpacity(0.3),
                                         child: Ink(
                                           width: (size.width - 30) / 2,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
-                                            color: Colors.grey[100],
-                                          ),
                                           child: Builder(
                                             builder: (context) {
                                               if (state
@@ -420,7 +400,8 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                 );
                                               }
 
-                                              return boxRadiusShimmer();
+                                              return boxRadiusShimmer(
+                                                  radius: 20);
                                             },
                                           ),
                                         ),
@@ -1094,7 +1075,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                         ),
                       ),
                       child: FilterSortBar(
-                        filterCallback: _fetchFilteredProduct,
+                        queryCubit: queryCubit,
                       ),
                     ),
                   ),
@@ -1118,14 +1099,6 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                         );
                       }
 
-                      // if (state is ProductRekomendasiLoading) {
-                      //   return SliverToBoxAdapter(
-                      //     child: Center(
-                      //       child: CircularProgressIndicator(),
-                      //     ),
-                      //   );
-                      // }
-
                       return VerticalProductList(
                         isLoading: (state is ProductLoading) ? true : false,
                         moreLoading:
@@ -1145,6 +1118,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             ProductFilter(
               scrollController: _scrollController,
               position: 1100,
+              queryCubit: queryCubit,
             ),
             Align(
               alignment: Alignment.bottomRight,
@@ -1152,7 +1126,6 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                 padding: const EdgeInsets.only(bottom: 10, right: 15),
                 child: ScrollTop(
                   scrollController: _scrollController,
-                  scrollToTop: _scrollToTop,
                   position: size.height,
                 ),
               ),

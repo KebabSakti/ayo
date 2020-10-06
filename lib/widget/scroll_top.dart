@@ -4,13 +4,9 @@ import 'package:supercharged/supercharged.dart';
 
 class ScrollTop extends StatefulWidget {
   final ScrollController scrollController;
-  final VoidCallback scrollToTop;
   final double position;
 
-  ScrollTop(
-      {@required this.scrollController,
-      @required this.scrollToTop,
-      @required this.position});
+  ScrollTop({@required this.scrollController, this.position});
 
   @override
   _ScrollTopState createState() => _ScrollTopState();
@@ -18,12 +14,20 @@ class ScrollTop extends StatefulWidget {
 
 class _ScrollTopState extends State<ScrollTop> {
   bool show = false;
+  double pos;
+
+  void _scrollToTop() {
+    widget.scrollController
+        .animateTo(widget.scrollController.position.minScrollExtent,
+            duration: Duration(
+              milliseconds: 200,
+            ),
+            curve: Curves.easeIn);
+  }
 
   void _scrollListener() {
     setState(() {
-      show = widget.scrollController.position.pixels > widget.position
-          ? true
-          : false;
+      show = widget.scrollController.position.pixels > pos ? true : false;
     });
   }
 
@@ -36,6 +40,8 @@ class _ScrollTopState extends State<ScrollTop> {
 
   @override
   Widget build(BuildContext context) {
+    pos = widget.position ?? MediaQuery.of(context).size.height;
+
     return CustomAnimation<double>(
       control: (show)
           ? CustomAnimationControl.PLAY
@@ -48,7 +54,7 @@ class _ScrollTopState extends State<ScrollTop> {
         elevation: 2,
         borderRadius: BorderRadius.circular(20),
         child: InkWell(
-          onTap: widget.scrollToTop,
+          onTap: _scrollToTop,
           borderRadius: BorderRadius.circular(20),
           child: Ink(
             padding: EdgeInsets.all(10),

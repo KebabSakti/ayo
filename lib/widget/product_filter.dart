@@ -1,11 +1,16 @@
+import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/widget/filter_sort_bar.dart';
 import 'package:flutter/material.dart';
 
 class ProductFilter extends StatefulWidget {
   final ScrollController scrollController;
   final double position;
+  final QueryCubit queryCubit;
 
-  ProductFilter({@required this.scrollController, @required this.position});
+  ProductFilter(
+      {@required this.scrollController,
+      @required this.position,
+      @required this.queryCubit});
 
   @override
   _ProductFilterState createState() => _ProductFilterState();
@@ -49,7 +54,9 @@ class _ProductFilterState extends State<ProductFilter> {
                 ),
                 color: Colors.white,
               ),
-              child: FilterSortBar(),
+              child: FilterSortBar(
+                queryCubit: widget.queryCubit,
+              ),
             ),
           )
         : SizedBox.shrink();

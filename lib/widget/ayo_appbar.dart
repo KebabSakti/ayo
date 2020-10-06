@@ -54,7 +54,6 @@ class _AyoAppBarState extends State<AyoAppBar> {
       expandedHeight: 220.0,
       titleSpacing: widget.titleSpacing ?? NavigationToolbar.kMiddleSpacing,
       pinned: true,
-      backgroundColor: Colors.white,
       title: SearchBar(
         scrollController: widget.scrollController,
       ),
@@ -65,21 +64,23 @@ class _AyoAppBarState extends State<AyoAppBar> {
           overflow: Overflow.visible,
           children: [
             Ink(
-              width: 20,
+              width: 30,
               child: IconButton(
-                onPressed: () {},
+                onPressed: () async {
+                  await Navigator.of(context).pushNamed('/cart_page');
+                },
                 splashRadius: 20,
                 splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                 padding: EdgeInsets.zero,
                 icon: Icon(
                   FontAwesomeIcons.shoppingBasket,
-                  color: _appBarIcon,
+                  color: Colors.white,
                   size: 20,
                 ),
               ),
             ),
             Positioned(
-              left: 8,
+              left: 13,
               top: 8,
               child: ShoppingCart(animate: true),
             ),

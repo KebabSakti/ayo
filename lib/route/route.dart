@@ -1,26 +1,29 @@
+import 'package:ayo/bloc/product_cubit.dart';
 import 'package:ayo/pages/app/app.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
-import 'package:ayo/pages/filter/filter_page.dart';
+import 'package:ayo/pages/cart/cart_page.dart';
 import 'package:ayo/pages/intro/intro.dart';
+import 'package:ayo/pages/main_category/bloc/sub_category_cubit.dart';
 import 'package:ayo/pages/main_category/main_category.dart';
 import 'package:ayo/pages/order/order.dart';
+import 'package:ayo/pages/product_detail/product_detail.dart';
+import 'package:ayo/pages/product_detail/product_detail_cubit.dart';
 import 'package:ayo/pages/slider/slider_intro.dart';
-import 'package:ayo/pages/sorting/sorting_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:page_transition/page_transition.dart';
 
 class RouteGenerator {
-  final _queryCubit = QueryCubit();
-
+  final _duration = Duration(milliseconds: 200);
   Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/':
         return PageTransition(
           child: Intro(),
           type: PageTransitionType.rightToLeft,
+          duration: _duration,
           settings: settings,
         );
         break;
@@ -31,6 +34,7 @@ class RouteGenerator {
             intros: settings.arguments,
           ),
           type: PageTransitionType.rightToLeft,
+          duration: _duration,
           settings: settings,
         );
         break;
@@ -39,6 +43,7 @@ class RouteGenerator {
         return PageTransition(
           child: Order(),
           type: PageTransitionType.rightToLeft,
+          duration: _duration,
           settings: settings,
         );
         break;
@@ -47,11 +52,17 @@ class RouteGenerator {
         return PageTransition(
           child: MultiBlocProvider(
             providers: [
+              BlocProvider<BannerCubit>(
+                create: (context) => BannerCubit(),
+              ),
               BlocProvider<QueryCubit>(
                 create: (context) => QueryCubit(),
               ),
-              BlocProvider<BannerCubit>(
-                create: (context) => BannerCubit(),
+              BlocProvider<SubCategoryCubit>(
+                create: (context) => SubCategoryCubit(),
+              ),
+              BlocProvider<ProductCubit>(
+                create: (context) => ProductCubit(),
               ),
             ],
             child: MainCategory(
@@ -59,28 +70,34 @@ class RouteGenerator {
             ),
           ),
           type: PageTransitionType.rightToLeft,
+          duration: _duration,
           settings: settings,
         );
         break;
 
-      case '/filter_page':
+      case '/product_detail':
         return PageTransition(
-          child: BlocProvider.value(
-            value: _queryCubit,
-            child: FilterPage(),
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<ProductDetailCubit>(
+                create: (context) => ProductDetailCubit(),
+              )
+            ],
+            child: ProductDetail(
+              productId: settings.arguments,
+            ),
           ),
-          type: PageTransitionType.downToUp,
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
           settings: settings,
         );
         break;
 
-      case '/sorting_page':
+      case '/cart_page':
         return PageTransition(
-          child: BlocProvider.value(
-            value: _queryCubit,
-            child: SortingPage(),
-          ),
-          type: PageTransitionType.downToUp,
+          child: CartPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
           settings: settings,
         );
         break;
@@ -92,19 +109,15 @@ class RouteGenerator {
               BlocProvider<NavigationCubit>(
                 create: (context) => NavigationCubit(),
               ),
-              BlocProvider<QueryCubit>(
-                create: (context) => _queryCubit,
-              ),
             ],
             child: App(),
           ),
           type: PageTransitionType.rightToLeft,
+          duration: _duration,
           settings: settings,
         );
     }
   }
 
-  void dispose() {
-    _queryCubit.close();
-  }
+  void dispose() {}
 }

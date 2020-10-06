@@ -12,10 +12,10 @@ SubCategory _$SubCategoryFromJson(Map<String, dynamic> json) {
     subCategoryId: json['sub_category_id'] as String,
     mainCategoryId: json['main_category_id'] as String,
     title: json['title'] as String,
-    caption: json['caption'],
+    caption: json['caption'] as String,
     image: json['image'] as String,
-    color: json['color'],
-    link: json['link'],
+    color: json['color'] as String,
+    link: json['link'] as String,
     active: json['active'] as int,
     createdAt: json['created_at'] == null
         ? null

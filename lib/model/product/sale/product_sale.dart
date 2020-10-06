@@ -2,7 +2,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'product_sale.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(nullable: true)
 class ProductSale {
   ProductSale({
     this.id,
@@ -15,12 +15,21 @@ class ProductSale {
   });
 
   final int id;
+  @JsonKey(name: 'product_sale_id')
   final String productSaleId;
+  @JsonKey(name: 'product_id')
   final String productId;
+  @JsonKey(name: 'qty_total')
   final int qtyTotal;
+  @JsonKey(name: 'amount_total', fromJson: _fromDouble)
   final double amountTotal;
+  @JsonKey(name: 'created_at')
   final DateTime createdAt;
+  @JsonKey(name: 'updated_at')
   final DateTime updatedAt;
+
+  static double _fromDouble(String value) =>
+      value == null ? null : double.parse(value);
 
   ProductSale copyWith({
     int id,

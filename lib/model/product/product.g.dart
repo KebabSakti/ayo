@@ -35,6 +35,12 @@ Product _$ProductFromJson(Map<String, dynamic> json) {
     favourite: json['favourite'] == null
         ? null
         : Favourite.fromJson(json['favourite'] as Map<String, dynamic>),
+    viewer: json['viewer'] == null
+        ? null
+        : Viewer.fromJson(json['viewer'] as Map<String, dynamic>),
+    productSale: json['product_sale'] == null
+        ? null
+        : ProductSale.fromJson(json['product_sale'] as Map<String, dynamic>),
   );
 }
 
@@ -56,4 +62,6 @@ Map<String, dynamic> _$ProductToJson(Product instance) => <String, dynamic>{
       'rating_weight': instance.ratingWeight?.toJson(),
       'unit': instance.unit?.toJson(),
       'favourite': instance.favourite?.toJson(),
+      'viewer': instance.viewer?.toJson(),
+      'product_sale': instance.productSale?.toJson(),
     };

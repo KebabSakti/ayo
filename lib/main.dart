@@ -1,4 +1,5 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
+import 'package:ayo/bloc/cart_cubit.dart';
 import 'package:ayo/bloc/connection_cubit.dart';
 import 'package:ayo/bloc/scroll_show_cubit.dart';
 import 'package:ayo/bloc/theme_cubit.dart';
@@ -29,17 +30,11 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthenticationCubit>(
           create: (context) => AuthenticationCubit(),
         ),
-        // BlocProvider<BannerCubit>(
-        //   create: (context) => BannerCubit(),
-        // ),
-        // BlocProvider<MainCategoryBannerCubit>(
-        //   create: (context) => MainCategoryBannerCubit(),
-        // ),
-        // BlocProvider<QueryCubit>(
-        //   create: (context) => QueryCubit(),
-        // ),
         BlocProvider<ScrollShowCubit>(
           create: (context) => ScrollShowCubit(),
+        ),
+        BlocProvider<CartCubit>(
+          create: (context) => CartCubit(),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

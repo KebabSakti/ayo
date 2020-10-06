@@ -1,18 +1,18 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'product_sale.dart';
+part of 'viewer.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-ProductSale _$ProductSaleFromJson(Map<String, dynamic> json) {
-  return ProductSale(
+Viewer _$ViewerFromJson(Map<String, dynamic> json) {
+  return Viewer(
     id: json['id'] as int,
-    productSaleId: json['product_sale_id'] as String,
-    productId: json['product_id'] as String,
-    qtyTotal: json['qty_total'] as int,
-    amountTotal: ProductSale._fromDouble(json['amount_total'] as String),
+    viewerId: json['viewer_id'] as String,
+    relationId: json['relation_id'] as String,
+    userId: json['user_id'] as String,
+    view: json['view'] as int,
     createdAt: json['created_at'] == null
         ? null
         : DateTime.parse(json['created_at'] as String),
@@ -22,13 +22,12 @@ ProductSale _$ProductSaleFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$ProductSaleToJson(ProductSale instance) =>
-    <String, dynamic>{
+Map<String, dynamic> _$ViewerToJson(Viewer instance) => <String, dynamic>{
       'id': instance.id,
-      'product_sale_id': instance.productSaleId,
-      'product_id': instance.productId,
-      'qty_total': instance.qtyTotal,
-      'amount_total': instance.amountTotal,
+      'viewer_id': instance.viewerId,
+      'relation_id': instance.relationId,
+      'user_id': instance.userId,
+      'view': instance.view,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

@@ -1,11 +1,15 @@
-import 'package:ayo/model/query/query.dart';
+import 'package:ayo/pages/app/bloc/query_cubit.dart';
+import 'package:ayo/pages/filter/filter_page.dart';
+import 'package:ayo/pages/sorting/sorting_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FilterSortBar extends StatefulWidget {
-  final ValueSetter<QueryModel> filterCallback;
+  final QueryCubit queryCubit;
 
-  FilterSortBar({@required this.filterCallback});
+  FilterSortBar({@required this.queryCubit});
 
   @override
   _FilterSortBarState createState() => _FilterSortBarState();
@@ -23,7 +27,13 @@ class _FilterSortBarState extends State<FilterSortBar> {
             borderRadius: BorderRadius.circular(10),
             child: InkWell(
               onTap: () async {
-                await Navigator.of(context).pushNamed('/filter_page');
+                showMaterialModalBottomSheet(
+                  context: context,
+                  useRootNavigator: true,
+                  duration: Duration(milliseconds: 200),
+                  builder: (context, scrollController) => BlocProvider.value(
+                      value: widget.queryCubit, child: FilterPage()),
+                );
               },
               child: Ink(
                 height: double.infinity,
@@ -62,7 +72,13 @@ class _FilterSortBarState extends State<FilterSortBar> {
             borderRadius: BorderRadius.circular(10),
             child: InkWell(
               onTap: () async {
-                await Navigator.of(context).pushNamed('/sorting_page');
+                showMaterialModalBottomSheet(
+                  context: context,
+                  useRootNavigator: true,
+                  duration: Duration(milliseconds: 200),
+                  builder: (context, scrollController) => BlocProvider.value(
+                      value: widget.queryCubit, child: SortingPage()),
+                );
               },
               splashColor: Theme.of(context).accentColor.withOpacity(0.3),
               child: Ink(

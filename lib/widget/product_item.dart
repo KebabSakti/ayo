@@ -21,7 +21,8 @@ class _ProductItemState extends State<ProductItem> {
     return Material(
       child: InkWell(
         onTap: () {
-          print('detail produk');
+          Navigator.of(context)
+              .pushNamed('/product_detail', arguments: product.productId);
         },
         onDoubleTap: () {
           print('love it');

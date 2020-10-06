@@ -1,4 +1,5 @@
 import 'package:ayo/dataprovider/data_provider.dart';
+import 'package:ayo/model/cart/cart.dart';
 import 'package:ayo/model/query/query.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/provider/provider.dart';
@@ -41,9 +42,23 @@ class Repository {
     return await providers.fetchProduct(user: user, query: query, page: page);
   }
 
+  Future<dynamic> fetchProductDetail(
+      {@required UserData user, @required String productId}) async {
+    return await providers.fetchProductDetail(user: user, productId: productId);
+  }
+
   Future<dynamic> fetchSubCategory(
       {@required UserData user, @required String mainCategoryId}) async {
     return await providers.fetchSubCategory(
         user: user, mainCategoryId: mainCategoryId);
+  }
+
+  Future<dynamic> fetchCart({@required UserData user}) async {
+    return await providers.fetchCart(user: user);
+  }
+
+  Future<dynamic> addCart(
+      {@required UserData user, @required Cart cartData}) async {
+    return await providers.addCart(user: user, cartData: cartData);
   }
 }

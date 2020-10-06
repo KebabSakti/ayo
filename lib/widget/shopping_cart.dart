@@ -4,8 +4,10 @@ import 'package:supercharged/supercharged.dart';
 
 class ShoppingCart extends StatefulWidget {
   final bool animate;
+  final int total;
 
-  ShoppingCart({Key key, @required this.animate}) : super(key: key);
+  ShoppingCart({Key key, @required this.animate, @required this.total})
+      : super(key: key);
 
   @override
   _ShoppingCartState createState() => _ShoppingCartState();
@@ -44,7 +46,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
         child: CircleAvatar(
           backgroundColor: Colors.red,
           child: Text(
-            '99+',
+            (widget.total <= 99) ? widget.total.toString() : '99+',
             style: TextStyle(
                 color: Colors.white, fontSize: 7, fontWeight: FontWeight.w600),
           ),

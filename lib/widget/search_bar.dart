@@ -48,7 +48,7 @@ class _SearchBarState extends State<SearchBar> {
       height: 35,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(6),
-        color: _searchBarColor,
+        color: Colors.white,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -62,7 +62,6 @@ class _SearchBarState extends State<SearchBar> {
           GestureDetector(
             onTap: () {},
             child: Container(
-              width: 200,
               child: Text(
                 widget.hint ?? 'Cari di sini',
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
-Widget boxRadiusShimmer() {
+Widget boxRadiusShimmer({double radius, double width, double height}) {
   return SizedBox(
-    width: double.infinity,
-    height: 220,
+    width: width ?? double.infinity,
+    height: height ?? double.infinity,
     child: Shimmer.fromColors(
       period: Duration(
         milliseconds: 700,
@@ -15,7 +15,7 @@ Widget boxRadiusShimmer() {
         decoration: BoxDecoration(
           color: Colors.grey[200],
           shape: BoxShape.rectangle,
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(radius ?? 10),
         ),
       ),
     ),

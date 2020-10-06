@@ -1,4 +1,3 @@
-import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -68,27 +67,56 @@ class _UserState extends State<User> {
     final width = (screen.size.width - 30) / 2;
 
     return Scaffold(
-      body: ListView.builder(
-        shrinkWrap: true,
-        controller: _scrollController,
-        itemBuilder: (context, index) {
-          if (index + 1 == myList.length) {
-            return loading
-                ? Container(
-                    padding: EdgeInsets.only(left: 4, right: 4),
-                    height: 50,
-                    width: double.infinity,
-                    child: boxRadiusShimmer(),
-                  )
-                : SizedBox.shrink();
-          }
-
-          return Card(
-            child: myList[index],
-          );
-        },
-        itemCount: myList.length,
+      body: Material(
+        child: InkWell(
+          child: Ink(
+            color: Colors.grey,
+            child: Row(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          color: Colors.red,
+                          height: 200,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  width: 100,
+                  height: 200,
+                  color: Colors.green,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
 }
+
+// ListView.builder(
+// shrinkWrap: true,
+// controller: _scrollController,
+// itemBuilder: (context, index) {
+// if (index + 1 == myList.length) {
+// return loading
+// ? Container(
+// padding: EdgeInsets.only(left: 4, right: 4),
+// height: 50,
+// width: double.infinity,
+// child: boxRadiusShimmer(),
+// )
+//     : SizedBox.shrink();
+// }
+//
+// return Card(
+// child: myList[index],
+// );
+// },
+// itemCount: myList.length,
+// ),

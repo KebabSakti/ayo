@@ -24,10 +24,13 @@ class SubCategory {
   @JsonKey(name: 'main_category_id')
   final String mainCategoryId;
   final String title;
-  final dynamic caption;
+  @JsonKey(nullable: true)
+  final String caption;
   final String image;
-  final dynamic color;
-  final dynamic link;
+  @JsonKey(nullable: true)
+  final String color;
+  @JsonKey(nullable: true)
+  final String link;
   final int active;
   @JsonKey(name: 'created_at')
   final DateTime createdAt;
@@ -39,10 +42,10 @@ class SubCategory {
     String subCategoryId,
     String mainCategoryId,
     String title,
-    dynamic caption,
+    String caption,
     String image,
-    dynamic color,
-    dynamic link,
+    String color,
+    String link,
     int active,
     DateTime createdAt,
     DateTime updatedAt,
