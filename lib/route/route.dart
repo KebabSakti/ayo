@@ -28,6 +28,22 @@ class RouteGenerator {
         );
         break;
 
+      case '/app':
+        return PageTransition(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<NavigationCubit>(
+                create: (context) => NavigationCubit(),
+              ),
+            ],
+            child: App(),
+          ),
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
+          settings: settings,
+        );
+        break;
+
       case '/slider_intro':
         return PageTransition(
           child: SliderIntro(

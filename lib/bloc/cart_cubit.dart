@@ -33,4 +33,14 @@ class CartCubit extends Cubit<CartState> {
       emit(CartError(state.carts));
     }
   }
+
+  void removeCart({@required UserData user, @required String productId}) async {
+    emit(CartRemoveLoading(state.carts));
+    var carts = await _repository.removeCart(user: user, productId: productId);
+    if (carts is! DioError) {
+      emit(CartComplete(carts));
+    } else {
+      emit(CartError(state.carts));
+    }
+  }
 }

@@ -9,11 +9,9 @@ import 'package:ayo/widget/search_bar.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:ayo/widget/shopping_cart_icon.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:progress_dialog/progress_dialog.dart';
 
 class ProductDetail extends StatefulWidget {
   final String productId;
@@ -30,8 +28,6 @@ class _ProductDetailState extends State<ProductDetail> {
   AuthenticationCubit _authenticationCubit;
   ProductDetailCubit _productDetailCubit;
   CartCubit _cartCubit;
-
-  ProgressDialog _progressDialog;
 
   void _addToCart(Cart cart) {
     _cartCubit.addCart(
@@ -72,23 +68,20 @@ class _ProductDetailState extends State<ProductDetail> {
 
   @override
   Widget build(BuildContext context) {
-    _progressDialog = myProgressDialog(context);
     return BlocListener<CartCubit, CartState>(
       listener: (context, state) {
-        if (state is CartAddLoading) {
-          _progressDialog.show();
-        }
-
         if (state is CartComplete) {
-          _progressDialog
-              .hide()
-              .whenComplete(() => print('Produk berhasil di tambahkan'));
+          if (myProgressDialog(context).isShowing())
+            myProgressDialog(context)
+                .hide()
+                .whenComplete(() => print('Produk berhasil di tambahkan'));
         }
 
         if (state is CartError) {
-          _progressDialog
-              .hide()
-              .whenComplete(() => print('Gagal menambahkan data'));
+          if (myProgressDialog(context).isShowing())
+            myProgressDialog(context)
+                .hide()
+                .whenComplete(() => print('Gagal menambahkan data'));
         }
       },
       child: RefreshIndicator(
@@ -614,6 +607,8 @@ class _ProductDetailState extends State<ProductDetail> {
                       Expanded(
                         child: FlatButton(
                           onPressed: () {
+                            myProgressDialog(context).show();
+
                             double price = (state.product.discount != null)
                                 ? Helper().getDiscountedPrice(
                                     state.product.discount.amount,

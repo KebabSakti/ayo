@@ -298,4 +298,26 @@ class DataProvider {
       return error;
     }
   }
+
+  Future<dynamic> removeCart(
+      {@required UserData user, @required String productId}) async {
+    try {
+      var response = await dioInstance.dio.delete(
+        "cart/$productId/delete",
+        options: Options(headers: {
+          "Accept": "application/json",
+          "Authorization": "Bearer ${user.token}",
+          "User-Id": user.id,
+        }),
+      );
+
+      List<dynamic> parsed = await response.data;
+      List<Cart> datas =
+          List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
+
+      return datas;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
 }

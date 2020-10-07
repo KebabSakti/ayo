@@ -92,7 +92,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
       await _fetchMainCategory();
     }
 
-    //fetch prodiuct
+    //fetch product
     if (productCubit.state is ProductInitial) {
       await _fetchProdukRekomendasi();
     }

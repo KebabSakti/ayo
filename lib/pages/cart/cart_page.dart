@@ -1,6 +1,7 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/cart_cubit.dart';
 import 'package:ayo/model/cart/cart.dart';
+import 'package:ayo/util/dialog.dart';
 import 'package:ayo/util/helper.dart';
 import 'package:ayo/widget/scroll_top.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
@@ -9,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class CartPage extends StatefulWidget {
   @override
@@ -22,11 +24,52 @@ class _CartPageState extends State<CartPage> {
   CartCubit _cartCubit;
 
   List<Cart> carts = [];
+  List<String> productIds = [];
+  Map<String, Cart> cartItems;
+
+  bool _allCheck = true;
 
   void _mainScrollListener() {}
 
   void _allCheckListener(bool status) {
-    print(status);
+    setState(() {
+      if (status) {
+        _cartCubit.state.carts.forEach((e) {
+          if (!productIds.contains(e.productId)) {
+            productIds.add(e.productId);
+          }
+        });
+      } else {
+        productIds = [];
+      }
+
+      _allCheck = status;
+    });
+  }
+
+  bool _toggleCheck(Cart item) {
+    return (productIds.where((e) => e == item.productId).length > 0)
+        ? true
+        : false;
+  }
+
+  void _checkedItemListener(String productId) {
+    setState(() {
+      if (productIds.contains(productId)) {
+        productIds.remove(productId);
+      } else {
+        productIds.add(productId);
+      }
+
+      _allCheck = (productIds.length > 0);
+    });
+  }
+
+  void _deleteItem(String productId) {
+    myProgressDialog(context).show();
+
+    _cartCubit.removeCart(
+        user: _authenticationCubit.state.userData, productId: productId);
   }
 
   Future _fetchData() async {
@@ -40,6 +83,11 @@ class _CartPageState extends State<CartPage> {
     _authenticationCubit = context.bloc<AuthenticationCubit>();
     _cartCubit = context.bloc<CartCubit>();
 
+    setState(() {
+      productIds = List<String>.from(
+          _cartCubit.state.carts.map((e) => e.productId).toList());
+    });
+
     super.initState();
   }
 
@@ -51,79 +99,135 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CartCubit, CartState>(listener: (context, state) {
-      if (state is CartComplete) {
-        setState(() {
-          carts = state.carts;
-        });
-      }
-    }, builder: (context, state) {
-      return RefreshIndicator(
-        onRefresh: _fetchData,
-        child: Scaffold(
-          backgroundColor: Colors.white,
-          body: Stack(
-            children: [
-              CustomScrollView(
-                controller: _scrollController,
-                slivers: [
-                  SliverAppBar(
-                    titleSpacing: 0,
-                    pinned: true,
-                    title: Text(
-                      'Keranjang',
-                      style: TextStyle(color: Colors.white),
+    return BlocConsumer<CartCubit, CartState>(
+      listener: (context, state) {
+        if (state is CartComplete) {
+          if (myProgressDialog(context).isShowing())
+            myProgressDialog(context).hide();
+        }
+      },
+      builder: (context, state) {
+        return RefreshIndicator(
+          onRefresh: _fetchData,
+          child: Scaffold(
+            backgroundColor: Colors.white,
+            body: Stack(
+              children: [
+                CustomScrollView(
+                  controller: _scrollController,
+                  slivers: [
+                    SliverAppBar(
+                      titleSpacing: 0,
+                      pinned: true,
+                      title: Text(
+                        'Keranjang',
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: SizedBox(
-                      height: 56,
+                    SliverToBoxAdapter(
+                      child: SizedBox(
+                        height: 56,
+                      ),
                     ),
-                  ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        return (state is CartComplete)
-                            ? CartItem(
-                                index: index,
-                                cart: carts[index],
-                              )
-                            : _cartItemShimmer(index);
-                      },
-                      childCount: state.carts.length ?? 4,
+                    (state.carts.length > 0)
+                        ? SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                if (state is CartLoading) {
+                                  return _cartItemShimmer(index);
+                                }
+
+                                return CartItem(
+                                  index: index,
+                                  cart: state.carts[index],
+                                  checkedItemListener: _checkedItemListener,
+                                  checked: _toggleCheck(state.carts[index]),
+                                  deleteItem: _deleteItem,
+                                );
+                              },
+                              childCount: state.carts.length ?? 4,
+                            ),
+                          )
+                        : SliverToBoxAdapter(
+                            child: Container(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(left: 40, right: 40),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 200,
+                                      height: 200,
+                                      child: SvgPicture.asset(
+                                          'assets/images/empty_cart.svg'),
+                                    ),
+                                    SizedBox(
+                                      height: 10,
+                                    ),
+                                    Text(
+                                      'Keranjang belanja kamu masih kosong, ayo mulai belanja',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.grey[600]),
+                                    ),
+                                    SizedBox(
+                                      height: 20,
+                                    ),
+                                    FlatButton(
+                                      onPressed: () {
+                                        Navigator.popUntil(context,
+                                            ModalRoute.withName('/app'));
+                                      },
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(4),
+                                      ),
+                                      color: Theme.of(context).primaryColor,
+                                      child: Text(
+                                        'Mulai Belanja',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 56,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                  ],
+                ),
+                (state.carts.length > 0)
+                    ? Align(
+                        alignment: Alignment.topCenter,
+                        child: SafeArea(
+                          child: CartChecker(
+                            scrollController: _scrollController,
+                            total: state.carts.length,
+                            allCheckListener: _allCheckListener,
+                            allCheck: _allCheck,
+                          ),
+                        ),
+                      )
+                    : SizedBox.shrink(),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10, right: 15),
+                    child: ScrollTop(
+                      scrollController: _scrollController,
                     ),
-                  ),
-                  SliverToBoxAdapter(
-                    child: Container(
-                      height: 1000,
-                    ),
-                  ),
-                ],
-              ),
-              Align(
-                alignment: Alignment.topCenter,
-                child: SafeArea(
-                  child: CartChecker(
-                    scrollController: _scrollController,
-                    total: state.carts.length ?? 0,
-                    allCheckListener: _allCheckListener,
                   ),
                 ),
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 10, right: 15),
-                  child: ScrollTop(
-                    scrollController: _scrollController,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }
 
@@ -131,11 +235,14 @@ class CartChecker extends StatefulWidget {
   final ScrollController scrollController;
   final int total;
   final ValueChanged<bool> allCheckListener;
+  final bool allCheck;
 
-  CartChecker(
-      {@required this.scrollController,
-      @required this.total,
-      @required this.allCheckListener});
+  CartChecker({
+    @required this.scrollController,
+    @required this.total,
+    @required this.allCheckListener,
+    @required this.allCheck,
+  });
 
   @override
   _CartCheckerState createState() => _CartCheckerState();
@@ -190,7 +297,7 @@ class _CartCheckerState extends State<CartChecker> {
                       onChanged: (value) {
                         _toggleSemua();
                       },
-                      value: semua,
+                      value: widget.allCheck,
                       activeColor: Theme.of(context).primaryColor,
                     ),
                     Text(
@@ -220,8 +327,17 @@ class _CartCheckerState extends State<CartChecker> {
 class CartItem extends StatefulWidget {
   final int index;
   final Cart cart;
+  final bool checked;
+  final ValueChanged<String> checkedItemListener;
+  final ValueChanged<String> deleteItem;
 
-  CartItem({@required this.index, @required this.cart});
+  CartItem({
+    @required this.index,
+    @required this.cart,
+    @required this.checkedItemListener,
+    @required this.checked,
+    @required this.deleteItem,
+  });
 
   @override
   _CartItemState createState() => _CartItemState();
@@ -245,9 +361,8 @@ class _CartItemState extends State<CartItem> {
       height: 190,
       padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
       decoration: BoxDecoration(
-          border: Border(
-              bottom: BorderSide(
-                  color: Colors.grey[100], width: widget.index != 10 ? 1 : 0))),
+          border:
+              Border(bottom: BorderSide(color: Colors.grey[100], width: 1))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,8 +372,10 @@ class _CartItemState extends State<CartItem> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Checkbox(
-                  onChanged: (value) {},
-                  value: true,
+                  onChanged: (value) {
+                    widget.checkedItemListener(_cart.productId);
+                  },
+                  value: widget.checked,
                   activeColor: Theme.of(context).primaryColor,
                 ),
                 Container(
@@ -399,7 +516,9 @@ class _CartItemState extends State<CartItem> {
             width: 10,
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              widget.deleteItem(widget.cart.productId);
+            },
             icon: Icon(
               Icons.delete,
               color: Colors.grey,

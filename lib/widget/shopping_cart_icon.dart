@@ -34,11 +34,14 @@ class _ShoppingCartIconState extends State<ShoppingCartIcon> {
   Widget build(BuildContext context) {
     return BlocConsumer<CartCubit, CartState>(
       listener: (context, state) {
+        print(state);
         if (state is CartError) {
           _fetchData();
         }
       },
       builder: (context, state) {
+        int _cartItemTotal =
+            state.carts.fold(0, (value, element) => value + element.qty);
         return Stack(
           alignment: Alignment.center,
           overflow: Overflow.visible,
@@ -61,9 +64,8 @@ class _ShoppingCartIconState extends State<ShoppingCartIcon> {
                     left: 15,
                     top: 8,
                     child: ShoppingCart(
-                      animate: state.carts.length > 0 ? true : false,
-                      total: state.carts
-                          .fold(0, (value, element) => value + element.qty),
+                      animate: (_cartItemTotal > 0) ? true : false,
+                      total: _cartItemTotal,
                     ),
                   )
                 : SizedBox.shrink(),

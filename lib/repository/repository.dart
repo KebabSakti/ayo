@@ -61,4 +61,9 @@ class Repository {
       {@required UserData user, @required Cart cartData}) async {
     return await providers.addCart(user: user, cartData: cartData);
   }
+
+  Future<dynamic> removeCart(
+      {@required UserData user, @required String productId}) async {
+    return await providers.removeCart(user: user, productId: productId);
+  }
 }
