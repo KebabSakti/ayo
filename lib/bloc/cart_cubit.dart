@@ -1,4 +1,5 @@
 import 'package:ayo/model/cart/cart.dart';
+import 'package:ayo/model/cart/cart_item.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/provider/provider.dart';
 import 'package:ayo/repository/repository.dart';
@@ -37,6 +38,16 @@ class CartCubit extends Cubit<CartState> {
   void removeCart({@required UserData user, @required String productId}) async {
     emit(CartRemoveLoading(state.carts));
     var carts = await _repository.removeCart(user: user, productId: productId);
+    if (carts is! DioError) {
+      emit(CartComplete(carts));
+    } else {
+      emit(CartError(state.carts));
+    }
+  }
+
+  void updateCart({@required UserData user, @required Map<String, CartItemModel> cartItem}) async {
+    emit(CartUpdateLoading(state.carts));
+    var carts = await _repository.updateCart(user: user, cartItem: cartItem);
     if (carts is! DioError) {
       emit(CartComplete(carts));
     } else {

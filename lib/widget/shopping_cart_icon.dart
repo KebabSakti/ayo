@@ -15,8 +15,7 @@ class _ShoppingCartIconState extends State<ShoppingCartIcon> {
   CartCubit _cartCubit;
 
   void _fetchData() {
-    if (_cartCubit.state is CartInitial)
-      _cartCubit.fetchCart(user: _authenticationCubit.state.userData);
+    if (_cartCubit.state is CartInitial) _cartCubit.fetchCart(user: _authenticationCubit.state.userData);
   }
 
   @override
@@ -40,8 +39,7 @@ class _ShoppingCartIconState extends State<ShoppingCartIcon> {
         }
       },
       builder: (context, state) {
-        int _cartItemTotal =
-            state.carts.fold(0, (value, element) => value + element.qty);
+        int _cartItemTotal = state.carts.fold(0, (value, element) => value + element.qty);
         return Stack(
           alignment: Alignment.center,
           overflow: Overflow.visible,
@@ -59,16 +57,14 @@ class _ShoppingCartIconState extends State<ShoppingCartIcon> {
                 size: 20,
               ),
             ),
-            (state is CartComplete)
-                ? Positioned(
-                    left: 15,
-                    top: 8,
-                    child: ShoppingCart(
-                      animate: (_cartItemTotal > 0) ? true : false,
-                      total: _cartItemTotal,
-                    ),
-                  )
-                : SizedBox.shrink(),
+            Positioned(
+              left: 15,
+              top: 8,
+              child: ShoppingCart(
+                animate: (_cartItemTotal > 0) ? true : false,
+                total: _cartItemTotal,
+              ),
+            ),
           ],
         );
       },

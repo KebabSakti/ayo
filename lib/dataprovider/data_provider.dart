@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ayo/model/banner/slide_banner.dart';
 import 'package:ayo/model/cart/cart.dart';
+import 'package:ayo/model/cart/cart_item.dart';
 import 'package:ayo/model/main_category/main_category_model.dart';
 import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product.dart';
@@ -76,8 +77,7 @@ class DataProvider {
       List<IntroData> data = [];
       if (parsed.length > 0) {
         for (var item in parsed) {
-          var path = (await getTemporaryDirectory()).path +
-              "${Helper().generateRandomId()}.jpg";
+          var path = (await getTemporaryDirectory()).path + "${Helper().generateRandomId()}.jpg";
 
           IntroData intro = IntroData(
             id: item['intro_id'],
@@ -124,8 +124,7 @@ class DataProvider {
     }
   }
 
-  Future<dynamic> fetchBanner(
-      {@required String target, String id, @required UserData user}) async {
+  Future<dynamic> fetchBanner({@required String target, String id, @required UserData user}) async {
     try {
       var response = await dioInstance.dio.post("banner_slide",
           options: Options(headers: {
@@ -140,8 +139,7 @@ class DataProvider {
 
       List<dynamic> parsed = await response.data;
 
-      List<SlideBanner> banners = List<SlideBanner>.from(
-          parsed.map((item) => SlideBanner.fromJson(item)).toList());
+      List<SlideBanner> banners = List<SlideBanner>.from(parsed.map((item) => SlideBanner.fromJson(item)).toList());
 
       return banners;
     } on DioError catch (error) {
@@ -200,8 +198,7 @@ class DataProvider {
 
       var parsed = json.decode(response.toString());
       var pagination = Pagination.fromJson(parsed);
-      List<Product> products = List<Product>.from(
-          parsed['data'].map((item) => Product.fromJson(item)).toList());
+      List<Product> products = List<Product>.from(parsed['data'].map((item) => Product.fromJson(item)).toList());
 
       return ProductPaginate(pagination: pagination, products: products);
     } on DioError catch (error) {
@@ -233,20 +230,17 @@ class DataProvider {
     }
   }
 
-  Future<dynamic> fetchSubCategory(
-      {@required UserData user, @required String mainCategoryId}) async {
+  Future<dynamic> fetchSubCategory({@required UserData user, @required String mainCategoryId}) async {
     try {
-      var response =
-          await dioInstance.dio.get("sub_category/id/$mainCategoryId",
-              options: Options(headers: {
-                "Accept": "application/json",
-                "Authorization": "Bearer ${user.token}",
-                "User-Id": user.id,
-              }));
+      var response = await dioInstance.dio.get("sub_category/id/$mainCategoryId",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }));
 
       List<dynamic> parsed = await response.data;
-      List<SubCategory> datas = List<SubCategory>.from(
-          parsed.map((item) => SubCategory.fromJson(item)).toList());
+      List<SubCategory> datas = List<SubCategory>.from(parsed.map((item) => SubCategory.fromJson(item)).toList());
 
       return datas;
     } on DioError catch (error) {
@@ -264,8 +258,7 @@ class DataProvider {
           }));
 
       List<dynamic> parsed = await response.data;
-      List<Cart> datas =
-          List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
+      List<Cart> datas = List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
 
       return datas;
     } on DioError catch (error) {
@@ -273,8 +266,7 @@ class DataProvider {
     }
   }
 
-  Future<dynamic> addCart(
-      {@required UserData user, @required Cart cartData}) async {
+  Future<dynamic> addCart({@required UserData user, @required Cart cartData}) async {
     try {
       var response = await dioInstance.dio.post("cart",
           options: Options(headers: {
@@ -290,8 +282,7 @@ class DataProvider {
           });
 
       List<dynamic> parsed = await response.data;
-      List<Cart> datas =
-          List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
+      List<Cart> datas = List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
 
       return datas;
     } on DioError catch (error) {
@@ -299,8 +290,7 @@ class DataProvider {
     }
   }
 
-  Future<dynamic> removeCart(
-      {@required UserData user, @required String productId}) async {
+  Future<dynamic> removeCart({@required UserData user, @required String productId}) async {
     try {
       var response = await dioInstance.dio.delete(
         "cart/$productId/delete",
@@ -312,8 +302,37 @@ class DataProvider {
       );
 
       List<dynamic> parsed = await response.data;
-      List<Cart> datas =
-          List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
+      List<Cart> datas = List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
+
+      return datas;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> updateCart({@required UserData user, @required Map<String, CartItemModel> cartItem}) async {
+    try {
+      var response = await dioInstance.dio.post(
+        "cart/update",
+        options: Options(headers: {
+          "Accept": "application/json",
+          "Authorization": "Bearer ${user.token}",
+          "User-Id": user.id,
+        }),
+        data: FormData.fromMap({
+          "item": cartItem.entries
+              .map((e) => {
+                    'cart_id': e.value.cart.cartId,
+                    'price': e.value.cart.price,
+                    'qty': e.value.cart.qty,
+                    'total': e.value.cart.total,
+                  })
+              .toList(),
+        }),
+      );
+
+      List<dynamic> parsed = await response.data;
+      List<Cart> datas = List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
 
       return datas;
     } on DioError catch (error) {

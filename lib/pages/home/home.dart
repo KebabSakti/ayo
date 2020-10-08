@@ -219,17 +219,14 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                           Row(
                             children: [
                               IconButton(
-                                splashColor: Theme.of(context)
-                                    .accentColor
-                                    .withOpacity(0.3),
+                                splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                                 icon: Icon(
                                   FontAwesomeIcons.qrcode,
                                   size: 20,
                                   color: Theme.of(context).primaryColor,
                                 ),
                                 onPressed: () async {
-                                  String cameraScanResult =
-                                      await scanner.scan();
+                                  String cameraScanResult = await scanner.scan();
                                   print(cameraScanResult);
                                 },
                               ),
@@ -278,8 +275,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                   child: Container(
                     height: 200,
                     color: Colors.white,
-                    padding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+                    padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -304,8 +300,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                 },
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Lihat Semua',
@@ -334,9 +329,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                             return Expanded(
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
-                                itemCount: (state is MainCategoryCompleted)
-                                    ? state.mainCategories.length
-                                    : 2,
+                                itemCount: (state is MainCategoryCompleted) ? state.mainCategories.length : 2,
                                 itemBuilder: (context, index) {
                                   return Padding(
                                     padding: EdgeInsets.only(left: 5, right: 5),
@@ -347,30 +340,21 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                         onTap: () {
                                           Navigator.of(context).pushNamed(
                                             '/main_category',
-                                            arguments: state
-                                                ?.mainCategories[index]
-                                                .categoryId,
+                                            arguments: state?.mainCategories[index].categoryId,
                                           );
                                         },
                                         borderRadius: BorderRadius.circular(20),
-                                        splashColor: Theme.of(context)
-                                            .accentColor
-                                            .withOpacity(0.3),
+                                        splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                                         child: Ink(
                                           width: (size.width - 30) / 2,
                                           child: Builder(
                                             builder: (context) {
-                                              if (state
-                                                  is MainCategoryCompleted) {
-                                                var category = state
-                                                    ?.mainCategories[index];
+                                              if (state is MainCategoryCompleted) {
+                                                var category = state?.mainCategories[index];
                                                 return Padding(
-                                                  padding: EdgeInsets.only(
-                                                      left: 10, right: 10),
+                                                  padding: EdgeInsets.only(left: 10, right: 10),
                                                   child: Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
+                                                    mainAxisAlignment: MainAxisAlignment.center,
                                                     children: [
                                                       SvgPicture.network(
                                                         category.image,
@@ -382,16 +366,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                       ),
                                                       Text(
                                                         category.title,
-                                                        textAlign:
-                                                            TextAlign.center,
+                                                        textAlign: TextAlign.center,
                                                         maxLines: 2,
-                                                        overflow: TextOverflow
-                                                            .ellipsis,
+                                                        overflow: TextOverflow.ellipsis,
                                                         style: TextStyle(
-                                                          color:
-                                                              Colors.grey[800],
-                                                          fontWeight:
-                                                              FontWeight.w600,
+                                                          color: Colors.grey[800],
+                                                          fontWeight: FontWeight.w600,
                                                           fontSize: 12,
                                                         ),
                                                       ),
@@ -400,8 +380,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                 );
                                               }
 
-                                              return boxRadiusShimmer(
-                                                  radius: 20);
+                                              return boxRadiusShimmer(radius: 20);
                                             },
                                           ),
                                         ),
@@ -427,8 +406,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                   child: Container(
                     height: 200,
                     color: Colors.white,
-                    padding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+                    padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -451,8 +429,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                 onTap: () {},
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Lihat Semua',
@@ -495,14 +472,11 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                       child: InkWell(
                                         onTap: () {},
                                         borderRadius: BorderRadius.circular(10),
-                                        splashColor: Theme.of(context)
-                                            .accentColor
-                                            .withOpacity(0.3),
+                                        splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                                         child: Ink(
                                           width: size.width - 20,
                                           decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10),
+                                            borderRadius: BorderRadius.circular(10),
                                             image: DecorationImage(
                                               image: CachedNetworkImageProvider(
                                                 images[index],
@@ -533,8 +507,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                   child: Container(
                     height: 250,
                     color: Colors.white,
-                    padding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+                    padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -557,8 +530,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                 onTap: () {},
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Lihat Semua',
@@ -582,8 +554,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                         SizedBox(
                           height: 10,
                         ),
-                        BlocBuilder<ProductTerlarisHomeCubit,
-                            ProductTerlarisHomeState>(
+                        BlocBuilder<ProductTerlarisHomeCubit, ProductTerlarisHomeState>(
                           builder: (context, state) {
                             if (state is ProductTerlarisHomeError) {
                               return Center(
@@ -604,9 +575,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
 
                             return Expanded(
                               child: HorizontalProductList(
-                                isLoading: (state is ProductTerlarisHomeLoading)
-                                    ? true
-                                    : false,
+                                isLoading: (state is ProductTerlarisHomeLoading) ? true : false,
                                 products: state.productPaginate.products,
                               ),
                             );
@@ -626,8 +595,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                   child: Container(
                     height: 180,
                     color: Colors.white,
-                    padding:
-                        EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+                    padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -650,8 +618,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                 onTap: () {},
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Text(
                                       'Lihat Semua',
@@ -689,17 +656,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                             child: Material(
                                               child: InkWell(
                                                 onTap: () {},
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                splashColor: Theme.of(context)
-                                                    .accentColor
-                                                    .withOpacity(0.3),
+                                                borderRadius: BorderRadius.circular(10),
+                                                splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                                                 child: Ink(
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+                                                    borderRadius: BorderRadius.circular(10),
                                                     border: Border.all(
                                                       color: Colors.grey[300],
                                                     ),
@@ -709,25 +671,17 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                       Flexible(
                                                         flex: 2,
                                                         child: Ink(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors
-                                                                .grey[200],
-                                                            image:
-                                                                DecorationImage(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey[200],
+                                                            image: DecorationImage(
                                                               fit: BoxFit.cover,
-                                                              image:
-                                                                  CachedNetworkImageProvider(
+                                                              image: CachedNetworkImageProvider(
                                                                 'https://images.unsplash.com/photo-1590165482129-1b8b27698780?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=564&q=80',
                                                               ),
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              topLeft: Radius
-                                                                  .circular(10),
-                                                              bottomLeft: Radius
-                                                                  .circular(10),
+                                                            borderRadius: BorderRadius.only(
+                                                              topLeft: Radius.circular(10),
+                                                              bottomLeft: Radius.circular(10),
                                                             ),
                                                           ),
                                                         ),
@@ -735,30 +689,21 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                       Flexible(
                                                         flex: 3,
                                                         child: Ink(
-                                                          height:
-                                                              double.infinity,
-                                                          padding:
-                                                              EdgeInsets.only(
+                                                          height: double.infinity,
+                                                          padding: EdgeInsets.only(
                                                             left: 4,
                                                             right: 4,
                                                           ),
                                                           child: Center(
                                                             child: Text(
                                                               'Kentang Impor',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
+                                                              textAlign: TextAlign.center,
                                                               maxLines: 3,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
+                                                              overflow: TextOverflow.ellipsis,
                                                               style: TextStyle(
                                                                 fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                color: Colors
-                                                                    .grey[800],
+                                                                fontWeight: FontWeight.w600,
+                                                                color: Colors.grey[800],
                                                               ),
                                                             ),
                                                           ),
@@ -777,17 +722,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                             child: Material(
                                               child: InkWell(
                                                 onTap: () {},
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                splashColor: Theme.of(context)
-                                                    .accentColor
-                                                    .withOpacity(0.3),
+                                                borderRadius: BorderRadius.circular(10),
+                                                splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                                                 child: Ink(
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+                                                    borderRadius: BorderRadius.circular(10),
                                                     border: Border.all(
                                                       color: Colors.grey[300],
                                                     ),
@@ -797,30 +737,21 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                       Flexible(
                                                         flex: 3,
                                                         child: Ink(
-                                                          height:
-                                                              double.infinity,
-                                                          padding:
-                                                              EdgeInsets.only(
+                                                          height: double.infinity,
+                                                          padding: EdgeInsets.only(
                                                             left: 4,
                                                             right: 4,
                                                           ),
                                                           child: Center(
                                                             child: Text(
                                                               'Buncis',
-                                                              textAlign:
-                                                                  TextAlign
-                                                                      .center,
+                                                              textAlign: TextAlign.center,
                                                               maxLines: 3,
-                                                              overflow:
-                                                                  TextOverflow
-                                                                      .ellipsis,
+                                                              overflow: TextOverflow.ellipsis,
                                                               style: TextStyle(
                                                                 fontSize: 12,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
-                                                                color: Colors
-                                                                    .grey[800],
+                                                                fontWeight: FontWeight.w600,
+                                                                color: Colors.grey[800],
                                                               ),
                                                             ),
                                                           ),
@@ -829,27 +760,17 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                       Flexible(
                                                         flex: 2,
                                                         child: Ink(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors
-                                                                .grey[200],
-                                                            image:
-                                                                DecorationImage(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey[200],
+                                                            image: DecorationImage(
                                                               fit: BoxFit.cover,
-                                                              image:
-                                                                  CachedNetworkImageProvider(
+                                                              image: CachedNetworkImageProvider(
                                                                 'https://images.unsplash.com/photo-1567375698348-5d9d5ae99de0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=675&q=80',
                                                               ),
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              topRight: Radius
-                                                                  .circular(10),
-                                                              bottomRight:
-                                                                  Radius
-                                                                      .circular(
-                                                                          10),
+                                                            borderRadius: BorderRadius.only(
+                                                              topRight: Radius.circular(10),
+                                                              bottomRight: Radius.circular(10),
                                                             ),
                                                           ),
                                                         ),
@@ -874,9 +795,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                 child: Ink(
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+                                                    borderRadius: BorderRadius.circular(10),
                                                     border: Border.all(
                                                       color: Colors.grey[300],
                                                     ),
@@ -886,25 +805,17 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                       Flexible(
                                                         flex: 2,
                                                         child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors
-                                                                .grey[200],
-                                                            image:
-                                                                DecorationImage(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey[200],
+                                                            image: DecorationImage(
                                                               fit: BoxFit.cover,
-                                                              image:
-                                                                  CachedNetworkImageProvider(
+                                                              image: CachedNetworkImageProvider(
                                                                 'https://images.unsplash.com/photo-1551028150-64b9f398f678?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
                                                               ),
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              topLeft: Radius
-                                                                  .circular(10),
-                                                              bottomLeft: Radius
-                                                                  .circular(10),
+                                                            borderRadius: BorderRadius.only(
+                                                              topLeft: Radius.circular(10),
+                                                              bottomLeft: Radius.circular(10),
                                                             ),
                                                           ),
                                                         ),
@@ -914,32 +825,21 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                         child: InkWell(
                                                           onTap: () {},
                                                           child: Ink(
-                                                            height:
-                                                                double.infinity,
-                                                            padding:
-                                                                EdgeInsets.only(
+                                                            height: double.infinity,
+                                                            padding: EdgeInsets.only(
                                                               left: 4,
                                                               right: 4,
                                                             ),
                                                             child: Center(
                                                               child: Text(
                                                                 'Daging Sirloin',
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
+                                                                textAlign: TextAlign.center,
                                                                 maxLines: 3,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style:
-                                                                    TextStyle(
+                                                                overflow: TextOverflow.ellipsis,
+                                                                style: TextStyle(
                                                                   fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      800],
+                                                                  fontWeight: FontWeight.w600,
+                                                                  color: Colors.grey[800],
                                                                 ),
                                                               ),
                                                             ),
@@ -962,9 +862,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                 child: Ink(
                                                   decoration: BoxDecoration(
                                                     color: Colors.white,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
+                                                    borderRadius: BorderRadius.circular(10),
                                                     border: Border.all(
                                                       color: Colors.grey[300],
                                                     ),
@@ -976,32 +874,21 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                         child: InkWell(
                                                           onTap: () {},
                                                           child: Ink(
-                                                            height:
-                                                                double.infinity,
-                                                            padding:
-                                                                EdgeInsets.only(
+                                                            height: double.infinity,
+                                                            padding: EdgeInsets.only(
                                                               left: 4,
                                                               right: 4,
                                                             ),
                                                             child: Center(
                                                               child: Text(
                                                                 'Tomat Merah',
-                                                                textAlign:
-                                                                    TextAlign
-                                                                        .center,
+                                                                textAlign: TextAlign.center,
                                                                 maxLines: 3,
-                                                                overflow:
-                                                                    TextOverflow
-                                                                        .ellipsis,
-                                                                style:
-                                                                    TextStyle(
+                                                                overflow: TextOverflow.ellipsis,
+                                                                style: TextStyle(
                                                                   fontSize: 12,
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .w600,
-                                                                  color: Colors
-                                                                          .grey[
-                                                                      800],
+                                                                  fontWeight: FontWeight.w600,
+                                                                  color: Colors.grey[800],
                                                                 ),
                                                               ),
                                                             ),
@@ -1011,27 +898,17 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                       Flexible(
                                                         flex: 2,
                                                         child: Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            color: Colors
-                                                                .grey[200],
-                                                            image:
-                                                                DecorationImage(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey[200],
+                                                            image: DecorationImage(
                                                               fit: BoxFit.cover,
-                                                              image:
-                                                                  CachedNetworkImageProvider(
+                                                              image: CachedNetworkImageProvider(
                                                                 'https://images.unsplash.com/photo-1444731961956-751ed90465a5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
                                                               ),
                                                             ),
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .only(
-                                                              topRight: Radius
-                                                                  .circular(10),
-                                                              bottomRight:
-                                                                  Radius
-                                                                      .circular(
-                                                                          10),
+                                                            borderRadius: BorderRadius.only(
+                                                              topRight: Radius.circular(10),
+                                                              bottomRight: Radius.circular(10),
                                                             ),
                                                           ),
                                                         ),
@@ -1101,8 +978,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
 
                       return VerticalProductList(
                         isLoading: (state is ProductLoading) ? true : false,
-                        moreLoading:
-                            (state is ProductPagingLoading) ? true : false,
+                        moreLoading: (state is ProductPagingLoading) ? true : false,
                         products: state.productPaginate.products,
                       );
                     },

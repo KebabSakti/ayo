@@ -53,3 +53,29 @@ class CartRemoveLoading extends CartState {
   // TODO: implement props
   List<Object> get props => [];
 }
+
+class CartUpdateLoading extends CartState {
+  CartUpdateLoading(List<Cart> carts) : super(carts);
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [];
+}
+
+class CartUpdateComplete extends CartState {
+  final List<Cart> carts;
+  CartUpdateComplete(this.carts) : super(carts);
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [carts];
+}
+
+class CartUpdateError extends CartState {
+  final String message;
+  CartUpdateError(List<Cart> carts, {this.message}) : super(carts);
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [];
+}

@@ -1,6 +1,7 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/cart_cubit.dart';
 import 'package:ayo/model/cart/cart.dart';
+import 'package:ayo/model/cart/cart_item.dart';
 import 'package:ayo/util/dialog.dart';
 import 'package:ayo/util/helper.dart';
 import 'package:ayo/widget/scroll_top.dart';
@@ -23,57 +24,65 @@ class _CartPageState extends State<CartPage> {
   AuthenticationCubit _authenticationCubit;
   CartCubit _cartCubit;
 
-  List<Cart> carts = [];
-  List<String> productIds = [];
-  Map<String, Cart> cartItems;
-
+  Map<String, CartItemModel> _cartItems;
   bool _allCheck = true;
 
   void _mainScrollListener() {}
 
+  void _addCartDataToMap() {
+    setState(() {
+      _cartItems = Map<String, CartItemModel>.fromIterable(_cartCubit.state.carts,
+          key: (e) => e.productId,
+          value: (e) => CartItemModel(
+                checked: true,
+                cart: e,
+              ));
+    });
+  }
+
   void _allCheckListener(bool status) {
     setState(() {
-      if (status) {
-        _cartCubit.state.carts.forEach((e) {
-          if (!productIds.contains(e.productId)) {
-            productIds.add(e.productId);
-          }
-        });
-      } else {
-        productIds = [];
-      }
+      _cartItems.forEach((key, value) {
+        _cartItems[key] = _cartItems[key].copyWith(checked: status);
+      });
 
       _allCheck = status;
     });
   }
 
-  bool _toggleCheck(Cart item) {
-    return (productIds.where((e) => e == item.productId).length > 0)
-        ? true
-        : false;
+  void _deleteMarked() {
+    _cartItems.forEach((key, value) {
+      _cartItems.removeWhere((key, value) => (_cartItems[key].checked == true));
+    });
   }
 
   void _checkedItemListener(String productId) {
     setState(() {
-      if (productIds.contains(productId)) {
-        productIds.remove(productId);
-      } else {
-        productIds.add(productId);
-      }
+      _cartItems[productId] = _cartItems[productId].copyWith(checked: !_cartItems[productId].checked);
 
-      _allCheck = (productIds.length > 0);
+      // _allCheck = status.where((e) => e == true).length == _cartItems.length;
     });
   }
 
   void _deleteItem(String productId) {
     myProgressDialog(context).show();
 
-    _cartCubit.removeCart(
-        user: _authenticationCubit.state.userData, productId: productId);
+    _cartCubit.removeCart(user: _authenticationCubit.state.userData, productId: productId);
+  }
+
+  void _updateQty(Cart itemCart) {
+    setState(() {
+      _cartItems[itemCart.productId] = _cartItems[itemCart.productId].copyWith(cart: itemCart);
+    });
   }
 
   Future _fetchData() async {
     _cartCubit.fetchCart(user: _authenticationCubit.state.userData);
+  }
+
+  Future _updateData() async {
+    _cartCubit.updateCart(user: _authenticationCubit.state.userData, cartItem: _cartItems);
+    Navigator.of(context).pop();
   }
 
   @override
@@ -83,10 +92,7 @@ class _CartPageState extends State<CartPage> {
     _authenticationCubit = context.bloc<AuthenticationCubit>();
     _cartCubit = context.bloc<CartCubit>();
 
-    setState(() {
-      productIds = List<String>.from(
-          _cartCubit.state.carts.map((e) => e.productId).toList());
-    });
+    _addCartDataToMap();
 
     super.initState();
   }
@@ -99,134 +105,141 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CartCubit, CartState>(
-      listener: (context, state) {
-        if (state is CartComplete) {
-          if (myProgressDialog(context).isShowing())
-            myProgressDialog(context).hide();
-        }
+    return WillPopScope(
+      onWillPop: () async {
+        _updateData();
+        return false;
       },
-      builder: (context, state) {
-        return RefreshIndicator(
-          onRefresh: _fetchData,
-          child: Scaffold(
-            backgroundColor: Colors.white,
-            body: Stack(
-              children: [
-                CustomScrollView(
-                  controller: _scrollController,
-                  slivers: [
-                    SliverAppBar(
-                      titleSpacing: 0,
-                      pinned: true,
-                      title: Text(
-                        'Keranjang',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    SliverToBoxAdapter(
-                      child: SizedBox(
-                        height: 56,
-                      ),
-                    ),
-                    (state.carts.length > 0)
-                        ? SliverList(
-                            delegate: SliverChildBuilderDelegate(
-                              (context, index) {
-                                if (state is CartLoading) {
-                                  return _cartItemShimmer(index);
-                                }
+      child: BlocConsumer<CartCubit, CartState>(
+        listener: (context, state) {
+          if (state is CartComplete) {
+            _addCartDataToMap();
+            if (myProgressDialog(context).isShowing()) myProgressDialog(context).hide();
+          }
 
-                                return CartItem(
-                                  index: index,
-                                  cart: state.carts[index],
-                                  checkedItemListener: _checkedItemListener,
-                                  checked: _toggleCheck(state.carts[index]),
-                                  deleteItem: _deleteItem,
-                                );
-                              },
-                              childCount: state.carts.length ?? 4,
-                            ),
-                          )
-                        : SliverToBoxAdapter(
-                            child: Container(
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.only(left: 40, right: 40),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SizedBox(
-                                      width: 200,
-                                      height: 200,
-                                      child: SvgPicture.asset(
-                                          'assets/images/empty_cart.svg'),
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text(
-                                      'Keranjang belanja kamu masih kosong, ayo mulai belanja',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.grey[600]),
-                                    ),
-                                    SizedBox(
-                                      height: 20,
-                                    ),
-                                    FlatButton(
-                                      onPressed: () {
-                                        Navigator.popUntil(context,
-                                            ModalRoute.withName('/app'));
-                                      },
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(4),
+          if (state is CartError) {
+            if (myProgressDialog(context).isShowing()) myProgressDialog(context).hide();
+          }
+        },
+        builder: (context, state) {
+          return RefreshIndicator(
+            onRefresh: _fetchData,
+            child: Scaffold(
+              backgroundColor: Colors.white,
+              body: Stack(
+                children: [
+                  CustomScrollView(
+                    controller: _scrollController,
+                    slivers: [
+                      SliverAppBar(
+                        titleSpacing: 0,
+                        pinned: true,
+                        title: Text(
+                          'Keranjang',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 56,
+                        ),
+                      ),
+                      (_cartItems.length > 0)
+                          ? SliverList(
+                              delegate: SliverChildBuilderDelegate(
+                                (context, index) {
+                                  if (state is CartLoading) {
+                                    return _cartItemShimmer(index);
+                                  }
+
+                                  return CartItem(
+                                    cartItemModel: _cartItems[state.carts[index].productId],
+                                    checkedItemListener: _checkedItemListener,
+                                    deleteItem: _deleteItem,
+                                    qtyUpdate: _updateQty,
+                                  );
+                                },
+                                childCount: state.carts.length ?? 4,
+                              ),
+                            )
+                          : SliverToBoxAdapter(
+                              child: Container(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 40, right: 40),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 200,
+                                        height: 200,
+                                        child: SvgPicture.asset('assets/images/empty_cart.svg'),
                                       ),
-                                      color: Theme.of(context).primaryColor,
-                                      child: Text(
-                                        'Mulai Belanja',
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w600,
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text(
+                                        'Keranjang belanja kamu masih kosong, ayo mulai belanja',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(color: Colors.grey[600]),
+                                      ),
+                                      SizedBox(
+                                        height: 20,
+                                      ),
+                                      FlatButton(
+                                        onPressed: () {
+                                          Navigator.popUntil(context, ModalRoute.withName('/app'));
+                                        },
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(4),
+                                        ),
+                                        color: Theme.of(context).primaryColor,
+                                        child: Text(
+                                          'Mulai Belanja',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    SizedBox(
-                                      height: 56,
-                                    ),
-                                  ],
+                                      SizedBox(
+                                        height: 56,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+                    ],
+                  ),
+                  (_cartItems.length > 0)
+                      ? Align(
+                          alignment: Alignment.topCenter,
+                          child: SafeArea(
+                            child: CartChecker(
+                              scrollController: _scrollController,
+                              total: state.carts.length,
+                              allCheckListener: _allCheckListener,
+                              allCheck: _allCheck,
+                              deleteMarked: _deleteMarked,
+                            ),
                           ),
-                  ],
-                ),
-                (state.carts.length > 0)
-                    ? Align(
-                        alignment: Alignment.topCenter,
-                        child: SafeArea(
-                          child: CartChecker(
-                            scrollController: _scrollController,
-                            total: state.carts.length,
-                            allCheckListener: _allCheckListener,
-                            allCheck: _allCheck,
-                          ),
-                        ),
-                      )
-                    : SizedBox.shrink(),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10, right: 15),
-                    child: ScrollTop(
-                      scrollController: _scrollController,
+                        )
+                      : SizedBox.shrink(),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10, right: 15),
+                      child: ScrollTop(
+                        scrollController: _scrollController,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 }
@@ -236,12 +249,14 @@ class CartChecker extends StatefulWidget {
   final int total;
   final ValueChanged<bool> allCheckListener;
   final bool allCheck;
+  final VoidCallback deleteMarked;
 
   CartChecker({
     @required this.scrollController,
     @required this.total,
     @required this.allCheckListener,
     @required this.allCheck,
+    @required this.deleteMarked,
   });
 
   @override
@@ -310,7 +325,7 @@ class _CartCheckerState extends State<CartChecker> {
                   ],
                 ),
                 FlatButton(
-                  onPressed: () {},
+                  onPressed: widget.deleteMarked,
                   splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                   child: Text(
                     'Hapus',
@@ -325,18 +340,16 @@ class _CartCheckerState extends State<CartChecker> {
 }
 
 class CartItem extends StatefulWidget {
-  final int index;
-  final Cart cart;
-  final bool checked;
+  final CartItemModel cartItemModel;
   final ValueChanged<String> checkedItemListener;
   final ValueChanged<String> deleteItem;
+  final ValueChanged<Cart> qtyUpdate;
 
   CartItem({
-    @required this.index,
-    @required this.cart,
+    @required this.cartItemModel,
     @required this.checkedItemListener,
-    @required this.checked,
     @required this.deleteItem,
+    @required this.qtyUpdate,
   });
 
   @override
@@ -346,23 +359,47 @@ class CartItem extends StatefulWidget {
 class _CartItemState extends State<CartItem> {
   TextEditingController _textEditingController = TextEditingController();
 
+  void _plusQty() {
+    if (int.parse(_textEditingController.text) <= 1000) _updateQty(int.parse(_textEditingController.text) + 1);
+  }
+
+  void _minusQty() {
+    if (int.parse(_textEditingController.text) > 1) _updateQty(int.parse(_textEditingController.text) - 1);
+  }
+
+  void _updateQty(int value) {
+    _setQtyField(value);
+
+    widget.qtyUpdate(widget.cartItemModel.cart.copyWith(
+      qty: value,
+      total: value * widget.cartItemModel.cart.price,
+    ));
+  }
+
+  void _setQtyField(int value) {
+    final _value = value.toString();
+    _textEditingController.value = TextEditingValue(
+      text: _value,
+      selection: TextSelection.fromPosition(
+        TextPosition(offset: _value.length),
+      ),
+    );
+  }
+
   @override
   void initState() {
-    _textEditingController.text = widget.cart.qty.toString();
-
+    _setQtyField(widget.cartItemModel.cart.qty);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var _product = widget.cart.product;
-    var _cart = widget.cart;
+    var _product = widget.cartItemModel.cart.product;
+    var _cart = widget.cartItemModel.cart;
     return Container(
       height: 190,
       padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-      decoration: BoxDecoration(
-          border:
-              Border(bottom: BorderSide(color: Colors.grey[100], width: 1))),
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[100], width: 1))),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +412,7 @@ class _CartItemState extends State<CartItem> {
                   onChanged: (value) {
                     widget.checkedItemListener(_cart.productId);
                   },
-                  value: widget.checked,
+                  value: widget.cartItemModel.checked,
                   activeColor: Theme.of(context).primaryColor,
                 ),
                 Container(
@@ -389,8 +426,7 @@ class _CartItemState extends State<CartItem> {
                     borderRadius: BorderRadius.circular(5),
                     child: CachedNetworkImage(
                       imageUrl: _product.cover,
-                      placeholder: (context, url) =>
-                          boxRadiusShimmer(radius: 5),
+                      placeholder: (context, url) => boxRadiusShimmer(radius: 5),
                       width: double.infinity,
                       height: double.infinity,
                       fit: BoxFit.cover,
@@ -404,8 +440,7 @@ class _CartItemState extends State<CartItem> {
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Navigator.of(context).pushNamed('/product_detail',
-                              arguments: _product.productId);
+                          Navigator.of(context).pushNamed('/product_detail', arguments: _product.productId);
                         },
                         child: Text(
                           '${_product.name}',
@@ -437,22 +472,16 @@ class _CartItemState extends State<CartItem> {
                           border: Border.all(
                             color: (_product.deliveryType.instant == 1)
                                 ? Theme.of(context).colorScheme.secondary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .secondaryVariant,
+                                : Theme.of(context).colorScheme.secondaryVariant,
                           ),
                         ),
                         child: Text(
-                          (_product.deliveryType.instant == 1)
-                              ? 'Pengiriman Instan'
-                              : 'Dikirim Besok 10:00 - 15:00',
+                          (_product.deliveryType.instant == 1) ? 'Pengiriman Instan' : 'Dikirim Besok 10:00 - 15:00',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: (_product.deliveryType.instant == 1)
                                 ? Theme.of(context).colorScheme.secondary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .secondaryVariant,
+                                : Theme.of(context).colorScheme.secondaryVariant,
                             fontSize: 10,
                           ),
                         ),
@@ -463,7 +492,7 @@ class _CartItemState extends State<CartItem> {
                           SizedBox(
                             width: 30,
                             child: IconButton(
-                              onPressed: () {},
+                              onPressed: _minusQty,
                               padding: EdgeInsets.zero,
                               icon: Icon(
                                 Icons.remove_circle,
@@ -476,6 +505,7 @@ class _CartItemState extends State<CartItem> {
                             width: 50,
                             child: TextField(
                               controller: _textEditingController,
+                              showCursor: false,
                               style: TextStyle(
                                 color: Colors.grey[800],
                                 fontWeight: FontWeight.w600,
@@ -495,7 +525,7 @@ class _CartItemState extends State<CartItem> {
                           SizedBox(
                             width: 30,
                             child: IconButton(
-                              onPressed: () {},
+                              onPressed: _plusQty,
                               padding: EdgeInsets.zero,
                               icon: Icon(
                                 Icons.add_circle,
@@ -517,7 +547,7 @@ class _CartItemState extends State<CartItem> {
           ),
           IconButton(
             onPressed: () {
-              widget.deleteItem(widget.cart.productId);
+              widget.deleteItem(widget.cartItemModel.cart.productId);
             },
             icon: Icon(
               Icons.delete,
@@ -534,10 +564,7 @@ Widget _cartItemShimmer(int index) {
   return Container(
     height: 160,
     padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-    decoration: BoxDecoration(
-        border: Border(
-            bottom: BorderSide(
-                color: Colors.grey[100], width: index != 10 ? 1 : 0))),
+    decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[100], width: index != 10 ? 1 : 0))),
     child: Row(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -547,8 +574,7 @@ Widget _cartItemShimmer(int index) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding:
-                    EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+                padding: EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
                 child: boxRadiusShimmer(width: 20, height: 20, radius: 0),
               ),
               Container(

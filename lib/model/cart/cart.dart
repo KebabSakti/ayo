@@ -10,6 +10,7 @@ class Cart {
     this.cartId,
     this.userId,
     this.productId,
+    this.checked,
     this.price,
     this.qty,
     this.total,
@@ -25,6 +26,7 @@ class Cart {
   final String userId;
   @JsonKey(name: 'product_id')
   final String productId;
+  final int checked;
   @JsonKey(fromJson: _fromDouble)
   final double price;
   final int qty;
@@ -36,8 +38,35 @@ class Cart {
   final DateTime updatedAt;
   final Product product;
 
-  static double _fromDouble(String value) =>
-      value == null ? null : double.parse(value);
+  static double _fromDouble(String value) => value == null ? null : double.parse(value);
+
+  Cart copyWith({
+    int id,
+    String cartId,
+    String userId,
+    String productId,
+    int checked,
+    double price,
+    int qty,
+    double total,
+    DateTime createdAt,
+    DateTime updatedAt,
+    Product product,
+  }) {
+    return Cart(
+      id: id ?? this.id,
+      cartId: cartId ?? this.cartId,
+      userId: userId ?? this.userId,
+      productId: productId ?? this.productId,
+      checked: checked ?? this.checked,
+      price: price ?? this.price,
+      qty: qty ?? this.qty,
+      total: total ?? this.total,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      product: product ?? this.product,
+    );
+  }
 
   factory Cart.fromJson(Map<String, dynamic> json) => _$CartFromJson(json);
 
