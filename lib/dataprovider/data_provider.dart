@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:ayo/model/banner/slide_banner.dart';
 import 'package:ayo/model/cart/cart.dart';
-import 'package:ayo/model/cart/cart_item.dart';
 import 'package:ayo/model/main_category/main_category_model.dart';
 import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product.dart';
@@ -310,7 +309,7 @@ class DataProvider {
     }
   }
 
-  Future<dynamic> updateCart({@required UserData user, @required Map<String, CartItemModel> cartItem}) async {
+  Future<dynamic> uploadCart({@required UserData user, @required List<Cart> carts}) async {
     try {
       var response = await dioInstance.dio.post(
         "cart/update",
@@ -320,12 +319,14 @@ class DataProvider {
           "User-Id": user.id,
         }),
         data: FormData.fromMap({
-          "item": cartItem.entries
+          "item": carts
               .map((e) => {
-                    'cart_id': e.value.cart.cartId,
-                    'price': e.value.cart.price,
-                    'qty': e.value.cart.qty,
-                    'total': e.value.cart.total,
+                    'cart_id': e.cartId,
+                    'user_id': e.userId,
+                    'product_id': e.product.productId,
+                    'price': e.price,
+                    'qty': e.qty,
+                    'total': e.total,
                   })
               .toList(),
         }),

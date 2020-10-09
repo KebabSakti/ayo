@@ -30,8 +30,7 @@ class _ProductDetailState extends State<ProductDetail> {
   CartCubit _cartCubit;
 
   void _addToCart(Cart cart) {
-    _cartCubit.addCart(
-        user: _authenticationCubit.state.userData, cartData: cart);
+    _cartCubit.addCart(user: _authenticationCubit.state.userData, cartData: cart);
   }
 
   void _fetchProductDetail() {
@@ -72,16 +71,12 @@ class _ProductDetailState extends State<ProductDetail> {
       listener: (context, state) {
         if (state is CartComplete) {
           if (myProgressDialog(context).isShowing())
-            myProgressDialog(context)
-                .hide()
-                .whenComplete(() => print('Produk berhasil di tambahkan'));
+            myProgressDialog(context).hide().whenComplete(() => print('Produk berhasil di tambahkan'));
         }
 
         if (state is CartError) {
           if (myProgressDialog(context).isShowing())
-            myProgressDialog(context)
-                .hide()
-                .whenComplete(() => print('Gagal menambahkan data'));
+            myProgressDialog(context).hide().whenComplete(() => print('Gagal menambahkan data'));
         }
       },
       child: RefreshIndicator(
@@ -124,8 +119,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                       height: double.infinity,
                                       width: double.infinity,
                                       fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          boxRadiusShimmer(radius: 0),
+                                      placeholder: (context, url) => boxRadiusShimmer(radius: 0),
                                     );
                                   }
 
@@ -134,47 +128,34 @@ class _ProductDetailState extends State<ProductDetail> {
                               ),
                             ),
                             Container(
-                              padding: EdgeInsets.only(
-                                  left: 10, right: 10, top: 15, bottom: 15),
+                              padding: EdgeInsets.only(left: 10, right: 10, top: 15, bottom: 15),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       (state is ProductDetailCompleted)
                                           ? Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
+                                              crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
                                                 Row(
                                                   children: [
                                                     Text(
-                                                      (state.product.discount !=
-                                                              null)
-                                                          ? Helper()
-                                                              .getFormattedNumber(
-                                                              Helper()
-                                                                  .getDiscountedPrice(
-                                                                state
-                                                                    .product
-                                                                    .discount
-                                                                    .amount,
-                                                                state.product
-                                                                    .price,
+                                                      (state.product.discount != null)
+                                                          ? Helper().getFormattedNumber(
+                                                              Helper().getDiscountedPrice(
+                                                                state.product.discount.amount,
+                                                                state.product.price,
                                                               ),
                                                             )
-                                                          : Helper()
-                                                              .getFormattedNumber(
-                                                              state.product
-                                                                  .price,
+                                                          : Helper().getFormattedNumber(
+                                                              state.product.price,
                                                             ),
                                                       style: TextStyle(
                                                         color: Colors.grey[800],
                                                         fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                        fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
                                                     Text(
@@ -182,8 +163,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                                       style: TextStyle(
                                                         color: Colors.grey[800],
                                                         fontSize: 18,
-                                                        fontWeight:
-                                                            FontWeight.bold,
+                                                        fontWeight: FontWeight.bold,
                                                       ),
                                                     ),
                                                   ],
@@ -195,32 +175,22 @@ class _ProductDetailState extends State<ProductDetail> {
                                                     ? Row(
                                                         children: [
                                                           Container(
-                                                            padding:
-                                                                EdgeInsets.only(
+                                                            padding: EdgeInsets.only(
                                                               left: 6,
                                                               right: 6,
                                                               top: 4,
                                                               bottom: 4,
                                                             ),
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              color: Colors
-                                                                  .amberAccent,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          4),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors.amberAccent,
+                                                              borderRadius: BorderRadius.circular(4),
                                                             ),
                                                             child: Text(
                                                               '${Helper().getFormattedNumber(state.product.discount.amount, name: '')}% OFF',
                                                               style: TextStyle(
-                                                                color: Theme.of(
-                                                                        context)
-                                                                    .primaryColor,
+                                                                color: Theme.of(context).primaryColor,
                                                                 fontSize: 10,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600,
+                                                                fontWeight: FontWeight.w600,
                                                               ),
                                                             ),
                                                           ),
@@ -231,14 +201,9 @@ class _ProductDetailState extends State<ProductDetail> {
                                                             '${Helper().getFormattedNumber(state.product.price)}',
                                                             style: TextStyle(
                                                               fontSize: 12,
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .w600,
-                                                              color: Colors
-                                                                  .grey[400],
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .lineThrough,
+                                                              fontWeight: FontWeight.w600,
+                                                              color: Colors.grey[400],
+                                                              decoration: TextDecoration.lineThrough,
                                                             ),
                                                           ),
                                                         ],
@@ -261,12 +226,9 @@ class _ProductDetailState extends State<ProductDetail> {
                                               onPressed: () {},
                                               icon: Icon(
                                                 FontAwesomeIcons.solidHeart,
-                                                color:
-                                                    state.product.favourite !=
-                                                            null
-                                                        ? Theme.of(context)
-                                                            .primaryColor
-                                                        : Colors.grey,
+                                                color: state.product.favourite != null
+                                                    ? Theme.of(context).primaryColor
+                                                    : Colors.grey,
                                               ),
                                             )
                                           : Padding(
@@ -314,9 +276,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                                 children: [
                                                   Icon(
                                                     Icons.star,
-                                                    color: (state.product
-                                                                .ratingWeight !=
-                                                            null)
+                                                    color: (state.product.ratingWeight != null)
                                                         ? Colors.amberAccent
                                                         : Colors.grey[400],
                                                     size: 20,
@@ -325,32 +285,24 @@ class _ProductDetailState extends State<ProductDetail> {
                                                     width: 4,
                                                   ),
                                                   Text(
-                                                    (state.product
-                                                                .ratingWeight !=
-                                                            null)
-                                                        ? state.product
-                                                            .ratingWeight.rating
-                                                            .toString()
+                                                    (state.product.ratingWeight != null)
+                                                        ? state.product.ratingWeight.rating.toString()
                                                         : '0',
                                                     style: TextStyle(
                                                       color: Colors.grey[800],
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                      fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                   SizedBox(
                                                     width: 4,
                                                   ),
                                                   Text(
-                                                    (state.product
-                                                                .ratingWeight !=
-                                                            null)
+                                                    (state.product.ratingWeight != null)
                                                         ? '(${state.product.ratingWeight.totalVote})'
                                                         : '(0)',
                                                     style: TextStyle(
                                                       color: Colors.grey[600],
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                      fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
@@ -380,32 +332,26 @@ class _ProductDetailState extends State<ProductDetail> {
                                                     'Dilihat',
                                                     style: TextStyle(
                                                       color: Colors.grey[800],
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                      fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                   SizedBox(
                                                     width: 4,
                                                   ),
                                                   Text(
-                                                    (state.product.viewer !=
-                                                            null)
-                                                        ? state
-                                                            .product.viewer.view
-                                                            .toString()
+                                                    (state.product.viewer != null)
+                                                        ? state.product.viewer.view.toString()
                                                         : '0',
                                                     style: TextStyle(
                                                       color: Colors.grey[600],
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                      fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             )
                                           : Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 6),
+                                              padding: const EdgeInsets.only(left: 6),
                                               child: boxRadiusShimmer(
                                                 width: 100,
                                                 height: 20,
@@ -424,35 +370,26 @@ class _ProductDetailState extends State<ProductDetail> {
                                                     'Terjual',
                                                     style: TextStyle(
                                                       color: Colors.grey[800],
-                                                      fontWeight:
-                                                          FontWeight.bold,
+                                                      fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
                                                   SizedBox(
                                                     width: 4,
                                                   ),
                                                   Text(
-                                                    (state.product
-                                                                .productSale !=
-                                                            null)
-                                                        ? state
-                                                            .product
-                                                            .productSale
-                                                            .qtyTotal
-                                                            .toString()
+                                                    (state.product.productSale != null)
+                                                        ? state.product.productSale.qtyTotal.toString()
                                                         : '0',
                                                     style: TextStyle(
                                                       color: Colors.grey[600],
-                                                      fontWeight:
-                                                          FontWeight.w600,
+                                                      fontWeight: FontWeight.w600,
                                                     ),
                                                   ),
                                                 ],
                                               ),
                                             )
                                           : Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 6),
+                                              padding: const EdgeInsets.only(left: 6),
                                               child: boxRadiusShimmer(
                                                 width: 100,
                                                 height: 20,
@@ -501,8 +438,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                           textAlign: TextAlign.justify,
                                         )
                                       : Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             boxRadiusShimmer(
                                               width: double.infinity,
@@ -542,8 +478,7 @@ class _ProductDetailState extends State<ProductDetail> {
                               ),
                             ),
                             SizedBox(
-                              height:
-                                  (state is ProductDetailCompleted) ? 56 : 0,
+                              height: (state is ProductDetailCompleted) ? 56 : 0,
                             ),
                           ],
                         ),
@@ -585,12 +520,10 @@ class _ProductDetailState extends State<ProductDetail> {
                       Expanded(
                         child: FlatButton(
                           onPressed: () {},
-                          splashColor:
-                              Theme.of(context).accentColor.withOpacity(0.3),
+                          splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                           child: Text(
                             'Beli Langsung',
-                            style: TextStyle(
-                                color: Theme.of(context).primaryColor),
+                            style: TextStyle(color: Theme.of(context).primaryColor),
                           ),
                           shape: RoundedRectangleBorder(
                               side: BorderSide(
@@ -607,42 +540,29 @@ class _ProductDetailState extends State<ProductDetail> {
                       Expanded(
                         child: FlatButton(
                           onPressed: () {
-                            myProgressDialog(context).show();
+                            // myProgressDialog(context).show();
 
                             double price = (state.product.discount != null)
-                                ? Helper().getDiscountedPrice(
-                                    state.product.discount.amount,
-                                    state.product.price)
+                                ? Helper().getDiscountedPrice(state.product.discount.amount, state.product.price)
                                 : state.product.price;
 
-                            List<dynamic> newList =
-                                (_cartCubit.state.carts.length > 0)
-                                    ? _cartCubit.state.carts
-                                        .where((element) =>
-                                            element.productId ==
-                                            state.product.productId)
-                                        .toList()
-                                    : [];
+                            List<dynamic> newList = (_cartCubit.state.carts.length > 0)
+                                ? _cartCubit.state.carts
+                                    .where((element) => element.productId == state.product.productId)
+                                    .toList()
+                                : [];
 
-                            int qty =
-                                (newList.length > 0) ? newList[0].qty + 1 : 1;
+                            int qty = (newList.length > 0) ? newList[0].qty + 1 : 1;
 
-                            _addToCart(Cart(
-                              productId: state.product.productId,
-                              price: price,
-                              qty: qty,
-                              total: price,
-                            ));
+                            _addToCart(Cart(product: state.product));
                           },
-                          splashColor:
-                              Theme.of(context).accentColor.withOpacity(0.3),
+                          splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                           color: Theme.of(context).primaryColor,
                           child: Text(
                             '+ Keranjang',
                             style: TextStyle(color: Colors.white),
                           ),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(6)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                         ),
                       ),
                     ],

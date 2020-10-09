@@ -29,23 +29,14 @@ class _CartPageState extends State<CartPage> {
 
   void _mainScrollListener() {}
 
-  void _addCartDataToMap() {
-    setState(() {
-      _cartItems = Map<String, CartItemModel>.fromIterable(_cartCubit.state.carts,
-          key: (e) => e.productId,
-          value: (e) => CartItemModel(
-                checked: true,
-                cart: e,
-              ));
-    });
-  }
-
   void _allCheckListener(bool status) {
-    setState(() {
-      _cartItems.forEach((key, value) {
-        _cartItems[key] = _cartItems[key].copyWith(checked: status);
-      });
+    var carts = List<Cart>.from(_cartCubit.state.carts.map((e) {
+      return e.copyWith(checked: (status) ? 1 : 0);
+    }).toList());
 
+    _cartCubit.updateCart(carts: carts);
+
+    setState(() {
       _allCheck = status;
     });
   }
@@ -56,43 +47,29 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
-  void _checkedItemListener(String productId) {
-    setState(() {
-      _cartItems[productId] = _cartItems[productId].copyWith(checked: !_cartItems[productId].checked);
-
-      // _allCheck = status.where((e) => e == true).length == _cartItems.length;
-    });
-  }
-
   void _deleteItem(String productId) {
-    myProgressDialog(context).show();
+    // myProgressDialog(context).show();
 
     _cartCubit.removeCart(user: _authenticationCubit.state.userData, productId: productId);
   }
 
-  void _updateQty(Cart itemCart) {
-    setState(() {
-      _cartItems[itemCart.productId] = _cartItems[itemCart.productId].copyWith(cart: itemCart);
-    });
+  void _updateQty(List<Cart> carts) {
+    _cartCubit.updateCart(carts: carts);
   }
 
   Future _fetchData() async {
     _cartCubit.fetchCart(user: _authenticationCubit.state.userData);
   }
 
-  Future _updateData() async {
-    _cartCubit.updateCart(user: _authenticationCubit.state.userData, cartItem: _cartItems);
-    Navigator.of(context).pop();
+  Future _uploadData() async {
+    _cartCubit.uploadCart(user: _authenticationCubit.state.userData, carts: _cartCubit.state.carts);
   }
 
   @override
   void initState() {
     _scrollController.addListener(_mainScrollListener);
-
     _authenticationCubit = context.bloc<AuthenticationCubit>();
     _cartCubit = context.bloc<CartCubit>();
-
-    _addCartDataToMap();
 
     super.initState();
   }
@@ -107,13 +84,12 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        _updateData();
-        return false;
+        _uploadData();
+        return true;
       },
       child: BlocConsumer<CartCubit, CartState>(
         listener: (context, state) {
           if (state is CartComplete) {
-            _addCartDataToMap();
             if (myProgressDialog(context).isShowing()) myProgressDialog(context).hide();
           }
 
@@ -144,7 +120,7 @@ class _CartPageState extends State<CartPage> {
                           height: 56,
                         ),
                       ),
-                      (_cartItems.length > 0)
+                      (state.carts.length > 0)
                           ? SliverList(
                               delegate: SliverChildBuilderDelegate(
                                 (context, index) {
@@ -153,10 +129,10 @@ class _CartPageState extends State<CartPage> {
                                   }
 
                                   return CartItem(
-                                    cartItemModel: _cartItems[state.carts[index].productId],
-                                    checkedItemListener: _checkedItemListener,
+                                    index: index,
                                     deleteItem: _deleteItem,
                                     qtyUpdate: _updateQty,
+                                    carts: state.carts,
                                   );
                                 },
                                 childCount: state.carts.length ?? 4,
@@ -211,7 +187,7 @@ class _CartPageState extends State<CartPage> {
                             ),
                     ],
                   ),
-                  (_cartItems.length > 0)
+                  (state.carts.length > 0)
                       ? Align(
                           alignment: Alignment.topCenter,
                           child: SafeArea(
@@ -340,16 +316,16 @@ class _CartCheckerState extends State<CartChecker> {
 }
 
 class CartItem extends StatefulWidget {
-  final CartItemModel cartItemModel;
-  final ValueChanged<String> checkedItemListener;
+  final int index;
   final ValueChanged<String> deleteItem;
-  final ValueChanged<Cart> qtyUpdate;
+  final ValueChanged<List<Cart>> qtyUpdate;
+  final List<Cart> carts;
 
   CartItem({
-    @required this.cartItemModel,
-    @required this.checkedItemListener,
+    @required this.index,
     @required this.deleteItem,
     @required this.qtyUpdate,
+    @required this.carts,
   });
 
   @override
@@ -370,10 +346,18 @@ class _CartItemState extends State<CartItem> {
   void _updateQty(int value) {
     _setQtyField(value);
 
-    widget.qtyUpdate(widget.cartItemModel.cart.copyWith(
+    widget.carts[widget.index] = widget.carts[widget.index].copyWith(
       qty: value,
-      total: value * widget.cartItemModel.cart.price,
-    ));
+      total: value * widget.carts[widget.index].price,
+    );
+
+    widget.qtyUpdate(widget.carts);
+  }
+
+  void _checkedItem(bool status) {
+    widget.carts[widget.index] = widget.carts[widget.index].copyWith(checked: (status) ? 1 : 0);
+
+    widget.qtyUpdate(widget.carts);
   }
 
   void _setQtyField(int value) {
@@ -388,14 +372,13 @@ class _CartItemState extends State<CartItem> {
 
   @override
   void initState() {
-    _setQtyField(widget.cartItemModel.cart.qty);
+    _setQtyField(widget.carts[widget.index].qty);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    var _product = widget.cartItemModel.cart.product;
-    var _cart = widget.cartItemModel.cart;
+    var _product = widget.carts[widget.index].product;
     return Container(
       height: 190,
       padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
@@ -409,10 +392,8 @@ class _CartItemState extends State<CartItem> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Checkbox(
-                  onChanged: (value) {
-                    widget.checkedItemListener(_cart.productId);
-                  },
-                  value: widget.cartItemModel.checked,
+                  onChanged: _checkedItem,
+                  value: (widget.carts[widget.index].checked == 1) ? true : false,
                   activeColor: Theme.of(context).primaryColor,
                 ),
                 Container(
@@ -457,7 +438,7 @@ class _CartItemState extends State<CartItem> {
                         height: 10,
                       ),
                       Text(
-                        '${Helper().getFormattedNumber(_cart.price)} / ${_product.unit.unit}',
+                        '${Helper().getFormattedNumber(widget.carts[widget.index].price)} / ${_product.unit.unit}',
                         style: TextStyle(
                           color: Theme.of(context).primaryColor,
                           fontWeight: FontWeight.bold,
@@ -547,7 +528,7 @@ class _CartItemState extends State<CartItem> {
           ),
           IconButton(
             onPressed: () {
-              widget.deleteItem(widget.cartItemModel.cart.productId);
+              widget.deleteItem(widget.carts[widget.index].productId);
             },
             icon: Icon(
               Icons.delete,

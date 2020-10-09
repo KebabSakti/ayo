@@ -139,8 +139,10 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
 
     _scrollController.addListener(_scrollListener);
 
-    //fetch data
-    _fetchData();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      //fetch data
+      _fetchData();
+    });
 
     super.initState();
   }

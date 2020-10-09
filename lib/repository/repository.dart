@@ -1,6 +1,5 @@
 import 'package:ayo/dataprovider/data_provider.dart';
 import 'package:ayo/model/cart/cart.dart';
-import 'package:ayo/model/cart/cart_item.dart';
 import 'package:ayo/model/query/query.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/provider/provider.dart';
@@ -61,7 +60,7 @@ class Repository {
     return await providers.removeCart(user: user, productId: productId);
   }
 
-  Future<dynamic> updateCart({@required UserData user, @required Map<String, CartItemModel> cartItem}) async {
-    return await providers.updateCart(user: user, cartItem: cartItem);
+  Future<dynamic> uploadCart({@required UserData user, @required List<Cart> carts}) async {
+    return await providers.uploadCart(user: user, carts: carts);
   }
 }

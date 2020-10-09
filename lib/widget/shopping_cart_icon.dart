@@ -23,52 +23,59 @@ class _ShoppingCartIconState extends State<ShoppingCartIcon> {
     _authenticationCubit = context.bloc<AuthenticationCubit>();
     _cartCubit = context.bloc<CartCubit>();
 
-    //fetch
-    _fetchData();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      //fetch data
+      _fetchData();
+    });
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<CartCubit, CartState>(
+    return BlocListener<CartCubit, CartState>(
       listener: (context, state) {
+        print(state);
         if (state is CartError) {
           _fetchData();
         }
       },
-      builder: (context, state) {
-        int _cartItemTotal = state.carts.fold(0, (value, element) => value + element.qty);
-        print(state);
-        print(_cartItemTotal);
-        return Stack(
-          alignment: Alignment.center,
-          overflow: Overflow.visible,
-          children: [
-            IconButton(
-              onPressed: () {
-                Navigator.of(context).pushNamed('/cart_page');
-              },
-              splashRadius: 20,
-              splashColor: Theme.of(context).accentColor.withOpacity(0.3),
-              padding: EdgeInsets.only(right: 15),
-              icon: Icon(
-                FontAwesomeIcons.shoppingBasket,
-                color: Colors.white,
-                size: 20,
-              ),
+      child: Stack(
+        alignment: Alignment.center,
+        overflow: Overflow.visible,
+        children: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pushNamed('/cart_page');
+            },
+            splashRadius: 20,
+            splashColor: Theme.of(context).accentColor.withOpacity(0.3),
+            padding: EdgeInsets.only(right: 15),
+            icon: Icon(
+              FontAwesomeIcons.shoppingBasket,
+              color: Colors.white,
+              size: 20,
             ),
-            Positioned(
-              left: 15,
-              top: 8,
-              child: ShoppingCart(
-                animate: (_cartItemTotal > 0) ? true : false,
-                total: _cartItemTotal,
-              ),
-            ),
-          ],
-        );
-      },
+          ),
+          BlocBuilder<CartCubit, CartState>(
+            builder: (context, state) {
+              if (state is CartComplete) {
+                int _cartItemTotal = state.carts.fold(0, (value, element) => value + element.qty);
+                return Positioned(
+                  left: 15,
+                  top: 8,
+                  child: ShoppingCart(
+                    animate: true,
+                    total: _cartItemTotal,
+                  ),
+                );
+              }
+
+              return SizedBox.shrink();
+            },
+          ),
+        ],
+      ),
     );
   }
 }
