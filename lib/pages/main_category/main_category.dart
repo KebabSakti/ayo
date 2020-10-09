@@ -49,16 +49,14 @@ class _MainCategoryState extends State<MainCategory> {
 
   void _fetchSubCategories() {
     _subCategoryCubit.fetchSubCategories(
-        userData: _authenticationCubit.state.userData,
-        mainCategoryId: widget.categoryId);
+        userData: _authenticationCubit.state.userData, mainCategoryId: widget.categoryId);
   }
 
   void _fetchProduct() {
     _productCubit.fetchProduct(
         user: _authenticationCubit.state.userData,
         query: _queryCubit.state.query.copyWith(
-            filter: _queryCubit.state.query.filter
-                .copyWith(mainCategoryId: widget.categoryId),
+            filter: _queryCubit.state.query.filter.copyWith(mainCategoryId: widget.categoryId),
             sorting: _queryCubit.state.query.sorting));
   }
 
@@ -66,14 +64,12 @@ class _MainCategoryState extends State<MainCategory> {
     _productCubit.fetchMoreProduct(
         user: _authenticationCubit.state.userData,
         query: _queryCubit.state.query.copyWith(
-            filter: _queryCubit.state.query.filter
-                .copyWith(mainCategoryId: widget.categoryId),
+            filter: _queryCubit.state.query.filter.copyWith(mainCategoryId: widget.categoryId),
             sorting: _queryCubit.state.query.sorting));
   }
 
   void _setQuery() {
-    _queryCubit.setQuery(QueryModel(
-        filter: Filter(mainCategoryId: widget.categoryId), sorting: Sorting()));
+    _queryCubit.setQuery(QueryModel(filter: Filter(mainCategoryId: widget.categoryId), sorting: Sorting()));
   }
 
   void _scrollListener() {
@@ -153,13 +149,7 @@ class _MainCategoryState extends State<MainCategory> {
                     pinned: true,
                     actions: [
                       SizedBox(width: 15),
-                      Stack(
-                        alignment: Alignment.center,
-                        overflow: Overflow.visible,
-                        children: [
-                          ShoppingCartIcon(),
-                        ],
-                      ),
+                      ShoppingCartIcon(),
                     ],
                     title: SearchBar(
                       scrollController: _scrollController,
@@ -179,8 +169,7 @@ class _MainCategoryState extends State<MainCategory> {
                   SliverToBoxAdapter(
                     child: Container(
                       height: 250,
-                      padding: EdgeInsets.only(
-                          top: 10, bottom: 10, left: 5, right: 5),
+                      padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -204,10 +193,8 @@ class _MainCategoryState extends State<MainCategory> {
                                     print('kategori');
                                   },
                                   child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
                                         'Lihat Semua',
@@ -234,17 +221,13 @@ class _MainCategoryState extends State<MainCategory> {
                           Expanded(
                             child: Padding(
                               padding: const EdgeInsets.only(left: 5, right: 5),
-                              child: BlocConsumer<SubCategoryCubit,
-                                  SubCategoryState>(
+                              child: BlocConsumer<SubCategoryCubit, SubCategoryState>(
                                 listener: (context, state) {},
                                 builder: (context, state) {
                                   return GridView.builder(
                                     scrollDirection: Axis.horizontal,
-                                    itemCount: (state is SubCategoryLoading)
-                                        ? 8
-                                        : state.subCategories.length,
-                                    gridDelegate:
-                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                    itemCount: (state is SubCategoryLoading) ? 8 : state.subCategories.length,
+                                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                                       crossAxisCount: 2,
                                       crossAxisSpacing: 10,
                                       mainAxisSpacing: 10,
@@ -252,26 +235,19 @@ class _MainCategoryState extends State<MainCategory> {
                                     ),
                                     itemBuilder: (context, index) {
                                       if (state is SubCategoryCompleted) {
-                                        var subCategory =
-                                            state.subCategories[index];
+                                        var subCategory = state.subCategories[index];
                                         return Material(
                                           color: Colors.grey[100],
-                                          borderRadius:
-                                              BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(20),
                                           child: InkWell(
                                             onTap: () {},
-                                            borderRadius:
-                                                BorderRadius.circular(20),
-                                            splashColor: Theme.of(context)
-                                                .accentColor
-                                                .withOpacity(0.3),
+                                            borderRadius: BorderRadius.circular(20),
+                                            splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                                             child: Ink(
                                               child: Padding(
-                                                padding:
-                                                    const EdgeInsets.all(8.0),
+                                                padding: const EdgeInsets.all(8.0),
                                                 child: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
+                                                  mainAxisAlignment: MainAxisAlignment.center,
                                                   children: [
                                                     SvgPicture.network(
                                                       subCategory.image,
@@ -283,15 +259,12 @@ class _MainCategoryState extends State<MainCategory> {
                                                     ),
                                                     Text(
                                                       subCategory.title,
-                                                      textAlign:
-                                                          TextAlign.center,
+                                                      textAlign: TextAlign.center,
                                                       maxLines: 2,
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
+                                                      overflow: TextOverflow.ellipsis,
                                                       style: TextStyle(
                                                         color: Colors.grey[800],
-                                                        fontWeight:
-                                                            FontWeight.w600,
+                                                        fontWeight: FontWeight.w600,
                                                         fontSize: 10,
                                                       ),
                                                     ),
@@ -359,8 +332,7 @@ class _MainCategoryState extends State<MainCategory> {
 
                         return VerticalProductList(
                           isLoading: (state is ProductLoading) ? true : false,
-                          moreLoading:
-                              (state is ProductPagingLoading) ? true : false,
+                          moreLoading: (state is ProductPagingLoading) ? true : false,
                           products: state.productPaginate.products,
                         );
                       },

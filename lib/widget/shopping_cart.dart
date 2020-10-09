@@ -6,8 +6,7 @@ class ShoppingCart extends StatefulWidget {
   final bool animate;
   final int total;
 
-  ShoppingCart({Key key, @required this.animate, @required this.total})
-      : super(key: key);
+  ShoppingCart({Key key, @required this.animate, @required this.total}) : super(key: key);
 
   @override
   _ShoppingCartState createState() => _ShoppingCartState();
@@ -18,13 +17,11 @@ class _ShoppingCartState extends State<ShoppingCart> {
 
   @override
   void initState() {
-    setState(() {
-      if (widget.animate) {
-        _control = CustomAnimationControl.PLAY;
-      } else {
-        _control = CustomAnimationControl.PLAY_REVERSE;
-      }
-    });
+    if (widget.animate) {
+      _control = CustomAnimationControl.PLAY;
+    } else {
+      _control = CustomAnimationControl.PLAY_REVERSE;
+    }
 
     super.initState();
   }
@@ -47,8 +44,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
           backgroundColor: Colors.red,
           child: Text(
             (widget.total <= 99) ? widget.total.toString() : '99+',
-            style: TextStyle(
-                color: Colors.white, fontSize: 7, fontWeight: FontWeight.w600),
+            style: TextStyle(color: Colors.white, fontSize: 7, fontWeight: FontWeight.w600),
           ),
         ),
       ), // efine tween of colors
