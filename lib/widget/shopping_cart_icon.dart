@@ -35,7 +35,6 @@ class _ShoppingCartIconState extends State<ShoppingCartIcon> {
   Widget build(BuildContext context) {
     return BlocListener<CartCubit, CartState>(
       listener: (context, state) {
-        print(state);
         if (state is CartError) {
           _fetchData();
         }
