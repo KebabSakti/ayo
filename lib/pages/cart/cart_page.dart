@@ -1,7 +1,6 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/cart_cubit.dart';
 import 'package:ayo/model/cart/cart.dart';
-import 'package:ayo/model/cart/cart_item.dart';
 import 'package:ayo/util/dialog.dart';
 import 'package:ayo/util/helper.dart';
 import 'package:ayo/widget/scroll_top.dart';
@@ -24,7 +23,6 @@ class _CartPageState extends State<CartPage> {
   AuthenticationCubit _authenticationCubit;
   CartCubit _cartCubit;
 
-  Map<String, CartItemModel> _cartItems;
   bool _allCheck = true;
 
   void _mainScrollListener() {}
@@ -41,14 +39,10 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
-  void _deleteMarked() {
-    _cartItems.forEach((key, value) {
-      _cartItems.removeWhere((key, value) => (_cartItems[key].checked == true));
-    });
-  }
+  void _deleteMarked() {}
 
   void _deleteItem(String productId) {
-    // myProgressDialog(context).show();
+    myProgressDialog(context).show();
 
     _cartCubit.removeCart(user: _authenticationCubit.state.userData, productId: productId);
   }
@@ -62,6 +56,8 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future _uploadData() async {
+    myProgressDialog(context).show();
+
     _cartCubit.uploadCart(user: _authenticationCubit.state.userData, carts: _cartCubit.state.carts);
   }
 
@@ -95,6 +91,13 @@ class _CartPageState extends State<CartPage> {
 
           if (state is CartError) {
             if (myProgressDialog(context).isShowing()) myProgressDialog(context).hide();
+          }
+
+          if (state is CartUploadComplete) {
+            if (myProgressDialog(context).isShowing())
+              myProgressDialog(context).hide().then((value) {
+                Navigator.of(context).pop();
+              });
           }
         },
         builder: (context, state) {
@@ -185,6 +188,11 @@ class _CartPageState extends State<CartPage> {
                                 ),
                               ),
                             ),
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 65,
+                        ),
+                      ),
                     ],
                   ),
                   (state.carts.length > 0)
@@ -211,6 +219,74 @@ class _CartPageState extends State<CartPage> {
                     ),
                   ),
                 ],
+              ),
+              bottomSheet: Builder(
+                builder: (context) {
+                  double _totalHarga = state.carts.fold(0, (value, element) => value + element.total);
+                  return (_totalHarga > 0)
+                      ? Container(
+                          width: double.infinity,
+                          height: 65,
+                          padding: EdgeInsets.only(left: 20, right: 20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                              top: BorderSide(
+                                color: Colors.grey[200],
+                              ),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Total Harga',
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 4,
+                                  ),
+                                  Text(
+                                    Helper().getFormattedNumber(_totalHarga).toString(),
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              FlatButton(
+                                onPressed: () {},
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                                color: Theme.of(context).primaryColor,
+                                child: Container(
+                                  width: 100,
+                                  height: 20,
+                                  child: Center(
+                                    child: Builder(
+                                      builder: (context) {
+                                        int _totalItem = state.carts.fold(0, (value, element) => value + element.qty);
+                                        return Text(
+                                          'Beli ($_totalItem)',
+                                          style: TextStyle(color: Colors.white),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : SizedBox.shrink();
+                },
               ),
             ),
           );
@@ -345,13 +421,6 @@ class _CartItemState extends State<CartItem> {
 
   void _updateQty(int value) {
     _setQtyField(value);
-
-    widget.carts[widget.index] = widget.carts[widget.index].copyWith(
-      qty: value,
-      total: value * widget.carts[widget.index].price,
-    );
-
-    widget.qtyUpdate(widget.carts);
   }
 
   void _checkedItem(bool status) {
@@ -370,10 +439,27 @@ class _CartItemState extends State<CartItem> {
     );
   }
 
+  void _qtyChangedListener() {
+    var value = int.parse(_textEditingController.text);
+    widget.carts[widget.index] = widget.carts[widget.index].copyWith(
+      qty: value,
+      total: value * widget.carts[widget.index].price,
+    );
+
+    widget.qtyUpdate(widget.carts);
+  }
+
   @override
   void initState() {
+    _textEditingController.addListener(_qtyChangedListener);
     _setQtyField(widget.carts[widget.index].qty);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _textEditingController.dispose();
+    super.dispose();
   }
 
   @override
@@ -382,7 +468,14 @@ class _CartItemState extends State<CartItem> {
     return Container(
       height: 190,
       padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[100], width: 1))),
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(
+            color: (widget.index + 1 == widget.carts.length) ? Colors.transparent : Colors.grey[100],
+            width: 1,
+          ),
+        ),
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,

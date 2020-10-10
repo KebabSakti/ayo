@@ -276,8 +276,6 @@ class DataProvider {
           data: {
             'product_id': cartData.productId,
             'price': cartData.price,
-            'qty': cartData.qty,
-            'total': cartData.total,
           });
 
       List<dynamic> parsed = await response.data;
@@ -324,6 +322,7 @@ class DataProvider {
                     'cart_id': e.cartId,
                     'user_id': e.userId,
                     'product_id': e.product.productId,
+                    'checked': e.checked,
                     'price': e.price,
                     'qty': e.qty,
                     'total': e.total,

@@ -507,13 +507,11 @@ class _ProductDetailState extends State<ProductDetail> {
                   padding: EdgeInsets.all(5),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey[300],
-                        blurRadius: 6.0,
-                        spreadRadius: 2.0,
+                    border: Border(
+                      top: BorderSide(
+                        color: Colors.grey[200],
                       ),
-                    ],
+                    ),
                   ),
                   child: Row(
                     children: [
@@ -540,21 +538,16 @@ class _ProductDetailState extends State<ProductDetail> {
                       Expanded(
                         child: FlatButton(
                           onPressed: () {
-                            // myProgressDialog(context).show();
+                            myProgressDialog(context).show();
 
                             double price = (state.product.discount != null)
                                 ? Helper().getDiscountedPrice(state.product.discount.amount, state.product.price)
                                 : state.product.price;
 
-                            List<dynamic> newList = (_cartCubit.state.carts.length > 0)
-                                ? _cartCubit.state.carts
-                                    .where((element) => element.productId == state.product.productId)
-                                    .toList()
-                                : [];
-
-                            int qty = (newList.length > 0) ? newList[0].qty + 1 : 1;
-
-                            _addToCart(Cart(product: state.product));
+                            _addToCart(Cart(
+                              productId: state.product.productId,
+                              price: price,
+                            ));
                           },
                           splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                           color: Theme.of(context).primaryColor,
