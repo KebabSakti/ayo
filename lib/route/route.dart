@@ -8,6 +8,7 @@ import 'package:ayo/pages/intro/intro.dart';
 import 'package:ayo/pages/main_category/bloc/sub_category_cubit.dart';
 import 'package:ayo/pages/main_category/main_category.dart';
 import 'package:ayo/pages/order/order.dart';
+import 'package:ayo/pages/pengiriman/pengiriman.dart';
 import 'package:ayo/pages/product_detail/product_detail.dart';
 import 'package:ayo/pages/product_detail/product_detail_cubit.dart';
 import 'package:ayo/pages/slider/slider_intro.dart';
@@ -112,6 +113,15 @@ class RouteGenerator {
       case '/cart_page':
         return PageTransition(
           child: CartPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
+          settings: settings,
+        );
+        break;
+
+      case '/pengiriman':
+        return PageTransition(
+          child: Pengiriman(),
           type: PageTransitionType.rightToLeft,
           duration: _duration,
           settings: settings,

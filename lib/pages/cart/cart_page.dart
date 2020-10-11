@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class CartPage extends StatefulWidget {
   @override
@@ -56,9 +58,10 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future _uploadData() async {
-    myProgressDialog(context).show();
-
-    _cartCubit.uploadCart(user: _authenticationCubit.state.userData, carts: _cartCubit.state.carts);
+    if (_cartCubit.state.carts.length > 0) {
+      myProgressDialog(context).show();
+      _cartCubit.uploadCart(user: _authenticationCubit.state.userData, carts: _cartCubit.state.carts);
+    }
   }
 
   @override
@@ -123,71 +126,83 @@ class _CartPageState extends State<CartPage> {
                           height: 56,
                         ),
                       ),
-                      (state.carts.length > 0)
-                          ? SliverList(
-                              delegate: SliverChildBuilderDelegate(
-                                (context, index) {
-                                  if (state is CartLoading) {
-                                    return _cartItemShimmer(index);
-                                  }
-
-                                  return CartItem(
-                                    index: index,
-                                    deleteItem: _deleteItem,
-                                    qtyUpdate: _updateQty,
-                                    carts: state.carts,
+                      Builder(
+                        builder: (context) {
+                          if (state is CartComplete) {
+                            return (state.carts.length > 0)
+                                ? SliverList(
+                                    delegate: SliverChildBuilderDelegate(
+                                      (context, index) {
+                                        return CartItem(
+                                          index: index,
+                                          deleteItem: _deleteItem,
+                                          qtyUpdate: _updateQty,
+                                          carts: state.carts,
+                                        );
+                                      },
+                                      childCount: state.carts.length,
+                                    ),
+                                  )
+                                : SliverToBoxAdapter(
+                                    child: Container(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 40, right: 40),
+                                        child: Column(
+                                          mainAxisAlignment: MainAxisAlignment.center,
+                                          children: [
+                                            SizedBox(
+                                              width: 200,
+                                              height: 200,
+                                              child: SvgPicture.asset('assets/images/empty_cart.svg'),
+                                            ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              'Keranjang belanja kamu masih kosong, ayo mulai belanja',
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(color: Colors.grey[600]),
+                                            ),
+                                            SizedBox(
+                                              height: 20,
+                                            ),
+                                            FlatButton(
+                                              onPressed: () {
+                                                Navigator.popUntil(context, ModalRoute.withName('/app'));
+                                              },
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              color: Theme.of(context).primaryColor,
+                                              child: Text(
+                                                'Mulai Belanja',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              height: 56,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
                                   );
-                                },
-                                childCount: state.carts.length ?? 4,
-                              ),
-                            )
-                          : SliverToBoxAdapter(
-                              child: Container(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 40, right: 40),
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: 200,
-                                        height: 200,
-                                        child: SvgPicture.asset('assets/images/empty_cart.svg'),
-                                      ),
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      Text(
-                                        'Keranjang belanja kamu masih kosong, ayo mulai belanja',
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(color: Colors.grey[600]),
-                                      ),
-                                      SizedBox(
-                                        height: 20,
-                                      ),
-                                      FlatButton(
-                                        onPressed: () {
-                                          Navigator.popUntil(context, ModalRoute.withName('/app'));
-                                        },
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(4),
-                                        ),
-                                        color: Theme.of(context).primaryColor,
-                                        child: Text(
-                                          'Mulai Belanja',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 56,
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                          }
+
+                          return SliverToBoxAdapter(
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                backgroundColor: Colors.grey[100],
+                                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
                               ),
                             ),
+                          );
+                        },
+                      ),
                       SliverToBoxAdapter(
                         child: SizedBox(
                           height: 65,
@@ -195,20 +210,28 @@ class _CartPageState extends State<CartPage> {
                       ),
                     ],
                   ),
-                  (state.carts.length > 0)
-                      ? Align(
-                          alignment: Alignment.topCenter,
-                          child: SafeArea(
-                            child: CartChecker(
-                              scrollController: _scrollController,
-                              total: state.carts.length,
-                              allCheckListener: _allCheckListener,
-                              allCheck: _allCheck,
-                              deleteMarked: _deleteMarked,
-                            ),
-                          ),
-                        )
-                      : SizedBox.shrink(),
+                  Builder(
+                    builder: (context) {
+                      if (state is CartComplete) {
+                        return (state.carts.length > 0)
+                            ? Align(
+                                alignment: Alignment.topCenter,
+                                child: SafeArea(
+                                  child: CartChecker(
+                                    scrollController: _scrollController,
+                                    total: state.carts.length,
+                                    allCheckListener: _allCheckListener,
+                                    allCheck: _allCheck,
+                                    deleteMarked: _deleteMarked,
+                                  ),
+                                ),
+                              )
+                            : SizedBox.shrink();
+                      }
+
+                      return SizedBox.shrink();
+                    },
+                  ),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
@@ -263,7 +286,14 @@ class _CartPageState extends State<CartPage> {
                                 ],
                               ),
                               FlatButton(
-                                onPressed: () {},
+                                onPressed: () async {
+                                  if (await Permission.location.request().isGranted) {
+                                    Navigator.of(context).pushNamed('/pengiriman');
+                                  } else {
+                                    Fluttertoast.showToast(
+                                        msg: 'Izin penggunaan lokasi diperlukan', gravity: ToastGravity.BOTTOM);
+                                  }
+                                },
                                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
                                 color: Theme.of(context).primaryColor,
                                 child: Container(
@@ -634,113 +664,119 @@ class _CartItemState extends State<CartItem> {
   }
 }
 
-Widget _cartItemShimmer(int index) {
-  return Container(
-    height: 160,
-    padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
-    decoration: BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[100], width: index != 10 ? 1 : 0))),
-    child: Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-                child: boxRadiusShimmer(width: 20, height: 20, radius: 0),
-              ),
-              Container(
-                width: 60,
-                height: 50,
-                decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: boxRadiusShimmer(radius: 5),
-              ),
-              SizedBox(width: 15),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
+Widget _cartItemShimmer(int count) {
+  return ListView.builder(
+    itemCount: count,
+    itemBuilder: (context, index) {
+      return Container(
+        height: 160,
+        padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
+        decoration:
+            BoxDecoration(border: Border(bottom: BorderSide(color: Colors.grey[100], width: index != 10 ? 1 : 0))),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+                    child: boxRadiusShimmer(width: 20, height: 20, radius: 0),
+                  ),
+                  Container(
+                    width: 60,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: boxRadiusShimmer(radius: 5),
+                  ),
+                  SizedBox(width: 15),
+                  Expanded(
+                    child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            boxRadiusShimmer(
+                              width: 150,
+                              height: 10,
+                              radius: 4,
+                            ),
+                            SizedBox(height: 2),
+                            boxRadiusShimmer(
+                              width: 100,
+                              height: 10,
+                              radius: 4,
+                            ),
+                            SizedBox(height: 2),
+                            boxRadiusShimmer(
+                              width: 50,
+                              height: 10,
+                              radius: 4,
+                            ),
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
                         boxRadiusShimmer(
-                          width: 150,
+                          width: 80,
                           height: 10,
                           radius: 4,
                         ),
-                        SizedBox(height: 2),
-                        boxRadiusShimmer(
-                          width: 100,
-                          height: 10,
-                          radius: 4,
-                        ),
-                        SizedBox(height: 2),
-                        boxRadiusShimmer(
-                          width: 50,
-                          height: 10,
-                          radius: 4,
+                        SizedBox(height: 10),
+                        boxRadiusShimmer(width: 120, height: 20, radius: 4),
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            boxRadiusShimmer(
+                              width: 30,
+                              height: 30,
+                              radius: 15,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                left: 4,
+                                right: 4,
+                              ),
+                              child: boxRadiusShimmer(
+                                width: 50,
+                                height: 30,
+                                radius: 4,
+                              ),
+                            ),
+                            boxRadiusShimmer(
+                              width: 30,
+                              height: 30,
+                              radius: 15,
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 10,
-                    ),
-                    boxRadiusShimmer(
-                      width: 80,
-                      height: 10,
-                      radius: 4,
-                    ),
-                    SizedBox(height: 10),
-                    boxRadiusShimmer(width: 120, height: 20, radius: 4),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        boxRadiusShimmer(
-                          width: 30,
-                          height: 30,
-                          radius: 15,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 4,
-                            right: 4,
-                          ),
-                          child: boxRadiusShimmer(
-                            width: 50,
-                            height: 30,
-                            radius: 4,
-                          ),
-                        ),
-                        boxRadiusShimmer(
-                          width: 30,
-                          height: 30,
-                          radius: 15,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+            SizedBox(
+              width: 10,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(10),
+              child: boxRadiusShimmer(
+                width: 25,
+                height: 25,
+                radius: 22,
+              ),
+            ),
+          ],
         ),
-        SizedBox(
-          width: 10,
-        ),
-        Padding(
-          padding: const EdgeInsets.all(10),
-          child: boxRadiusShimmer(
-            width: 25,
-            height: 25,
-            radius: 22,
-          ),
-        ),
-      ],
-    ),
+      );
+    },
   );
 }
