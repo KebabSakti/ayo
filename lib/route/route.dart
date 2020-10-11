@@ -4,6 +4,7 @@ import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/pages/cart/cart_page.dart';
+import 'package:ayo/pages/destination.dart';
 import 'package:ayo/pages/intro/intro.dart';
 import 'package:ayo/pages/main_category/bloc/sub_category_cubit.dart';
 import 'package:ayo/pages/main_category/main_category.dart';
@@ -113,6 +114,15 @@ class RouteGenerator {
       case '/cart_page':
         return PageTransition(
           child: CartPage(),
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
+          settings: settings,
+        );
+        break;
+
+      case '/destination':
+        return PageTransition(
+          child: Destination(),
           type: PageTransitionType.rightToLeft,
           duration: _duration,
           settings: settings,

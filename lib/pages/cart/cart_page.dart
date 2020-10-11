@@ -200,28 +200,20 @@ class _CartPageState extends State<CartPage> {
                       ),
                     ],
                   ),
-                  Builder(
-                    builder: (context) {
-                      if (state is CartComplete) {
-                        return (state.carts.length > 0)
-                            ? Align(
-                                alignment: Alignment.topCenter,
-                                child: SafeArea(
-                                  child: CartChecker(
-                                    scrollController: _scrollController,
-                                    total: state.carts.length,
-                                    allCheckListener: _allCheckListener,
-                                    allCheck: _allCheck,
-                                    deleteMarked: _deleteMarked,
-                                  ),
-                                ),
-                              )
-                            : SizedBox.shrink();
-                      }
-
-                      return SizedBox.shrink();
-                    },
-                  ),
+                  (state.carts.length > 0)
+                      ? Align(
+                          alignment: Alignment.topCenter,
+                          child: SafeArea(
+                            child: CartChecker(
+                              scrollController: _scrollController,
+                              total: state.carts.length,
+                              allCheckListener: _allCheckListener,
+                              allCheck: _allCheck,
+                              deleteMarked: _deleteMarked,
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
                   Align(
                     alignment: Alignment.bottomRight,
                     child: Padding(
@@ -278,7 +270,7 @@ class _CartPageState extends State<CartPage> {
                               FlatButton(
                                 onPressed: () async {
                                   if (await Permission.location.request().isGranted) {
-                                    Navigator.of(context).pushNamed('/pengiriman');
+                                    Navigator.of(context).pushNamed('/destination');
                                   } else {
                                     Fluttertoast.showToast(
                                         msg: 'Izin penggunaan lokasi diperlukan', gravity: ToastGravity.BOTTOM);
