@@ -29,7 +29,7 @@ class _ShoppingCartState extends State<ShoppingCart> {
   @override
   Widget build(BuildContext context) {
     return CustomAnimation<double>(
-      control: _control,
+      control: CustomAnimationControl.PLAY,
       curve: Curves.elasticInOut,
       duration: Duration(milliseconds: 500),
       tween: 0.0.tweenTo(1.0), // <-- d

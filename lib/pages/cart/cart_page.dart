@@ -496,6 +496,7 @@ class _CartItemState extends State<CartItem> {
   Widget build(BuildContext context) {
     var _product = widget.carts[widget.index].product;
     return Container(
+      key: UniqueKey(),
       height: 190,
       padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
       decoration: BoxDecoration(
