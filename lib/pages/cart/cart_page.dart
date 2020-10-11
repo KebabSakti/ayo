@@ -88,6 +88,7 @@ class _CartPageState extends State<CartPage> {
       },
       child: BlocConsumer<CartCubit, CartState>(
         listener: (context, state) {
+          print(state);
           if (state is CartComplete) {
             if (myProgressDialog(context).isShowing()) myProgressDialog(context).hide();
           }
@@ -128,79 +129,68 @@ class _CartPageState extends State<CartPage> {
                       ),
                       Builder(
                         builder: (context) {
-                          if (state is CartComplete) {
-                            return (state.carts.length > 0)
-                                ? SliverList(
-                                    delegate: SliverChildBuilderDelegate(
-                                      (context, index) {
-                                        return CartItem(
-                                          index: index,
-                                          deleteItem: _deleteItem,
-                                          qtyUpdate: _updateQty,
-                                          carts: state.carts,
-                                        );
-                                      },
-                                      childCount: state.carts.length,
-                                    ),
-                                  )
-                                : SliverToBoxAdapter(
-                                    child: Container(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 40, right: 40),
-                                        child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            SizedBox(
-                                              width: 200,
-                                              height: 200,
-                                              child: SvgPicture.asset('assets/images/empty_cart.svg'),
+                          return (state.carts.length > 0)
+                              ? SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (context, index) {
+                                      return CartItem(
+                                        key: ValueKey(state.carts[index].productId),
+                                        index: index,
+                                        deleteItem: _deleteItem,
+                                        qtyUpdate: _updateQty,
+                                        carts: state.carts,
+                                      );
+                                    },
+                                    childCount: state.carts.length,
+                                  ),
+                                )
+                              : SliverToBoxAdapter(
+                                  child: Container(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(left: 40, right: 40),
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          SizedBox(
+                                            width: 200,
+                                            height: 200,
+                                            child: SvgPicture.asset('assets/images/empty_cart.svg'),
+                                          ),
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            'Keranjang belanja kamu masih kosong, ayo mulai belanja',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(color: Colors.grey[600]),
+                                          ),
+                                          SizedBox(
+                                            height: 20,
+                                          ),
+                                          FlatButton(
+                                            onPressed: () {
+                                              Navigator.popUntil(context, ModalRoute.withName('/app'));
+                                            },
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(4),
                                             ),
-                                            SizedBox(
-                                              height: 10,
-                                            ),
-                                            Text(
-                                              'Keranjang belanja kamu masih kosong, ayo mulai belanja',
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(color: Colors.grey[600]),
-                                            ),
-                                            SizedBox(
-                                              height: 20,
-                                            ),
-                                            FlatButton(
-                                              onPressed: () {
-                                                Navigator.popUntil(context, ModalRoute.withName('/app'));
-                                              },
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(4),
+                                            color: Theme.of(context).primaryColor,
+                                            child: Text(
+                                              'Mulai Belanja',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.w600,
                                               ),
-                                              color: Theme.of(context).primaryColor,
-                                              child: Text(
-                                                'Mulai Belanja',
-                                                style: TextStyle(
-                                                  color: Colors.white,
-                                                  fontWeight: FontWeight.w600,
-                                                ),
-                                              ),
                                             ),
-                                            SizedBox(
-                                              height: 56,
-                                            ),
-                                          ],
-                                        ),
+                                          ),
+                                          SizedBox(
+                                            height: 56,
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                  );
-                          }
-
-                          return SliverToBoxAdapter(
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                backgroundColor: Colors.grey[100],
-                                valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-                              ),
-                            ),
-                          );
+                                  ),
+                                );
                         },
                       ),
                       SliverToBoxAdapter(
@@ -428,11 +418,12 @@ class CartItem extends StatefulWidget {
   final List<Cart> carts;
 
   CartItem({
+    Key key,
     @required this.index,
     @required this.deleteItem,
     @required this.qtyUpdate,
     @required this.carts,
-  });
+  }) : super(key: key);
 
   @override
   _CartItemState createState() => _CartItemState();
@@ -496,7 +487,6 @@ class _CartItemState extends State<CartItem> {
   Widget build(BuildContext context) {
     var _product = widget.carts[widget.index].product;
     return Container(
-      key: UniqueKey(),
       height: 190,
       padding: EdgeInsets.only(left: 5, right: 5, top: 10, bottom: 10),
       decoration: BoxDecoration(
