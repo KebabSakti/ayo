@@ -1,6 +1,7 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/cart_cubit.dart';
 import 'package:ayo/bloc/connection_cubit.dart';
+import 'package:ayo/bloc/reverse_geo_cubit.dart';
 import 'package:ayo/bloc/scroll_show_cubit.dart';
 import 'package:ayo/bloc/theme_cubit.dart';
 import 'package:ayo/bloc/theme_state.dart';
@@ -35,6 +36,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<CartCubit>(
           create: (context) => CartCubit(),
+        ),
+        BlocProvider<ReverseGeoCubit>(
+          create: (context) => ReverseGeoCubit(),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
