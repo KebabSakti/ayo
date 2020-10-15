@@ -30,7 +30,7 @@ class DataProvider {
 
   Future<dynamic> fetchGuestUser() async {
     try {
-      var response = await dioInstance.dio.get("auth/customer/guest_access/",
+      var response = await dioInstance.dio.get("auth/customer/guest_access",
           options: Options(headers: {
             "Accept": "application/json",
           }));

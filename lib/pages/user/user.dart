@@ -47,6 +47,7 @@ class _UserState extends State<User> {
       List<Location> origin = [
         Location(-0.495951, 117.135010),
       ];
+
       List<Location> destination = [
         Location(
           placesDetailsResponse?.result?.geometry?.location?.lat,
@@ -55,8 +56,8 @@ class _UserState extends State<User> {
       ];
 
       DistanceResponse distanceResponse = await distanceMatrix.distanceWithLocation(origin, destination);
-
       print(e.description);
+      print(e.placeId);
       print(
           '${placesDetailsResponse?.result?.geometry?.location?.lat}, ${placesDetailsResponse?.result?.geometry?.location?.lng}');
       print(distanceResponse.results.first.elements.first.distance.text);

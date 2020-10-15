@@ -104,6 +104,7 @@ class _DestinationState extends State<Destination> with TickerProviderStateMixin
         child: Scaffold(
           extendBodyBehindAppBar: true,
           backgroundColor: Colors.white,
+          resizeToAvoidBottomPadding: false,
           body: Stack(
             children: [
               GoogleMap(
@@ -188,171 +189,176 @@ class _SearchLocationWidgetState extends State<SearchLocationWidget> {
   Widget build(BuildContext context) {
     return SlideTransition(
       position: _animationOffset,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        appBar: AppBar(
-          backgroundColor: Colors.white,
-          titleSpacing: 0,
-          leading: GestureDetector(
-            onTap: () {
-              widget.animationController.forward();
-            },
-            child: Icon(
-              Icons.close,
-              color: Colors.grey[800],
-            ),
-          ),
-          title: Text(
-            'Cari lokasi pengiriman',
-            style: TextStyle(
-              color: Colors.grey[800],
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          elevation: 0,
-        ),
-        body: Container(
-          padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-          height: double.infinity,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Theme(
-                data: new ThemeData(
-                  primaryColor: Colors.transparent,
-                  primaryColorDark: Colors.transparent,
-                ),
-                child: new TextField(
-                  onChanged: (value) => _suggestTextField(value),
-                  autofocus: false,
-                  style: TextStyle(color: Colors.grey[800]),
-                  cursorColor: Colors.grey[800],
-                  cursorWidth: 1,
-                  decoration: new InputDecoration(
-                      border:
-                          new OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(20)),
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                      hintText: 'Ketik nama jalan',
-                      hintStyle: TextStyle(color: Colors.grey[400]),
-                      prefixIcon: const Icon(
-                        Icons.radio_button_checked,
-                        color: Colors.redAccent,
-                      ),
-                      suffixStyle: const TextStyle(color: Colors.green)),
-                ),
+      child: Container(
+        padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+        color: Colors.white,
+        height: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: EdgeInsets.only(
+                top: 20,
+                bottom: 10,
               ),
-              SizedBox(
-                height: 20,
-              ),
-              GestureDetector(
-                onTap: () {
-                  widget.animationController.forward();
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 4),
-                  child: Text(
-                    'Pilih dari peta',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w600,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: () {
+                      widget.animationController.forward();
+                    },
+                    icon: Icon(
+                      Icons.close,
+                      color: Colors.grey[800],
                     ),
+                  ),
+                  Text(
+                    'Cari lokasi pengiriman',
+                    style: TextStyle(
+                      color: Colors.grey[800],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 17,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Theme(
+              data: new ThemeData(
+                primaryColor: Colors.transparent,
+                primaryColorDark: Colors.transparent,
+              ),
+              child: new TextField(
+                onChanged: (value) => _suggestTextField(value),
+                autofocus: false,
+                style: TextStyle(color: Colors.grey[800]),
+                cursorColor: Colors.grey[800],
+                cursorWidth: 1,
+                decoration: new InputDecoration(
+                    border:
+                        new OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(20)),
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                    hintText: 'Ketik nama jalan',
+                    hintStyle: TextStyle(
+                      color: Colors.grey[400],
+                      fontSize: 14,
+                    ),
+                    prefixIcon: const Icon(
+                      Icons.radio_button_checked,
+                      color: Colors.redAccent,
+                    ),
+                    suffixStyle: const TextStyle(color: Colors.green)),
+              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            GestureDetector(
+              onTap: () {
+                widget.animationController.forward();
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(left: 4),
+                child: Text(
+                  'Pilih dari peta',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                color: Colors.grey[100],
-                height: 1,
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Expanded(child: BlocBuilder<SuggestAutocompleteCubit, SuggestAutocompleteState>(
-                builder: (context, state) {
-                  print(state);
-                  if (state.placesAutocompleteResponse != null) {
-                    var suggestion = state.placesAutocompleteResponse.predictions;
-                    return (suggestion.length > 0)
-                        ? ListView.builder(
-                            itemCount: (suggestion.length > 0) ? suggestion.length : 5,
-                            itemBuilder: (context, index) {
-                              var name = suggestion[index]
-                                  .description
-                                  .substring(0, suggestion[index].description.indexOf(','));
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 10, bottom: 10),
-                                child: (state is SuggestAutoCompleteComplete)
-                                    ? GestureDetector(
-                                        onTap: () {
-                                          print(suggestion[index].placeId);
-                                        },
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor: Colors.grey[200],
-                                              radius: 20,
-                                              child: Icon(
-                                                Icons.location_on,
-                                                color: Theme.of(context).primaryColor,
-                                              ),
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Container(
+              color: Colors.grey[100],
+              height: 1,
+            ),
+            Expanded(child: BlocBuilder<SuggestAutocompleteCubit, SuggestAutocompleteState>(
+              builder: (context, state) {
+                print(state);
+                if (state.placesAutocompleteResponse != null) {
+                  var suggestion = state.placesAutocompleteResponse.predictions;
+                  return (suggestion.length > 0)
+                      ? ListView.builder(
+                          itemCount: (suggestion.length > 0) ? suggestion.length : 5,
+                          itemBuilder: (context, index) {
+                            var name =
+                                suggestion[index].description.substring(0, suggestion[index].description.indexOf(','));
+                            return Padding(
+                              padding: const EdgeInsets.only(top: 10, bottom: 10),
+                              child: (state is SuggestAutoCompleteComplete)
+                                  ? GestureDetector(
+                                      onTap: () {
+                                        print(suggestion[index].placeId);
+                                      },
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundColor: Colors.grey[200],
+                                            radius: 20,
+                                            child: Icon(
+                                              Icons.location_on,
+                                              color: Theme.of(context).primaryColor,
                                             ),
-                                            SizedBox(
-                                              width: 20,
+                                          ),
+                                          SizedBox(
+                                            width: 20,
+                                          ),
+                                          Flexible(
+                                            fit: FlexFit.loose,
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  '$name',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[800],
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 5,
+                                                ),
+                                                Text(
+                                                  '${suggestion[index].description}',
+                                                  style: TextStyle(
+                                                    color: Colors.grey[800],
+                                                    fontSize: 12,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  height: 20,
+                                                ),
+                                                (index + 1 != suggestion.length)
+                                                    ? Container(
+                                                        color: Colors.grey[100],
+                                                        height: 1,
+                                                      )
+                                                    : SizedBox.shrink(),
+                                              ],
                                             ),
-                                            Flexible(
-                                              fit: FlexFit.loose,
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    '$name',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[800],
-                                                      fontWeight: FontWeight.bold,
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 5,
-                                                  ),
-                                                  Text(
-                                                    '${suggestion[index].description}',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[800],
-                                                      fontSize: 12,
-                                                    ),
-                                                  ),
-                                                  SizedBox(
-                                                    height: 20,
-                                                  ),
-                                                  Container(
-                                                    color: Colors.grey[100],
-                                                    height: 1,
-                                                  )
-                                                ],
-                                              ),
-                                            )
-                                          ],
-                                        ),
-                                      )
-                                    : _suggestionShimmer(),
-                              );
-                            },
-                          )
-                        : SizedBox.shrink();
-                  }
+                                          )
+                                        ],
+                                      ),
+                                    )
+                                  : _suggestionShimmer(),
+                            );
+                          },
+                        )
+                      : SizedBox.shrink();
+                }
 
-                  return SizedBox.shrink();
-                },
-              )),
-            ],
-          ),
+                return SizedBox.shrink();
+              },
+            )),
+          ],
         ),
       ),
     );
@@ -494,7 +500,9 @@ class _AddressMapWindowState extends State<AddressMapWindow> {
                         height: 20,
                       ),
                       FlatButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/pengiriman');
+                        },
                         minWidth: double.infinity,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                         color: Theme.of(context).primaryColor,

@@ -3,7 +3,12 @@ import 'package:ayo/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class Order extends StatelessWidget {
+class Order extends StatefulWidget {
+  @override
+  _OrderState createState() => _OrderState();
+}
+
+class _OrderState extends State<Order> {
   @override
   Widget build(BuildContext context) {
     context.bloc<ThemeCubit>().loadTheme(appThemeData[AppTheme.sayur]);

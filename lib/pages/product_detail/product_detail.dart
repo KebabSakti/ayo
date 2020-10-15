@@ -68,15 +68,14 @@ class _ProductDetailState extends State<ProductDetail> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<CartCubit, CartState>(
-      listener: (context, state) {
+      listener: (context, state) async {
+        print(state);
         if (state is CartComplete) {
-          if (myProgressDialog(context).isShowing())
-            myProgressDialog(context).hide().whenComplete(() => print('Produk berhasil di tambahkan'));
+          await myProgressDialog(context).hide();
         }
 
         if (state is CartError) {
-          if (myProgressDialog(context).isShowing())
-            myProgressDialog(context).hide().whenComplete(() => print('Gagal menambahkan data'));
+          await myProgressDialog(context).hide();
         }
       },
       child: RefreshIndicator(
@@ -537,8 +536,8 @@ class _ProductDetailState extends State<ProductDetail> {
                       ),
                       Expanded(
                         child: FlatButton(
-                          onPressed: () {
-                            myProgressDialog(context).show();
+                          onPressed: () async {
+                            await myProgressDialog(context).show();
 
                             double price = (state.product.discount != null)
                                 ? Helper().getDiscountedPrice(state.product.discount.amount, state.product.price)

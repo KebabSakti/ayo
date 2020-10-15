@@ -43,8 +43,8 @@ class _CartPageState extends State<CartPage> {
 
   void _deleteMarked() {}
 
-  void _deleteItem(String productId) {
-    myProgressDialog(context).show();
+  void _deleteItem(String productId) async {
+    await myProgressDialog(context).show();
 
     _cartCubit.removeCart(user: _authenticationCubit.state.userData, productId: productId);
   }
@@ -59,7 +59,7 @@ class _CartPageState extends State<CartPage> {
 
   Future _uploadData() async {
     if (_cartCubit.state.carts.length > 0) {
-      myProgressDialog(context).show();
+      await myProgressDialog(context).show();
       _cartCubit.uploadCart(user: _authenticationCubit.state.userData, carts: _cartCubit.state.carts);
     }
   }
@@ -87,19 +87,19 @@ class _CartPageState extends State<CartPage> {
         return true;
       },
       child: BlocConsumer<CartCubit, CartState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           print(state);
           if (state is CartComplete) {
-            if (myProgressDialog(context).isShowing()) myProgressDialog(context).hide();
+            if (myProgressDialog(context).isShowing()) await myProgressDialog(context).hide();
           }
 
           if (state is CartError) {
-            if (myProgressDialog(context).isShowing()) myProgressDialog(context).hide();
+            if (myProgressDialog(context).isShowing()) await myProgressDialog(context).hide();
           }
 
           if (state is CartUploadComplete) {
             if (myProgressDialog(context).isShowing())
-              myProgressDialog(context).hide().then((value) {
+              await myProgressDialog(context).hide().then((value) {
                 Navigator.of(context).pop();
               });
           }

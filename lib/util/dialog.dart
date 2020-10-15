@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
@@ -16,8 +15,7 @@ ProgressDialog myProgressDialog(BuildContext context) {
         child: CircularProgressIndicator(
           strokeWidth: 2,
           backgroundColor: Colors.grey[100],
-          valueColor:
-              AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
         ),
       ));
 
