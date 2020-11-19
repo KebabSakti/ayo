@@ -86,6 +86,7 @@ class _SearchPageState extends State<SearchPage> {
               return SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(
@@ -121,7 +122,6 @@ class _SearchPageState extends State<SearchPage> {
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     (state is PopularSearchComplete)
                                         ? Text(
