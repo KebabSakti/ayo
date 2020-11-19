@@ -7,6 +7,7 @@ import 'package:ayo/model/pagination/pagination.dart';
 import 'package:ayo/model/product/product.dart';
 import 'package:ayo/model/product/product_paginate.dart';
 import 'package:ayo/model/query/query.dart';
+import 'package:ayo/model/search/search.dart';
 import 'package:ayo/model/sub_category/sub_category.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/provider/provider.dart';
@@ -333,6 +334,45 @@ class DataProvider {
 
       List<dynamic> parsed = await response.data;
       List<Cart> datas = List<Cart>.from(parsed.map((item) => Cart.fromJson(item)).toList());
+
+      return datas;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> fetchPopularSearch({@required UserData user}) async {
+    try {
+      var response = await dioInstance.dio.post("search/popular",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }));
+
+      List<dynamic> parsed = await response.data;
+      List<Search> datas = List<Search>.from(parsed.map((item) => Search.fromJson(item)).toList());
+
+      return datas;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> searchByKeyword({@required UserData user, @required String keyword}) async {
+    try {
+      var response = await dioInstance.dio.post("search/keyword",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }),
+          data: {
+            'keyword': keyword,
+          });
+
+      List<dynamic> parsed = await response.data;
+      List<Product> datas = List<Product>.from(parsed.map((item) => Product.fromJson(item)).toList());
 
       return datas;
     } on DioError catch (error) {

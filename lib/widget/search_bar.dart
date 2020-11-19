@@ -4,8 +4,7 @@ class SearchBar extends StatefulWidget {
   final ScrollController scrollController;
   final String hint;
 
-  const SearchBar({Key key, @required this.scrollController, this.hint})
-      : super(key: key);
+  const SearchBar({Key key, @required this.scrollController, this.hint}) : super(key: key);
 
   @override
   _SearchBarState createState() => _SearchBarState();
@@ -42,33 +41,33 @@ class _SearchBarState extends State<SearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.only(left: 10, right: 10),
-      width: double.infinity,
-      height: 35,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        color: Colors.white,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Icon(
-            Icons.search,
-            color: Colors.grey,
-            size: 20,
-          ),
-          SizedBox(width: 5),
-          GestureDetector(
-            onTap: () {},
-            child: Container(
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pushNamed('/search'),
+      child: Container(
+        padding: EdgeInsets.only(left: 10, right: 10),
+        width: double.infinity,
+        height: 35,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          color: Colors.white,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Icon(
+              Icons.search,
+              color: Colors.grey,
+              size: 20,
+            ),
+            SizedBox(width: 5),
+            Container(
               child: Text(
                 widget.hint ?? 'Cari di sini',
                 style: TextStyle(fontSize: 12, color: Colors.grey[400]),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
   }

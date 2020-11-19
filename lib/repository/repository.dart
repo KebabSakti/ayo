@@ -63,4 +63,12 @@ class Repository {
   Future<dynamic> uploadCart({@required UserData user, @required List<Cart> carts}) async {
     return await providers.uploadCart(user: user, carts: carts);
   }
+
+  Future<dynamic> fetchPopularSearch({@required UserData user}) async {
+    return await providers.fetchPopularSearch(user: user);
+  }
+
+  Future<dynamic> searchByKeyword({@required UserData user, @required String keyword}) async {
+    return await providers.searchByKeyword(user: user, keyword: keyword);
+  }
 }

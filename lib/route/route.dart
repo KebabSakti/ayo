@@ -1,4 +1,6 @@
 import 'package:ayo/bloc/product_cubit.dart';
+import 'package:ayo/bloc/search/popular_search_cubit.dart';
+import 'package:ayo/bloc/search/search_cubit.dart';
 import 'package:ayo/pages/app/app.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
@@ -12,6 +14,7 @@ import 'package:ayo/pages/order/order.dart';
 import 'package:ayo/pages/pengiriman/pengiriman.dart';
 import 'package:ayo/pages/product_detail/product_detail.dart';
 import 'package:ayo/pages/product_detail/product_detail_cubit.dart';
+import 'package:ayo/pages/search/search_page.dart';
 import 'package:ayo/pages/slider/slider_intro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -132,6 +135,25 @@ class RouteGenerator {
       case '/pengiriman':
         return PageTransition(
           child: Pengiriman(),
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
+          settings: settings,
+        );
+        break;
+
+      case '/search':
+        return PageTransition(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<SearchCubit>(
+                create: (context) => SearchCubit(),
+              ),
+              BlocProvider<PopularSearchCubit>(
+                create: (context) => PopularSearchCubit(),
+              ),
+            ],
+            child: SearchPage(),
+          ),
           type: PageTransitionType.rightToLeft,
           duration: _duration,
           settings: settings,

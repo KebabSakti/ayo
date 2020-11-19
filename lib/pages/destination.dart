@@ -28,7 +28,7 @@ class _DestinationState extends State<Destination> with TickerProviderStateMixin
   GoogleMapController _controller;
 
   void _initGmap() async {
-    Position position = await getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
     _controller.animateCamera(
       CameraUpdate.newCameraPosition(
         CameraPosition(
