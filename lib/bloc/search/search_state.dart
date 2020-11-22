@@ -1,20 +1,15 @@
 part of 'search_cubit.dart';
 
 abstract class SearchState extends Equatable {
-  final List<Product> products;
-  const SearchState(this.products);
+  const SearchState();
 }
 
 class SearchInitial extends SearchState {
-  SearchInitial(List<Product> products) : super(products);
-
   @override
   List<Object> get props => [];
 }
 
 class SearchLoading extends SearchState {
-  SearchLoading(List<Product> products) : super(products);
-
   @override
   // TODO: implement props
   List<Object> get props => [];
@@ -23,7 +18,7 @@ class SearchLoading extends SearchState {
 class SearchComplete extends SearchState {
   final List<Product> products;
 
-  SearchComplete(this.products) : super(products);
+  SearchComplete(this.products) : super();
 
   @override
   // TODO: implement props
@@ -31,8 +26,27 @@ class SearchComplete extends SearchState {
 }
 
 class SearchError extends SearchState {
-  SearchError(List<Product> products) : super(products);
+  @override
+  // TODO: implement props
+  List<Object> get props => [];
+}
 
+class PopularSearchLoading extends SearchState {
+  @override
+  // TODO: implement props
+  List<Object> get props => [];
+}
+
+class PopularSearchComplete extends SearchState {
+  final List<Search> searchs;
+  PopularSearchComplete(this.searchs) : super();
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [searchs];
+}
+
+class PopularSearchError extends SearchState {
   @override
   // TODO: implement props
   List<Object> get props => [];

@@ -18,8 +18,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     final PageController _pageController = PageController();
     void _initDynamicLinks() async {
-      FirebaseDynamicLinks.instance.onLink(
-          onSuccess: (PendingDynamicLinkData dynamicLink) async {
+      FirebaseDynamicLinks.instance.onLink(onSuccess: (PendingDynamicLinkData dynamicLink) async {
         final Uri deepLink = dynamicLink?.link;
 
         if (deepLink != null) {
@@ -31,8 +30,7 @@ class App extends StatelessWidget {
         print(e.message);
       });
 
-      final PendingDynamicLinkData data =
-          await FirebaseDynamicLinks.instance.getInitialLink();
+      final PendingDynamicLinkData data = await FirebaseDynamicLinks.instance.getInitialLink();
       final Uri deepLink = data?.link;
 
       if (deepLink != null) {
@@ -106,8 +104,7 @@ class App extends StatelessWidget {
                 ],
               ),
               bottomNavigationBar: BottomNavigationBar(
-                onTap: (value) =>
-                    BlocProvider.of<NavigationCubit>(context).loadPage(value),
+                onTap: (value) => BlocProvider.of<NavigationCubit>(context).loadPage(value),
                 backgroundColor: Colors.white,
                 type: BottomNavigationBarType.fixed,
                 currentIndex: state.index,
@@ -120,38 +117,23 @@ class App extends StatelessWidget {
                       FontAwesomeIcons.burn,
                       size: 20,
                     ),
-                    title: Text(
-                      'Home',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    label: 'Home',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.assignment, size: 20),
-                    title: Text(
-                      'Order',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    label: 'Order',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(FontAwesomeIcons.commentDots, size: 20),
-                    title: Text(
-                      'Chat',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    label: 'Chat',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.notifications, size: 20),
-                    title: Text(
-                      'Notifikasi',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    label: 'Notifikasi',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.account_circle, size: 20),
-                    title: Text(
-                      'Akun',
-                      style: TextStyle(fontSize: 12),
-                    ),
+                    label: 'Akun',
                   ),
                 ],
               ),

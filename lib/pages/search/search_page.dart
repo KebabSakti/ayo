@@ -1,7 +1,7 @@
+import 'dart:async';
+
 import 'package:ayo/bloc/authentication_cubit.dart';
-import 'package:ayo/bloc/search/popular_search_cubit.dart';
 import 'package:ayo/bloc/search/search_cubit.dart';
-import 'package:ayo/model/search/search.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,15 +14,26 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   AuthenticationCubit _authenticationCubit;
   SearchCubit _searchCubit;
-  PopularSearchCubit _popularSearchCubit;
   TextEditingController _searchField = TextEditingController();
 
+  Timer _timer;
+
   void _searchByKeyword(String keyword) {
-    _searchCubit.searchByKeyword(user: _authenticationCubit.state.userData, keyword: keyword);
+    if (_timer != null) {
+      _timer.cancel();
+    }
+
+    _timer = Timer(
+      Duration(milliseconds: 800),
+      () => _searchCubit.searchByKeyword(
+        user: _authenticationCubit.state.userData,
+        keyword: keyword,
+      ),
+    );
   }
 
   void _fetchPopularSearch() {
-    _popularSearchCubit.fetchPopularSearch(user: _authenticationCubit.state.userData);
+    _searchCubit.fetchPopularSearch(user: _authenticationCubit.state.userData);
   }
 
   void _searchFieldListener() {
@@ -33,7 +44,6 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     _authenticationCubit = BlocProvider.of<AuthenticationCubit>(context);
     _searchCubit = BlocProvider.of<SearchCubit>(context);
-    _popularSearchCubit = BlocProvider.of<PopularSearchCubit>(context);
     _searchField.addListener(_searchFieldListener);
 
     _fetchPopularSearch();
@@ -77,200 +87,95 @@ class _SearchPageState extends State<SearchPage> {
                     color: Colors.grey,
                   ),
                   prefixIconConstraints: BoxConstraints(minHeight: 32, minWidth: 32),
+                  suffixIcon: (_searchField.text.length > 0)
+                      ? GestureDetector(
+                          onTap: () {
+                            print('tap tap');
+                          },
+                          child: Icon(Icons.close),
+                        )
+                      : SizedBox.shrink(),
+                  suffixIconConstraints: BoxConstraints(minHeight: 32, minWidth: 32),
                 ),
               ),
             ),
           ),
-          BlocBuilder<PopularSearchCubit, PopularSearchState>(
+          BlocBuilder<SearchCubit, SearchState>(
             builder: (context, state) {
-              return SliverToBoxAdapter(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(
-                        left: 15,
-                        right: 15,
-                        top: 15,
-                      ),
-                      child: Text(
-                        'Pencarian Populer',
+              if (state is PopularSearchLoading || state is SearchLoading) {
+                return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    return ListTile(
+                      onTap: () {},
+                      dense: true,
+                      title: boxRadiusShimmer(width: double.infinity, height: 15, radius: 6),
+                      subtitle: boxRadiusShimmer(width: 1, height: 15, radius: 6),
+                    );
+                  },
+                  childCount: 10,
+                ));
+              }
+
+              if (state is PopularSearchComplete) {
+                return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    var data = state.searchs[index];
+                    return ListTile(
+                      onTap: () {},
+                      dense: true,
+                      title: Text(
+                        '${data.keyword}',
+                        textAlign: TextAlign.left,
                         style: TextStyle(
-                          color: Colors.grey[400],
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.grey[800],
+                          fontSize: 14,
                         ),
                       ),
-                    ),
-                    ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        var data = (state is PopularSearchComplete) ? state.searchs[index] : Search();
-                        return Material(
-                          child: InkWell(
-                            onTap: () {},
-                            splashColor: Theme.of(context).accentColor.withOpacity(0.3),
-                            child: Ink(
-                              color: Colors.white,
-                              height: 60,
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                  left: 15,
-                                  right: 15,
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    (state is PopularSearchComplete)
-                                        ? Text(
-                                            '${data.keyword}',
-                                            textAlign: TextAlign.left,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              color: Colors.grey[800],
-                                            ),
-                                          )
-                                        : boxRadiusShimmer(width: double.infinity, height: 15, radius: 6),
-                                    SizedBox(height: 2),
-                                    (state is PopularSearchComplete)
-                                        ? Text(
-                                            '${data.hits} pencarian',
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 12,
-                                            ),
-                                          )
-                                        : boxRadiusShimmer(width: 150, height: 15, radius: 6),
-                                  ],
-                                ),
-                              ),
-                            ),
+                      subtitle: Text(
+                        '${data.hits} pencarian',
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 12,
+                        ),
+                      ),
+                    );
+                  },
+                  childCount: state.searchs.length,
+                ));
+              } else if (state is SearchComplete) {
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                    (context, index) {
+                      var data = state.products[index];
+                      return ListTile(
+                        onTap: () {},
+                        dense: true,
+                        trailing: Icon(
+                          Icons.search,
+                          size: 20,
+                        ),
+                        title: Text(
+                          '${data.name}',
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w800,
+                            color: Colors.grey[800],
+                            fontSize: 14,
                           ),
-                        );
-                      },
-                      itemCount: (state is PopularSearchComplete) ? state.searchs.length : 10,
-                    ),
-                  ],
-                ),
-              );
+                        ),
+                      );
+                    },
+                    childCount: state.products.length,
+                  ),
+                );
+              }
+
+              return SliverToBoxAdapter(child: SizedBox.shrink());
             },
           ),
-          // BlocBuilder<SearchCubit, SearchState>(
-          //   builder: (context, state) {
-          //     if (_searchField.text.length == 0) {
-          //       return BlocBuilder<PopularSearchCubit, PopularSearchState>(
-          //         builder: (context, state) {
-          //           return SliverList(
-          //             delegate: SliverChildBuilderDelegate(
-          //               (context, index) {
-          //                 var data = (state is PopularSearchComplete) ? state.searchs[index] : Search();
-          //                 return Material(
-          //                   child: InkWell(
-          //                     onTap: () {},
-          //                     splashColor: Theme.of(context).accentColor.withOpacity(0.3),
-          //                     child: Ink(
-          //                       color: Colors.white,
-          //                       height: 60,
-          //                       child: Padding(
-          //                         padding: const EdgeInsets.only(
-          //                           left: 15,
-          //                           right: 15,
-          //                         ),
-          //                         child: Column(
-          //                           crossAxisAlignment: CrossAxisAlignment.start,
-          //                           mainAxisAlignment: MainAxisAlignment.center,
-          //                           children: [
-          //                             (state is PopularSearchComplete)
-          //                                 ? Text(
-          //                                     '${data.keyword}',
-          //                                     textAlign: TextAlign.left,
-          //                                     style: TextStyle(
-          //                                       fontWeight: FontWeight.w800,
-          //                                       color: Colors.grey[800],
-          //                                     ),
-          //                                   )
-          //                                 : boxRadiusShimmer(width: double.infinity, height: 15, radius: 6),
-          //                             SizedBox(height: 2),
-          //                             (state is PopularSearchComplete)
-          //                                 ? Text(
-          //                                     '${data.hits} pencarian',
-          //                                     style: TextStyle(
-          //                                       color: Colors.grey[600],
-          //                                       fontSize: 12,
-          //                                     ),
-          //                                   )
-          //                                 : boxRadiusShimmer(width: 150, height: 15, radius: 6),
-          //                           ],
-          //                         ),
-          //                       ),
-          //                     ),
-          //                   ),
-          //                 );
-          //               },
-          //               childCount: (state is PopularSearchComplete) ? state.searchs.length : 10,
-          //             ),
-          //           );
-          //         },
-          //       );
-          //     } else {
-          //       if (state is SearchComplete) {
-          //         return SliverList(
-          //           delegate: SliverChildBuilderDelegate(
-          //             (context, index) {
-          //               var data = state.products[index];
-          //               return Material(
-          //                 child: InkWell(
-          //                   onTap: () {},
-          //                   splashColor: Theme.of(context).accentColor.withOpacity(0.3),
-          //                   child: Ink(
-          //                     color: Colors.white,
-          //                     height: 60,
-          //                     child: Padding(
-          //                       padding: const EdgeInsets.only(
-          //                         top: 15,
-          //                         left: 15,
-          //                         right: 15,
-          //                       ),
-          //                       child: Row(
-          //                         crossAxisAlignment: CrossAxisAlignment.start,
-          //                         children: [
-          //                           (state is SearchComplete)
-          //                               ? Container(
-          //                                   height: 100,
-          //                                   width: 50,
-          //                                   decoration: BoxDecoration(
-          //                                     borderRadius: BorderRadius.all(
-          //                                       Radius.circular(6),
-          //                                     ),
-          //                                     image: DecorationImage(
-          //                                       fit: BoxFit.cover,
-          //                                       image: CachedNetworkImageProvider(data.cover),
-          //                                     ),
-          //                                   ),
-          //                                 )
-          //                               : boxRadiusShimmer(height: 100, width: 50, radius: 6),
-          //                           SizedBox(
-          //                             width: 10,
-          //                           ),
-          //                           Text('asd'),
-          //                         ],
-          //                       ),
-          //                     ),
-          //                   ),
-          //                 ),
-          //               );
-          //             },
-          //             childCount: (state is ProductCompleted) ? state.products.length : 10,
-          //           ),
-          //         );
-          //       } else {
-          //         return SliverToBoxAdapter(child: SizedBox.shrink());
-          //       }
-          //     }
-          //   },
-          // ),
         ],
       ),
     );

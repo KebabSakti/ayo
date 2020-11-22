@@ -54,18 +54,26 @@ class _MainCategoryState extends State<MainCategory> {
 
   void _fetchProduct() {
     _productCubit.fetchProduct(
-        user: _authenticationCubit.state.userData,
-        query: _queryCubit.state.query.copyWith(
-            filter: _queryCubit.state.query.filter.copyWith(mainCategoryId: widget.categoryId),
-            sorting: _queryCubit.state.query.sorting));
+      user: _authenticationCubit.state.userData,
+      query: _queryCubit.state.query.copyWith(
+        filter: _queryCubit.state.query.filter.copyWith(
+          mainCategoryId: widget.categoryId,
+        ),
+        sorting: _queryCubit.state.query.sorting,
+      ),
+    );
   }
 
   void _fetchMoreProduct() {
     _productCubit.fetchMoreProduct(
-        user: _authenticationCubit.state.userData,
-        query: _queryCubit.state.query.copyWith(
-            filter: _queryCubit.state.query.filter.copyWith(mainCategoryId: widget.categoryId),
-            sorting: _queryCubit.state.query.sorting));
+      user: _authenticationCubit.state.userData,
+      query: _queryCubit.state.query.copyWith(
+        filter: _queryCubit.state.query.filter.copyWith(
+          mainCategoryId: widget.categoryId,
+        ),
+        sorting: _queryCubit.state.query.sorting,
+      ),
+    );
   }
 
   void _setQuery() {
