@@ -71,4 +71,8 @@ class Repository {
   Future<dynamic> searchByKeyword({@required UserData user, @required String keyword}) async {
     return await providers.searchByKeyword(user: user, keyword: keyword);
   }
+
+  Future<dynamic> fetchHistorySearch({@required UserData user}) async {
+    return await providers.fetchHistorySearch(user: user);
+  }
 }

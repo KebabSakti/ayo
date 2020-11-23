@@ -1,4 +1,3 @@
-import 'package:ayo/model/product/product.dart';
 import 'package:ayo/model/search/search.dart';
 import 'package:ayo/moor/db.dart';
 import 'package:ayo/provider/provider.dart';
@@ -26,17 +25,6 @@ class SearchCubit extends Cubit<SearchState> {
         emit(SearchError());
     } else {
       emit(SearchError());
-    }
-  }
-
-  void fetchPopularSearch({@required UserData user}) async {
-    emit(PopularSearchLoading());
-
-    var searchs = await _repository.fetchPopularSearch(user: user);
-    if (searchs is! DioError) {
-      emit(PopularSearchComplete(searchs));
-    } else {
-      emit(PopularSearchError());
     }
   }
 }

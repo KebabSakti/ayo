@@ -372,7 +372,25 @@ class DataProvider {
           });
 
       List<dynamic> parsed = await response.data;
-      List<Product> datas = List<Product>.from(parsed.map((item) => Product.fromJson(item)).toList());
+      List<Search> datas = List<Search>.from(parsed.map((item) => Search.fromJson(item)).toList());
+
+      return datas;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> fetchHistorySearch({@required UserData user}) async {
+    try {
+      var response = await dioInstance.dio.post("search/history",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }));
+
+      List<dynamic> parsed = await response.data;
+      List<Search> datas = List<Search>.from(parsed.map((item) => Search.fromJson(item)).toList());
 
       return datas;
     } on DioError catch (error) {

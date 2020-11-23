@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:ayo/bloc/authentication_cubit.dart';
+import 'package:ayo/bloc/search/history_search_cubit.dart';
+import 'package:ayo/bloc/search/popular_search_cubit.dart';
 import 'package:ayo/bloc/search/search_cubit.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +16,8 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   AuthenticationCubit _authenticationCubit;
   SearchCubit _searchCubit;
+  PopularSearchCubit _popularSearchCubit;
+  HistorySearchCubit _historySearchCubit;
   TextEditingController _searchField = TextEditingController();
 
   Timer _timer;
@@ -33,7 +37,11 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   void _fetchPopularSearch() {
-    _searchCubit.fetchPopularSearch(user: _authenticationCubit.state.userData);
+    _popularSearchCubit.fetchPopularSearch(user: _authenticationCubit.state.userData);
+  }
+
+  void _fetchSearchHistory() {
+    _historySearchCubit.fetchSearchHistory(user: _authenticationCubit.state.userData);
   }
 
   void _searchFieldListener() {
@@ -44,9 +52,12 @@ class _SearchPageState extends State<SearchPage> {
   void initState() {
     _authenticationCubit = BlocProvider.of<AuthenticationCubit>(context);
     _searchCubit = BlocProvider.of<SearchCubit>(context);
+    _popularSearchCubit = BlocProvider.of<PopularSearchCubit>(context);
+    _historySearchCubit = BlocProvider.of<HistorySearchCubit>(context);
     _searchField.addListener(_searchFieldListener);
 
     _fetchPopularSearch();
+    _fetchSearchHistory();
 
     super.initState();
   }
@@ -100,81 +111,324 @@ class _SearchPageState extends State<SearchPage> {
               ),
             ),
           ),
-          BlocBuilder<SearchCubit, SearchState>(
-            builder: (context, state) {
-              if (state is PopularSearchLoading || state is SearchLoading) {
-                return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    return ListTile(
-                      onTap: () {},
-                      dense: true,
-                      title: boxRadiusShimmer(width: double.infinity, height: 15, radius: 6),
-                      subtitle: boxRadiusShimmer(width: 1, height: 15, radius: 6),
-                    );
-                  },
-                  childCount: 10,
-                ));
-              }
+          SliverToBoxAdapter(
+            child: BlocBuilder<SearchCubit, SearchState>(
+              builder: (context, state) {
+                if (state is SearchLoading) {
+                  return MediaQuery.removePadding(
+                    removeTop: true,
+                    removeBottom: false,
+                    removeLeft: false,
+                    removeRight: false,
+                    context: context,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: 10,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: boxRadiusShimmer(
+                                  width: double.infinity,
+                                  height: 15,
+                                  radius: 6,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              boxRadiusShimmer(
+                                width: 15,
+                                height: 15,
+                                radius: 10,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
 
-              if (state is PopularSearchComplete) {
-                return SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    var data = state.searchs[index];
-                    return ListTile(
-                      onTap: () {},
-                      dense: true,
-                      title: Text(
-                        '${data.keyword}',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w800,
-                          color: Colors.grey[800],
-                          fontSize: 14,
-                        ),
-                      ),
-                      subtitle: Text(
-                        '${data.hits} pencarian',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 12,
-                        ),
-                      ),
-                    );
-                  },
-                  childCount: state.searchs.length,
-                ));
-              } else if (state is SearchComplete) {
-                return SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      var data = state.products[index];
-                      return ListTile(
-                        onTap: () {},
-                        dense: true,
-                        trailing: Icon(
-                          Icons.search,
-                          size: 20,
-                        ),
-                        title: Text(
-                          '${data.name}',
-                          textAlign: TextAlign.left,
+                if (state is SearchComplete) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                        child: Text(
+                          'Hasil Pencarian',
                           style: TextStyle(
-                            fontWeight: FontWeight.w800,
-                            color: Colors.grey[800],
-                            fontSize: 14,
+                            color: Colors.grey[400],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
                         ),
-                      );
-                    },
-                    childCount: state.products.length,
-                  ),
-                );
-              }
+                      ),
+                      (state.searches.length > 0)
+                          ? MediaQuery.removePadding(
+                              removeTop: true,
+                              removeBottom: false,
+                              removeLeft: false,
+                              removeRight: false,
+                              context: context,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: state.searches.length,
+                                itemBuilder: (context, index) {
+                                  var data = state.searches[index];
+                                  return ListTile(
+                                    onTap: () {},
+                                    dense: true,
+                                    trailing: Icon(
+                                      Icons.search,
+                                      size: 20,
+                                    ),
+                                    title: Text(
+                                      '${data.keyword}',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.grey[800],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
+                              child: Text(
+                                'Tidak ditemukan produk dengan kata kunci ${_searchField.text}',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[800],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                      SizedBox(height: 5),
+                    ],
+                  );
+                }
 
-              return SliverToBoxAdapter(child: SizedBox.shrink());
-            },
+                return SizedBox.shrink();
+              },
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: BlocBuilder<HistorySearchCubit, HistorySearchState>(
+              builder: (context, state) {
+                if (state is HistorySearchLoading) {
+                  return MediaQuery.removePadding(
+                    removeTop: true,
+                    removeBottom: false,
+                    removeLeft: false,
+                    removeRight: false,
+                    context: context,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: 10,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: boxRadiusShimmer(
+                                  width: double.infinity,
+                                  height: 15,
+                                  radius: 6,
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              boxRadiusShimmer(
+                                width: 15,
+                                height: 15,
+                                radius: 10,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                if (state is HistorySearchComplete) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                        child: Text(
+                          'Riwayat Pencarian',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      (state.searches.length > 0)
+                          ? MediaQuery.removePadding(
+                              removeTop: true,
+                              removeBottom: false,
+                              removeLeft: false,
+                              removeRight: false,
+                              context: context,
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                physics: NeverScrollableScrollPhysics(),
+                                itemCount: state.searches.length,
+                                itemBuilder: (context, index) {
+                                  var data = state.searches[index];
+                                  return ListTile(
+                                    onTap: () {},
+                                    dense: true,
+                                    trailing: Icon(
+                                      Icons.history,
+                                      size: 20,
+                                    ),
+                                    title: Text(
+                                      '${data.keyword}',
+                                      textAlign: TextAlign.left,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        color: Colors.grey[800],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
+                              child: Text(
+                                'Tidak ditemukan produk dengan kata kunci ${_searchField.text}',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[800],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                      SizedBox(height: 5),
+                    ],
+                  );
+                }
+
+                return SizedBox.shrink();
+              },
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: BlocBuilder<PopularSearchCubit, PopularSearchState>(
+              builder: (context, state) {
+                if (state is PopularSearchLoading) {
+                  return MediaQuery.removePadding(
+                    removeTop: true,
+                    removeBottom: false,
+                    removeLeft: false,
+                    removeRight: false,
+                    context: context,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      physics: AlwaysScrollableScrollPhysics(),
+                      itemCount: 10,
+                      itemBuilder: (context, index) {
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              boxRadiusShimmer(
+                                width: double.infinity,
+                                height: 15,
+                                radius: 6,
+                              ),
+                              SizedBox(height: 10),
+                              boxRadiusShimmer(
+                                width: 150,
+                                height: 15,
+                                radius: 6,
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+
+                if (state is PopularSearchComplete) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                        child: Text(
+                          'Pencarian Populer',
+                          style: TextStyle(
+                            color: Colors.grey[400],
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                      MediaQuery.removePadding(
+                        removeTop: true,
+                        removeBottom: false,
+                        removeLeft: false,
+                        removeRight: false,
+                        context: context,
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: state.searchs.length,
+                          itemBuilder: (context, index) {
+                            var data = state.searchs[index];
+                            return ListTile(
+                              onTap: () {},
+                              dense: true,
+                              title: Text(
+                                '${data.keyword}',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.grey[800],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              subtitle: Text(
+                                '${data.hits} pencarian',
+                                textAlign: TextAlign.left,
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return SizedBox.shrink();
+              },
+            ),
           ),
         ],
       ),

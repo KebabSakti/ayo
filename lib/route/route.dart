@@ -1,4 +1,5 @@
 import 'package:ayo/bloc/product_cubit.dart';
+import 'package:ayo/bloc/search/history_search_cubit.dart';
 import 'package:ayo/bloc/search/popular_search_cubit.dart';
 import 'package:ayo/bloc/search/search_cubit.dart';
 import 'package:ayo/pages/app/app.dart';
@@ -150,6 +151,9 @@ class RouteGenerator {
               ),
               BlocProvider<PopularSearchCubit>(
                 create: (context) => PopularSearchCubit(),
+              ),
+              BlocProvider<HistorySearchCubit>(
+                create: (context) => HistorySearchCubit(),
               ),
             ],
             child: SearchPage(),

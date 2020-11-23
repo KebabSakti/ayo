@@ -16,37 +16,16 @@ class SearchLoading extends SearchState {
 }
 
 class SearchComplete extends SearchState {
-  final List<Product> products;
+  final List<Search> searches;
 
-  SearchComplete(this.products) : super();
+  SearchComplete(this.searches) : super();
 
   @override
   // TODO: implement props
-  List<Object> get props => [products];
+  List<Object> get props => [searches];
 }
 
 class SearchError extends SearchState {
-  @override
-  // TODO: implement props
-  List<Object> get props => [];
-}
-
-class PopularSearchLoading extends SearchState {
-  @override
-  // TODO: implement props
-  List<Object> get props => [];
-}
-
-class PopularSearchComplete extends SearchState {
-  final List<Search> searchs;
-  PopularSearchComplete(this.searchs) : super();
-
-  @override
-  // TODO: implement props
-  List<Object> get props => [searchs];
-}
-
-class PopularSearchError extends SearchState {
   @override
   // TODO: implement props
   List<Object> get props => [];
