@@ -4,6 +4,7 @@ import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/search/history_search_cubit.dart';
 import 'package:ayo/bloc/search/popular_search_cubit.dart';
 import 'package:ayo/bloc/search/search_cubit.dart';
+import 'package:ayo/bloc/search/search_process_cubit.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,11 +15,13 @@ class SearchPage extends StatefulWidget {
 }
 
 class _SearchPageState extends State<SearchPage> {
+  final TextEditingController _searchField = TextEditingController();
+
   AuthenticationCubit _authenticationCubit;
   SearchCubit _searchCubit;
   PopularSearchCubit _popularSearchCubit;
   HistorySearchCubit _historySearchCubit;
-  TextEditingController _searchField = TextEditingController();
+  SearchProcessCubit _searchProcessCubit;
 
   Timer _timer;
 
@@ -48,12 +51,30 @@ class _SearchPageState extends State<SearchPage> {
     _searchByKeyword(_searchField.text);
   }
 
+  void _saveSearchKeyword(String keyword) {
+    _searchProcessCubit.saveSearchKeyword(userData: _authenticationCubit.state.userData, keyword: keyword);
+  }
+
+  void _clearSerchKeyword() {
+    _searchProcessCubit.clearSearchKeyword(userData: _authenticationCubit.state.userData);
+  }
+
+  void _navigateToProductPage(String keyword) {
+    //save search keyword
+    _saveSearchKeyword(keyword);
+
+    //navigate
+    Navigator.of(context).pushNamed("/product_page", arguments: keyword);
+  }
+
   @override
   void initState() {
     _authenticationCubit = BlocProvider.of<AuthenticationCubit>(context);
     _searchCubit = BlocProvider.of<SearchCubit>(context);
     _popularSearchCubit = BlocProvider.of<PopularSearchCubit>(context);
     _historySearchCubit = BlocProvider.of<HistorySearchCubit>(context);
+    _searchProcessCubit = BlocProvider.of<SearchProcessCubit>(context);
+
     _searchField.addListener(_searchFieldListener);
 
     _fetchPopularSearch();
@@ -82,6 +103,7 @@ class _SearchPageState extends State<SearchPage> {
               padding: const EdgeInsets.only(right: 15),
               child: TextField(
                 controller: _searchField,
+                autofocus: true,
                 style: TextStyle(fontSize: 12, color: Colors.grey[800]),
                 cursorColor: Colors.grey[800],
                 cursorWidth: 1,
@@ -101,13 +123,14 @@ class _SearchPageState extends State<SearchPage> {
                   suffixIcon: (_searchField.text.length > 0)
                       ? GestureDetector(
                           onTap: () {
-                            print('tap tap');
+                            //
                           },
                           child: Icon(Icons.close),
                         )
                       : SizedBox.shrink(),
                   suffixIconConstraints: BoxConstraints(minHeight: 32, minWidth: 32),
                 ),
+                onSubmitted: (value) => _navigateToProductPage(_searchField.text),
               ),
             ),
           ),
@@ -127,7 +150,7 @@ class _SearchPageState extends State<SearchPage> {
                       itemCount: 10,
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
                           child: Row(
                             children: [
                               Expanded(
@@ -152,23 +175,23 @@ class _SearchPageState extends State<SearchPage> {
                 }
 
                 if (state is SearchComplete) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
-                        child: Text(
-                          'Hasil Pencarian',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      (state.searches.length > 0)
-                          ? MediaQuery.removePadding(
+                  return (state.searches.length > 0)
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+                              child: Text(
+                                'Hasil Pencarian',
+                                style: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ),
+                            MediaQuery.removePadding(
                               removeTop: true,
                               removeBottom: false,
                               removeLeft: false,
@@ -181,7 +204,9 @@ class _SearchPageState extends State<SearchPage> {
                                 itemBuilder: (context, index) {
                                   var data = state.searches[index];
                                   return ListTile(
-                                    onTap: () {},
+                                    onTap: () {
+                                      _navigateToProductPage(data.keyword);
+                                    },
                                     dense: true,
                                     trailing: Icon(
                                       Icons.search,
@@ -199,22 +224,11 @@ class _SearchPageState extends State<SearchPage> {
                                   );
                                 },
                               ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
-                              child: Text(
-                                'Tidak ditemukan produk dengan kata kunci ${_searchField.text}',
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey[800],
-                                  fontSize: 12,
-                                ),
-                              ),
                             ),
-                      SizedBox(height: 5),
-                    ],
-                  );
+                            SizedBox(height: 5),
+                          ],
+                        )
+                      : SizedBox.shrink();
                 }
 
                 return SizedBox.shrink();
@@ -237,7 +251,7 @@ class _SearchPageState extends State<SearchPage> {
                       itemCount: 10,
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
                           child: Row(
                             children: [
                               Expanded(
@@ -262,23 +276,44 @@ class _SearchPageState extends State<SearchPage> {
                 }
 
                 if (state is HistorySearchComplete) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
-                        child: Text(
-                          'Riwayat Pencarian',
-                          style: TextStyle(
-                            color: Colors.grey[400],
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      (state.searches.length > 0)
-                          ? MediaQuery.removePadding(
+                  return (state.searches.length > 0)
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Riwayat Pencarian',
+                                    style: TextStyle(
+                                      color: Colors.grey[400],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                  BlocListener<SearchProcessCubit, SearchProcessState>(
+                                    listener: (context, state) {
+                                      if (state is SearchProcessComplete) _fetchSearchHistory();
+                                    },
+                                    child: GestureDetector(
+                                      onTap: () => _clearSerchKeyword(),
+                                      child: Text(
+                                        'Hapus',
+                                        style: TextStyle(
+                                          color: Theme.of(context).primaryColor,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            MediaQuery.removePadding(
                               removeTop: true,
                               removeBottom: false,
                               removeLeft: false,
@@ -291,7 +326,9 @@ class _SearchPageState extends State<SearchPage> {
                                 itemBuilder: (context, index) {
                                   var data = state.searches[index];
                                   return ListTile(
-                                    onTap: () {},
+                                    onTap: () {
+                                      _navigateToProductPage(data.keyword);
+                                    },
                                     dense: true,
                                     trailing: Icon(
                                       Icons.history,
@@ -309,22 +346,11 @@ class _SearchPageState extends State<SearchPage> {
                                   );
                                 },
                               ),
-                            )
-                          : Padding(
-                              padding: const EdgeInsets.only(left: 15, right: 15, top: 5, bottom: 5),
-                              child: Text(
-                                'Tidak ditemukan produk dengan kata kunci ${_searchField.text}',
-                                textAlign: TextAlign.left,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.grey[800],
-                                  fontSize: 12,
-                                ),
-                              ),
                             ),
-                      SizedBox(height: 5),
-                    ],
-                  );
+                            SizedBox(height: 5),
+                          ],
+                        )
+                      : SizedBox.shrink();
                 }
 
                 return SizedBox.shrink();
@@ -347,7 +373,7 @@ class _SearchPageState extends State<SearchPage> {
                       itemCount: 10,
                       itemBuilder: (context, index) {
                         return Padding(
-                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                          padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -376,7 +402,7 @@ class _SearchPageState extends State<SearchPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(top: 15, left: 15, right: 15, bottom: 5),
+                        padding: const EdgeInsets.only(top: 15, left: 15, right: 15),
                         child: Text(
                           'Pencarian Populer',
                           style: TextStyle(
@@ -399,7 +425,9 @@ class _SearchPageState extends State<SearchPage> {
                           itemBuilder: (context, index) {
                             var data = state.searchs[index];
                             return ListTile(
-                              onTap: () {},
+                              onTap: () {
+                                _navigateToProductPage(data.keyword);
+                              },
                               dense: true,
                               title: Text(
                                 '${data.keyword}',

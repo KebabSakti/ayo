@@ -183,8 +183,11 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                   actions: [
                     ShoppingCartIcon(),
                   ],
-                  title: SearchBar(
-                    scrollController: _scrollController,
+                  title: GestureDetector(
+                    onTap: () => Navigator.of(context).pushNamed('/search'),
+                    child: SearchBar(
+                      scrollController: _scrollController,
+                    ),
                   ),
                   flexibleSpace: FlexibleSpaceBar(
                     background: BlocBuilder<BannerCubit, BannerState>(

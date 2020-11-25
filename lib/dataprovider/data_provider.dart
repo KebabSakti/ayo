@@ -397,4 +397,37 @@ class DataProvider {
       return error;
     }
   }
+
+  Future<dynamic> saveSearchKeyword({@required UserData user, @required String keyword}) async {
+    try {
+      await dioInstance.dio.post("search/save",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }),
+          data: {
+            'keyword': keyword,
+          });
+
+      return true;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
+
+  Future<dynamic> clearSearchKeyword({@required UserData user}) async {
+    try {
+      await dioInstance.dio.post("search/clear",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${user.token}",
+            "User-Id": user.id,
+          }));
+
+      return true;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
 }

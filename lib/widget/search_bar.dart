@@ -41,33 +41,30 @@ class _SearchBarState extends State<SearchBar> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () => Navigator.of(context).pushNamed('/search'),
-      child: Container(
-        padding: EdgeInsets.only(left: 10, right: 10),
-        width: double.infinity,
-        height: 35,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          color: Colors.white,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Icon(
-              Icons.search,
-              color: Colors.grey,
-              size: 20,
+    return Container(
+      padding: EdgeInsets.only(left: 10, right: 10),
+      width: double.infinity,
+      height: 35,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(6),
+        color: Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Icon(
+            Icons.search,
+            color: Colors.grey,
+            size: 20,
+          ),
+          SizedBox(width: 5),
+          Container(
+            child: Text(
+              widget.hint ?? 'Cari di sini',
+              style: TextStyle(fontSize: 12, color: Colors.grey[400]),
             ),
-            SizedBox(width: 5),
-            Container(
-              child: Text(
-                widget.hint ?? 'Cari di sini',
-                style: TextStyle(fontSize: 12, color: Colors.grey[400]),
-              ),
-            )
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
