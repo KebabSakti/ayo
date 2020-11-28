@@ -20,7 +20,6 @@ import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:ayo/widget/shopping_cart_icon.dart';
 import 'package:ayo/widget/vertical_product_list.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -301,7 +300,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                               ),
                               GestureDetector(
                                 onTap: () {
-                                  print('kategori');
+                                  Navigator.of(context).pushNamed('/category');
                                 },
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -532,7 +531,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                 ),
                               ),
                               GestureDetector(
-                                onTap: () {},
+                                onTap: () {
+                                  Navigator.of(context).pushNamed('/product', arguments: Filter(terlaris: 1));
+                                },
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,

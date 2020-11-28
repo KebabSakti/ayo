@@ -1,5 +1,6 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/product_cubit.dart';
+import 'package:ayo/model/query/filter.dart';
 import 'package:ayo/model/query/query.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/widget/error_state.dart';
@@ -12,16 +13,16 @@ import 'package:ayo/widget/vertical_product_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class ProductPage extends StatefulWidget {
-  final String keyword;
+class Product extends StatefulWidget {
+  final Filter filter;
 
-  ProductPage({@required this.keyword});
+  Product({@required this.filter});
 
   @override
-  _ProductPageState createState() => _ProductPageState();
+  _ProductState createState() => _ProductState();
 }
 
-class _ProductPageState extends State<ProductPage> {
+class _ProductState extends State<Product> {
   final ScrollController _scrollController = ScrollController();
 
   AuthenticationCubit _authenticationCubit;
@@ -33,7 +34,18 @@ class _ProductPageState extends State<ProductPage> {
       user: _authenticationCubit.state.userData,
       query: QueryModel(
         filter: _queryCubit.state.query.filter.copyWith(
-          keyword: widget.keyword,
+          subCategoryId: widget.filter.subCategoryId ?? _queryCubit.state.query.filter.subCategoryId,
+          mainCategoryId: widget.filter.mainCategoryId ?? _queryCubit.state.query.filter.mainCategoryId,
+          keyword: widget.filter.keyword ?? _queryCubit.state.query.filter.keyword,
+          terlaris: widget.filter.terlaris ?? _queryCubit.state.query.filter.terlaris,
+          diskon: widget.filter.diskon ?? _queryCubit.state.query.filter.diskon,
+          search: widget.filter.search ?? _queryCubit.state.query.filter.search,
+          view: widget.filter.view ?? _queryCubit.state.query.filter.view,
+          rating: widget.filter.rating ?? _queryCubit.state.query.filter.rating,
+          pengiriman: widget.filter.pengiriman ?? _queryCubit.state.query.filter.pengiriman,
+          hargaMin: widget.filter.hargaMin ?? _queryCubit.state.query.filter.hargaMin,
+          hargaMax: widget.filter.hargaMax ?? _queryCubit.state.query.filter.hargaMax,
+          favourite: widget.filter.favourite ?? _queryCubit.state.query.filter.favourite,
         ),
         sorting: _queryCubit.state.query.sorting,
       ),
@@ -45,7 +57,18 @@ class _ProductPageState extends State<ProductPage> {
       user: _authenticationCubit.state.userData,
       query: QueryModel(
         filter: _queryCubit.state.query.filter.copyWith(
-          keyword: widget.keyword,
+          subCategoryId: widget.filter.subCategoryId ?? _queryCubit.state.query.filter.subCategoryId,
+          mainCategoryId: widget.filter.mainCategoryId ?? _queryCubit.state.query.filter.mainCategoryId,
+          keyword: widget.filter.keyword ?? _queryCubit.state.query.filter.keyword,
+          terlaris: widget.filter.terlaris ?? _queryCubit.state.query.filter.terlaris,
+          diskon: widget.filter.diskon ?? _queryCubit.state.query.filter.diskon,
+          search: widget.filter.search ?? _queryCubit.state.query.filter.search,
+          view: widget.filter.view ?? _queryCubit.state.query.filter.view,
+          rating: widget.filter.rating ?? _queryCubit.state.query.filter.rating,
+          pengiriman: widget.filter.pengiriman ?? _queryCubit.state.query.filter.pengiriman,
+          hargaMin: widget.filter.hargaMin ?? _queryCubit.state.query.filter.hargaMin,
+          hargaMax: widget.filter.hargaMax ?? _queryCubit.state.query.filter.hargaMax,
+          favourite: widget.filter.favourite ?? _queryCubit.state.query.filter.favourite,
         ),
         sorting: _queryCubit.state.query.sorting,
       ),
@@ -126,7 +149,7 @@ class _ProductPageState extends State<ProductPage> {
                       onTap: () => Navigator.of(context).pop(),
                       child: SearchBar(
                         scrollController: _scrollController,
-                        hint: widget.keyword,
+                        hint: widget.filter.keyword,
                       ),
                     ),
                   ),

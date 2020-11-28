@@ -8,13 +8,16 @@ import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
 import 'package:ayo/pages/app/bloc/query_cubit.dart';
 import 'package:ayo/pages/cart/cart_page.dart';
+import 'package:ayo/pages/category/category.dart';
 import 'package:ayo/pages/destination.dart';
+import 'package:ayo/pages/home/bloc/main_category_cubit.dart';
 import 'package:ayo/pages/intro/intro.dart';
 import 'package:ayo/pages/main_category/bloc/sub_category_cubit.dart';
 import 'package:ayo/pages/main_category/main_category.dart';
 import 'package:ayo/pages/order/order.dart';
 import 'package:ayo/pages/pengiriman/pengiriman.dart';
-import 'package:ayo/pages/product/product_page.dart';
+import 'package:ayo/pages/product/product.dart';
+import 'package:ayo/pages/product/search_product_page.dart';
 import 'package:ayo/pages/product_detail/product_detail.dart';
 import 'package:ayo/pages/product_detail/product_detail_cubit.dart';
 import 'package:ayo/pages/search/search_page.dart';
@@ -180,8 +183,48 @@ class RouteGenerator {
                 create: (context) => ProductCubit(),
               ),
             ],
-            child: ProductPage(
+            child: SearchProductPage(
               keyword: settings.arguments,
+            ),
+          ),
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
+          settings: settings,
+        );
+        break;
+
+      case '/category':
+        return PageTransition(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<MainCategoryCubit>(
+                create: (context) => MainCategoryCubit(),
+              ),
+              BlocProvider<SubCategoryCubit>(
+                create: (context) => SubCategoryCubit(),
+              ),
+            ],
+            child: Category(),
+          ),
+          type: PageTransitionType.rightToLeft,
+          duration: _duration,
+          settings: settings,
+        );
+        break;
+
+      case '/product':
+        return PageTransition(
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<ProductCubit>(
+                create: (context) => ProductCubit(),
+              ),
+              BlocProvider<QueryCubit>(
+                create: (context) => QueryCubit(),
+              ),
+            ],
+            child: Product(
+              filter: settings.arguments,
             ),
           ),
           type: PageTransitionType.rightToLeft,
