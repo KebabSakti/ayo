@@ -83,4 +83,8 @@ class Repository {
   Future<dynamic> clearSearchKeyword({@required UserData user}) async {
     return await providers.clearSearchKeyword(user: user);
   }
+
+  Future<dynamic> toggleFavourite({@required UserData userData, @required String productId}) async {
+    return await providers.toggleFavourite(userData: userData, productId: productId);
+  }
 }

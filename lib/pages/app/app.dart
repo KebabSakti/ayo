@@ -1,4 +1,5 @@
 import 'package:ayo/bloc/product_cubit.dart';
+import 'package:ayo/bloc/search/popular_search_cubit.dart';
 import 'package:ayo/pages/app/bloc/banner_cubit.dart';
 import 'package:ayo/pages/app/bloc/navigation_cubit.dart';
 import 'package:ayo/pages/app/bloc/product_terlaris_home_cubit.dart';
@@ -94,6 +95,9 @@ class App extends StatelessWidget {
                       ),
                       BlocProvider<QueryCubit>(
                         create: (context) => QueryCubit(),
+                      ),
+                      BlocProvider<PopularSearchCubit>(
+                        create: (context) => PopularSearchCubit(),
                       ),
                     ],
                     child: Home(),

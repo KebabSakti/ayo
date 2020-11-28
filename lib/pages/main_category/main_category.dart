@@ -248,7 +248,10 @@ class _MainCategoryState extends State<MainCategory> {
                                           color: Colors.grey[100],
                                           borderRadius: BorderRadius.circular(20),
                                           child: InkWell(
-                                            onTap: () {},
+                                            onTap: () {
+                                              Navigator.of(context).pushNamed('/product',
+                                                  arguments: Filter(subCategoryId: subCategory.subCategoryId));
+                                            },
                                             borderRadius: BorderRadius.circular(20),
                                             splashColor: Theme.of(context).accentColor.withOpacity(0.3),
                                             child: Ink(

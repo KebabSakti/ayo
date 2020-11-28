@@ -1,4 +1,5 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
+import 'package:ayo/model/query/filter.dart';
 import 'package:ayo/pages/home/bloc/main_category_cubit.dart';
 import 'package:ayo/pages/main_category/bloc/sub_category_cubit.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
@@ -91,7 +92,10 @@ class _CategoryState extends State<Category> {
                                 child: Ink(
                                   color: Colors.white,
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      Navigator.of(context).pushNamed('/product',
+                                          arguments: Filter(subCategoryId: state.subCategories[index].subCategoryId));
+                                    },
                                     splashColor: Theme.of(context).colorScheme.primaryVariant.withOpacity(0.3),
                                     child: Padding(
                                       padding: const EdgeInsets.all(8.0),

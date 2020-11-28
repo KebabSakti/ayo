@@ -139,7 +139,7 @@ class _ProductState extends State<Product> {
                       ShoppingCartIcon(),
                     ],
                     title: GestureDetector(
-                      onTap: () => Navigator.of(context).pop(),
+                      onTap: () => Navigator.of(context).pushNamed('/search'),
                       child: SearchBar(
                         scrollController: _scrollController,
                         hint: widget.filter.keyword,

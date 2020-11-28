@@ -1,5 +1,6 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/cart_cubit.dart';
+import 'package:ayo/bloc/product_action_cubit.dart';
 import 'package:ayo/model/cart/cart.dart';
 import 'package:ayo/pages/product_detail/product_detail_cubit.dart';
 import 'package:ayo/util/dialog.dart';
@@ -28,6 +29,7 @@ class _ProductDetailState extends State<ProductDetail> {
   AuthenticationCubit _authenticationCubit;
   ProductDetailCubit _productDetailCubit;
   CartCubit _cartCubit;
+  ProductActionCubit _productActionCubit;
 
   void _addToCart(Cart cart) {
     _cartCubit.addCart(user: _authenticationCubit.state.userData, cartData: cart);
@@ -38,6 +40,10 @@ class _ProductDetailState extends State<ProductDetail> {
       userData: _authenticationCubit.state.userData,
       productId: widget.productId,
     );
+  }
+
+  void _toggleFavourite(String productId) {
+    _productActionCubit.toggleFavourite(userData: _authenticationCubit.state.userData, productId: productId);
   }
 
   void _fetchData() {
@@ -53,6 +59,7 @@ class _ProductDetailState extends State<ProductDetail> {
     _authenticationCubit = context.bloc<AuthenticationCubit>();
     _productDetailCubit = context.bloc<ProductDetailCubit>();
     _cartCubit = context.bloc<CartCubit>();
+    _productActionCubit = context.bloc<ProductActionCubit>();
 
     _fetchData();
 
@@ -221,15 +228,7 @@ class _ProductDetailState extends State<ProductDetail> {
                                               radius: 6,
                                             ),
                                       (state is ProductDetailCompleted)
-                                          ? IconButton(
-                                              onPressed: () {},
-                                              icon: Icon(
-                                                FontAwesomeIcons.solidHeart,
-                                                color: state.product.favourite != null
-                                                    ? Theme.of(context).primaryColor
-                                                    : Colors.grey,
-                                              ),
-                                            )
+                                          ? FavouriteWidget(state: state, toggleFavourite: _toggleFavourite)
                                           : Padding(
                                               padding: const EdgeInsets.all(10),
                                               child: boxRadiusShimmer(
@@ -566,6 +565,44 @@ class _ProductDetailState extends State<ProductDetail> {
             },
           ),
         ),
+      ),
+    );
+  }
+}
+
+class FavouriteWidget extends StatefulWidget {
+  final ProductDetailState state;
+  final ValueChanged<String> toggleFavourite;
+
+  FavouriteWidget({@required this.state, @required this.toggleFavourite});
+
+  @override
+  _FavouriteWidgetState createState() => _FavouriteWidgetState();
+}
+
+class _FavouriteWidgetState extends State<FavouriteWidget> {
+  bool fav = false;
+
+  @override
+  void initState() {
+    fav = (widget.state.product.favourite != null) ? true : false;
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: () {
+        setState(() {
+          fav = !fav;
+        });
+
+        widget.toggleFavourite(widget.state.product.productId);
+      },
+      icon: Icon(
+        FontAwesomeIcons.solidHeart,
+        color: fav ? Theme.of(context).primaryColor : Colors.grey,
       ),
     );
   }

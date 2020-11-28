@@ -430,4 +430,22 @@ class DataProvider {
       return error;
     }
   }
+
+  Future<dynamic> toggleFavourite({@required UserData userData, @required String productId}) async {
+    try {
+      await dioInstance.dio.post("product/favourite",
+          options: Options(headers: {
+            "Accept": "application/json",
+            "Authorization": "Bearer ${userData.token}",
+            "User-Id": userData.id,
+          }),
+          data: {
+            'product_id': productId,
+          });
+
+      return true;
+    } on DioError catch (error) {
+      return error;
+    }
+  }
 }

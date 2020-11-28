@@ -10,10 +10,12 @@ Search _$SearchFromJson(Map<String, dynamic> json) {
   return Search(
     keyword: json['keyword'] as String,
     hits: json['hits'] as int,
+    image: json['image'] as String,
   );
 }
 
 Map<String, dynamic> _$SearchToJson(Search instance) => <String, dynamic>{
       'keyword': instance.keyword,
       'hits': instance.hits,
+      'image': instance.image,
     };

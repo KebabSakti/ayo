@@ -5,6 +5,7 @@ import 'package:ayo/bloc/search/history_search_cubit.dart';
 import 'package:ayo/bloc/search/popular_search_cubit.dart';
 import 'package:ayo/bloc/search/search_cubit.dart';
 import 'package:ayo/bloc/search/search_process_cubit.dart';
+import 'package:ayo/model/query/filter.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -64,7 +65,7 @@ class _SearchPageState extends State<SearchPage> {
     _saveSearchKeyword(keyword);
 
     //navigate
-    Navigator.of(context).pushNamed("/product_page", arguments: keyword);
+    Navigator.of(context).pushNamed("/product", arguments: Filter(keyword: keyword));
   }
 
   @override

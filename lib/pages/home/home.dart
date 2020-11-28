@@ -1,5 +1,6 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/product_cubit.dart';
+import 'package:ayo/bloc/search/popular_search_cubit.dart';
 import 'package:ayo/model/query/filter.dart';
 import 'package:ayo/model/query/query.dart';
 import 'package:ayo/model/query/sorting.dart';
@@ -41,6 +42,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   MainCategoryCubit mainCategoryCubit;
   QueryCubit queryCubit;
   ProductCubit productCubit;
+  PopularSearchCubit _popularSearchCubit;
   ProductTerlarisHomeCubit productTerlarisHomeCubit;
 
   QueryModel queryModel = QueryModel(filter: Filter(), sorting: Sorting());
@@ -80,6 +82,10 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     );
   }
 
+  Future<void> _fetchPopularSearches() async {
+    _popularSearchCubit.fetchPopularSearch(user: authenticateCubit.state.userData);
+  }
+
   Future<void> _fetchData() async {
     //fetch banner
     if (bannerCubit.state is BannerInitial) {
@@ -100,6 +106,11 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     if (productTerlarisHomeCubit.state is ProductTerlarisHomeInitial) {
       await _fetchProdukTerlarisHome();
     }
+
+    //fetch popular searches
+    if (_popularSearchCubit.state is PopularSearchInitial) {
+      await _fetchPopularSearches();
+    }
   }
 
   Future _refreshData() async {
@@ -112,7 +123,13 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     //refresh product
     await _fetchProdukRekomendasi();
 
+    await _fetchPopularSearches();
+
     await _fetchProdukTerlarisHome();
+  }
+
+  void _navigateToSearch(String keyword) {
+    Navigator.of(context).pushNamed('/product', arguments: Filter(keyword: keyword));
   }
 
   void _scrollListener() async {
@@ -134,6 +151,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     mainCategoryCubit = context.bloc<MainCategoryCubit>();
     queryCubit = context.bloc<QueryCubit>();
     productCubit = context.bloc<ProductCubit>();
+    _popularSearchCubit = context.bloc<PopularSearchCubit>();
     productTerlarisHomeCubit = context.bloc<ProductTerlarisHomeCubit>();
 
     _scrollController.addListener(_scrollListener);
@@ -572,13 +590,6 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                               );
                             }
 
-                            //
-                            // if (state is ProductTerlarisHomeLoading) {
-                            //   return Center(
-                            //     child: CircularProgressIndicator(),
-                            //   );
-                            // }
-
                             return Expanded(
                               child: HorizontalProductList(
                                 isLoading: (state is ProductTerlarisHomeLoading) ? true : false,
@@ -597,60 +608,65 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                     color: Colors.grey[100],
                   ),
                 ),
-                SliverToBoxAdapter(
-                  child: Container(
-                    height: 180,
-                    color: Colors.white,
-                    padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(left: 10, right: 5),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Container(
-                                child: Text(
-                                  'Paling Dicari',
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              GestureDetector(
-                                onTap: () {},
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      'Lihat Semua',
+                BlocBuilder<PopularSearchCubit, PopularSearchState>(
+                  builder: (context, state) {
+                    return SliverToBoxAdapter(
+                      child: Container(
+                        height: 180,
+                        color: Colors.white,
+                        padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 10, right: 5),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    child: Text(
+                                      'Paling Dicari',
                                       style: TextStyle(
-                                        fontSize: 10,
-                                        color: Theme.of(context).primaryColor,
+                                        color: Colors.grey[800],
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
-                                    Icon(
-                                      Icons.arrow_right,
-                                      size: 15,
-                                      color: Theme.of(context).primaryColor,
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      _navigateToSearch(state.searchs[0].keyword);
+                                    },
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        GestureDetector(
+                                          onTap: _fetchPopularSearches,
+                                          child: Text(
+                                            'Refresh',
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Theme.of(context).primaryColor,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.refresh,
+                                          size: 15,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Builder(
-                          builder: (context) {
-                            return Expanded(
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Expanded(
                               child: Padding(
                                 padding: EdgeInsets.only(left: 5, right: 5),
                                 child: Column(
@@ -659,133 +675,139 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                       child: Row(
                                         children: [
                                           Expanded(
-                                            child: Material(
-                                              child: InkWell(
-                                                onTap: () {},
-                                                borderRadius: BorderRadius.circular(10),
-                                                splashColor: Theme.of(context).accentColor.withOpacity(0.3),
-                                                child: Ink(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    border: Border.all(
-                                                      color: Colors.grey[300],
+                                            child: (state is PopularSearchComplete)
+                                                ? Material(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        _navigateToSearch(state.searchs[0].keyword);
+                                                      },
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      splashColor: Theme.of(context).accentColor.withOpacity(0.3),
+                                                      child: Ink(
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius: BorderRadius.circular(10),
+                                                          border: Border.all(
+                                                            color: Colors.grey[300],
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Flexible(
+                                                              flex: 2,
+                                                              child: Ink(
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.grey[200],
+                                                                  image: DecorationImage(
+                                                                    fit: BoxFit.cover,
+                                                                    image: CachedNetworkImageProvider(
+                                                                        state.searchs[0].image),
+                                                                  ),
+                                                                  borderRadius: BorderRadius.only(
+                                                                    topLeft: Radius.circular(10),
+                                                                    bottomLeft: Radius.circular(10),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Flexible(
+                                                              flex: 3,
+                                                              child: Ink(
+                                                                height: double.infinity,
+                                                                padding: EdgeInsets.only(
+                                                                  left: 4,
+                                                                  right: 4,
+                                                                ),
+                                                                child: Center(
+                                                                  child: Text(
+                                                                    '${state.searchs[0].keyword}',
+                                                                    textAlign: TextAlign.center,
+                                                                    maxLines: 3,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    style: TextStyle(
+                                                                      fontSize: 12,
+                                                                      fontWeight: FontWeight.w600,
+                                                                      color: Colors.grey[800],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Flexible(
-                                                        flex: 2,
-                                                        child: Ink(
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey[200],
-                                                            image: DecorationImage(
-                                                              fit: BoxFit.cover,
-                                                              image: CachedNetworkImageProvider(
-                                                                'https://images.unsplash.com/photo-1590165482129-1b8b27698780?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=564&q=80',
-                                                              ),
-                                                            ),
-                                                            borderRadius: BorderRadius.only(
-                                                              topLeft: Radius.circular(10),
-                                                              bottomLeft: Radius.circular(10),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Flexible(
-                                                        flex: 3,
-                                                        child: Ink(
-                                                          height: double.infinity,
-                                                          padding: EdgeInsets.only(
-                                                            left: 4,
-                                                            right: 4,
-                                                          ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              'Kentang Impor',
-                                                              textAlign: TextAlign.center,
-                                                              maxLines: 3,
-                                                              overflow: TextOverflow.ellipsis,
-                                                              style: TextStyle(
-                                                                fontSize: 12,
-                                                                fontWeight: FontWeight.w600,
-                                                                color: Colors.grey[800],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                                  )
+                                                : boxRadiusShimmer(),
                                           ),
                                           SizedBox(
                                             width: 5,
                                           ),
                                           Expanded(
-                                            child: Material(
-                                              child: InkWell(
-                                                onTap: () {},
-                                                borderRadius: BorderRadius.circular(10),
-                                                splashColor: Theme.of(context).accentColor.withOpacity(0.3),
-                                                child: Ink(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    border: Border.all(
-                                                      color: Colors.grey[300],
+                                            child: (state is PopularSearchComplete)
+                                                ? Material(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        _navigateToSearch(state.searchs[1].keyword);
+                                                      },
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      splashColor: Theme.of(context).accentColor.withOpacity(0.3),
+                                                      child: Ink(
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius: BorderRadius.circular(10),
+                                                          border: Border.all(
+                                                            color: Colors.grey[300],
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Flexible(
+                                                              flex: 3,
+                                                              child: Ink(
+                                                                height: double.infinity,
+                                                                padding: EdgeInsets.only(
+                                                                  left: 4,
+                                                                  right: 4,
+                                                                ),
+                                                                child: Center(
+                                                                  child: Text(
+                                                                    '${state.searchs[1].keyword}',
+                                                                    textAlign: TextAlign.center,
+                                                                    maxLines: 3,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    style: TextStyle(
+                                                                      fontSize: 12,
+                                                                      fontWeight: FontWeight.w600,
+                                                                      color: Colors.grey[800],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            Flexible(
+                                                              flex: 2,
+                                                              child: Ink(
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.grey[200],
+                                                                  image: DecorationImage(
+                                                                    fit: BoxFit.cover,
+                                                                    image: CachedNetworkImageProvider(
+                                                                        state.searchs[1].image),
+                                                                  ),
+                                                                  borderRadius: BorderRadius.only(
+                                                                    topRight: Radius.circular(10),
+                                                                    bottomRight: Radius.circular(10),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
                                                     ),
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Flexible(
-                                                        flex: 3,
-                                                        child: Ink(
-                                                          height: double.infinity,
-                                                          padding: EdgeInsets.only(
-                                                            left: 4,
-                                                            right: 4,
-                                                          ),
-                                                          child: Center(
-                                                            child: Text(
-                                                              'Buncis',
-                                                              textAlign: TextAlign.center,
-                                                              maxLines: 3,
-                                                              overflow: TextOverflow.ellipsis,
-                                                              style: TextStyle(
-                                                                fontSize: 12,
-                                                                fontWeight: FontWeight.w600,
-                                                                color: Colors.grey[800],
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Flexible(
-                                                        flex: 2,
-                                                        child: Ink(
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey[200],
-                                                            image: DecorationImage(
-                                                              fit: BoxFit.cover,
-                                                              image: CachedNetworkImageProvider(
-                                                                'https://images.unsplash.com/photo-1567375698348-5d9d5ae99de0?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=675&q=80',
-                                                              ),
-                                                            ),
-                                                            borderRadius: BorderRadius.only(
-                                                              topRight: Radius.circular(10),
-                                                              bottomRight: Radius.circular(10),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                                  )
+                                                : boxRadiusShimmer(),
                                           ),
                                         ],
                                       ),
@@ -795,135 +817,139 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                       child: Row(
                                         children: [
                                           Expanded(
-                                            child: Material(
-                                              child: InkWell(
-                                                onTap: () {},
-                                                child: Ink(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    border: Border.all(
-                                                      color: Colors.grey[300],
-                                                    ),
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Flexible(
-                                                        flex: 2,
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey[200],
-                                                            image: DecorationImage(
-                                                              fit: BoxFit.cover,
-                                                              image: CachedNetworkImageProvider(
-                                                                'https://images.unsplash.com/photo-1551028150-64b9f398f678?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
-                                                              ),
-                                                            ),
-                                                            borderRadius: BorderRadius.only(
-                                                              topLeft: Radius.circular(10),
-                                                              bottomLeft: Radius.circular(10),
-                                                            ),
+                                            child: (state is PopularSearchComplete)
+                                                ? Material(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        _navigateToSearch(state.searchs[2].keyword);
+                                                      },
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      splashColor: Theme.of(context).accentColor.withOpacity(0.3),
+                                                      child: Ink(
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius: BorderRadius.circular(10),
+                                                          border: Border.all(
+                                                            color: Colors.grey[300],
                                                           ),
                                                         ),
-                                                      ),
-                                                      Flexible(
-                                                        flex: 3,
-                                                        child: InkWell(
-                                                          onTap: () {},
-                                                          child: Ink(
-                                                            height: double.infinity,
-                                                            padding: EdgeInsets.only(
-                                                              left: 4,
-                                                              right: 4,
-                                                            ),
-                                                            child: Center(
-                                                              child: Text(
-                                                                'Daging Sirloin',
-                                                                textAlign: TextAlign.center,
-                                                                maxLines: 3,
-                                                                overflow: TextOverflow.ellipsis,
-                                                                style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  fontWeight: FontWeight.w600,
-                                                                  color: Colors.grey[800],
+                                                        child: Row(
+                                                          children: [
+                                                            Flexible(
+                                                              flex: 2,
+                                                              child: Ink(
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.grey[200],
+                                                                  image: DecorationImage(
+                                                                    fit: BoxFit.cover,
+                                                                    image: CachedNetworkImageProvider(
+                                                                        state.searchs[2].image),
+                                                                  ),
+                                                                  borderRadius: BorderRadius.only(
+                                                                    topLeft: Radius.circular(10),
+                                                                    bottomLeft: Radius.circular(10),
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),
-                                                          ),
+                                                            Flexible(
+                                                              flex: 3,
+                                                              child: Ink(
+                                                                height: double.infinity,
+                                                                padding: EdgeInsets.only(
+                                                                  left: 4,
+                                                                  right: 4,
+                                                                ),
+                                                                child: Center(
+                                                                  child: Text(
+                                                                    '${state.searchs[2].keyword}',
+                                                                    textAlign: TextAlign.center,
+                                                                    maxLines: 3,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    style: TextStyle(
+                                                                      fontSize: 12,
+                                                                      fontWeight: FontWeight.w600,
+                                                                      color: Colors.grey[800],
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                                    ),
+                                                  )
+                                                : boxRadiusShimmer(),
                                           ),
                                           SizedBox(
                                             width: 5,
                                           ),
                                           Expanded(
-                                            child: Material(
-                                              child: InkWell(
-                                                onTap: () {},
-                                                child: Ink(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.white,
-                                                    borderRadius: BorderRadius.circular(10),
-                                                    border: Border.all(
-                                                      color: Colors.grey[300],
-                                                    ),
-                                                  ),
-                                                  child: Row(
-                                                    children: [
-                                                      Flexible(
-                                                        flex: 3,
-                                                        child: InkWell(
-                                                          onTap: () {},
-                                                          child: Ink(
-                                                            height: double.infinity,
-                                                            padding: EdgeInsets.only(
-                                                              left: 4,
-                                                              right: 4,
-                                                            ),
-                                                            child: Center(
-                                                              child: Text(
-                                                                'Tomat Merah',
-                                                                textAlign: TextAlign.center,
-                                                                maxLines: 3,
-                                                                overflow: TextOverflow.ellipsis,
-                                                                style: TextStyle(
-                                                                  fontSize: 12,
-                                                                  fontWeight: FontWeight.w600,
-                                                                  color: Colors.grey[800],
+                                            child: (state is PopularSearchComplete)
+                                                ? Material(
+                                                    child: InkWell(
+                                                      onTap: () {
+                                                        _navigateToSearch(state.searchs[3].keyword);
+                                                      },
+                                                      borderRadius: BorderRadius.circular(10),
+                                                      splashColor: Theme.of(context).accentColor.withOpacity(0.3),
+                                                      child: Ink(
+                                                        decoration: BoxDecoration(
+                                                          color: Colors.white,
+                                                          borderRadius: BorderRadius.circular(10),
+                                                          border: Border.all(
+                                                            color: Colors.grey[300],
+                                                          ),
+                                                        ),
+                                                        child: Row(
+                                                          children: [
+                                                            Flexible(
+                                                              flex: 3,
+                                                              child: Ink(
+                                                                height: double.infinity,
+                                                                padding: EdgeInsets.only(
+                                                                  left: 4,
+                                                                  right: 4,
+                                                                ),
+                                                                child: Center(
+                                                                  child: Text(
+                                                                    '${state.searchs[3].keyword}',
+                                                                    textAlign: TextAlign.center,
+                                                                    maxLines: 3,
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                    style: TextStyle(
+                                                                      fontSize: 12,
+                                                                      fontWeight: FontWeight.w600,
+                                                                      color: Colors.grey[800],
+                                                                    ),
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      Flexible(
-                                                        flex: 2,
-                                                        child: Container(
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey[200],
-                                                            image: DecorationImage(
-                                                              fit: BoxFit.cover,
-                                                              image: CachedNetworkImageProvider(
-                                                                'https://images.unsplash.com/photo-1444731961956-751ed90465a5?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=634&q=80',
+                                                            Flexible(
+                                                              flex: 2,
+                                                              child: Ink(
+                                                                decoration: BoxDecoration(
+                                                                  color: Colors.grey[200],
+                                                                  image: DecorationImage(
+                                                                    fit: BoxFit.cover,
+                                                                    image: CachedNetworkImageProvider(
+                                                                        state.searchs[3].image),
+                                                                  ),
+                                                                  borderRadius: BorderRadius.only(
+                                                                    topRight: Radius.circular(10),
+                                                                    bottomRight: Radius.circular(10),
+                                                                  ),
+                                                                ),
                                                               ),
                                                             ),
-                                                            borderRadius: BorderRadius.only(
-                                                              topRight: Radius.circular(10),
-                                                              bottomRight: Radius.circular(10),
-                                                            ),
-                                                          ),
+                                                          ],
                                                         ),
                                                       ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
+                                                    ),
+                                                  )
+                                                : boxRadiusShimmer(),
                                           ),
                                         ],
                                       ),
@@ -931,12 +957,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                   ],
                                 ),
                               ),
-                            );
-                          },
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  ),
+                      ),
+                    );
+                  },
                 ),
                 SliverToBoxAdapter(
                   child: Container(
