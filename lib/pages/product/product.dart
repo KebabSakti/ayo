@@ -33,20 +33,7 @@ class _ProductState extends State<Product> {
     _productCubit.fetchProduct(
       user: _authenticationCubit.state.userData,
       query: QueryModel(
-        filter: _queryCubit.state.query.filter.copyWith(
-          subCategoryId: widget.filter.subCategoryId ?? _queryCubit.state.query.filter.subCategoryId,
-          mainCategoryId: widget.filter.mainCategoryId ?? _queryCubit.state.query.filter.mainCategoryId,
-          keyword: widget.filter.keyword ?? _queryCubit.state.query.filter.keyword,
-          terlaris: widget.filter.terlaris ?? _queryCubit.state.query.filter.terlaris,
-          diskon: widget.filter.diskon ?? _queryCubit.state.query.filter.diskon,
-          search: widget.filter.search ?? _queryCubit.state.query.filter.search,
-          view: widget.filter.view ?? _queryCubit.state.query.filter.view,
-          rating: widget.filter.rating ?? _queryCubit.state.query.filter.rating,
-          pengiriman: widget.filter.pengiriman ?? _queryCubit.state.query.filter.pengiriman,
-          hargaMin: widget.filter.hargaMin ?? _queryCubit.state.query.filter.hargaMin,
-          hargaMax: widget.filter.hargaMax ?? _queryCubit.state.query.filter.hargaMax,
-          favourite: widget.filter.favourite ?? _queryCubit.state.query.filter.favourite,
-        ),
+        filter: _queryCubit.state.query.filter,
         sorting: _queryCubit.state.query.sorting,
       ),
     );
@@ -56,20 +43,7 @@ class _ProductState extends State<Product> {
     _productCubit.fetchMoreProduct(
       user: _authenticationCubit.state.userData,
       query: QueryModel(
-        filter: _queryCubit.state.query.filter.copyWith(
-          subCategoryId: widget.filter.subCategoryId ?? _queryCubit.state.query.filter.subCategoryId,
-          mainCategoryId: widget.filter.mainCategoryId ?? _queryCubit.state.query.filter.mainCategoryId,
-          keyword: widget.filter.keyword ?? _queryCubit.state.query.filter.keyword,
-          terlaris: widget.filter.terlaris ?? _queryCubit.state.query.filter.terlaris,
-          diskon: widget.filter.diskon ?? _queryCubit.state.query.filter.diskon,
-          search: widget.filter.search ?? _queryCubit.state.query.filter.search,
-          view: widget.filter.view ?? _queryCubit.state.query.filter.view,
-          rating: widget.filter.rating ?? _queryCubit.state.query.filter.rating,
-          pengiriman: widget.filter.pengiriman ?? _queryCubit.state.query.filter.pengiriman,
-          hargaMin: widget.filter.hargaMin ?? _queryCubit.state.query.filter.hargaMin,
-          hargaMax: widget.filter.hargaMax ?? _queryCubit.state.query.filter.hargaMax,
-          favourite: widget.filter.favourite ?? _queryCubit.state.query.filter.favourite,
-        ),
+        filter: _queryCubit.state.query.filter,
         sorting: _queryCubit.state.query.sorting,
       ),
     );
@@ -88,8 +62,25 @@ class _ProductState extends State<Product> {
   }
 
   void _fetchData() {
-    //fetch product
-    _fetchProduct();
+    _queryCubit.setQuery(
+      QueryModel(
+        filter: _queryCubit.state.query.filter.copyWith(
+          subCategoryId: widget.filter.subCategoryId ?? _queryCubit.state.query.filter.subCategoryId,
+          mainCategoryId: widget.filter.mainCategoryId ?? _queryCubit.state.query.filter.mainCategoryId,
+          keyword: widget.filter.keyword ?? _queryCubit.state.query.filter.keyword,
+          terlaris: widget.filter.terlaris ?? _queryCubit.state.query.filter.terlaris,
+          diskon: widget.filter.diskon ?? _queryCubit.state.query.filter.diskon,
+          search: widget.filter.search ?? _queryCubit.state.query.filter.search,
+          view: widget.filter.view ?? _queryCubit.state.query.filter.view,
+          rating: widget.filter.rating ?? _queryCubit.state.query.filter.rating,
+          pengiriman: widget.filter.pengiriman ?? _queryCubit.state.query.filter.pengiriman,
+          hargaMin: widget.filter.hargaMin ?? _queryCubit.state.query.filter.hargaMin,
+          hargaMax: widget.filter.hargaMax ?? _queryCubit.state.query.filter.hargaMax,
+          favourite: widget.filter.favourite ?? _queryCubit.state.query.filter.favourite,
+        ),
+        sorting: _queryCubit.state.query.sorting,
+      ),
+    );
   }
 
   Future _refreshData() async {
@@ -105,7 +96,9 @@ class _ProductState extends State<Product> {
     _productCubit = context.bloc<ProductCubit>();
 
     //inital fetch
-    _fetchData();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _fetchData();
+    });
 
     super.initState();
   }
@@ -164,8 +157,9 @@ class _ProductState extends State<Product> {
                             ),
                           ),
                         ),
-                        child: FilterSortBar(
-                          queryCubit: _queryCubit,
+                        child: BlocProvider.value(
+                          value: _queryCubit,
+                          child: FilterSortBar(),
                         ),
                       ),
                     ),
@@ -204,10 +198,12 @@ class _ProductState extends State<Product> {
                   ),
                 ],
               ),
-              ProductFilter(
-                scrollController: _scrollController,
-                position: 0,
-                queryCubit: _queryCubit,
+              BlocProvider.value(
+                value: _queryCubit,
+                child: ProductFilter(
+                  scrollController: _scrollController,
+                  position: 0,
+                ),
               ),
               Align(
                 alignment: Alignment.bottomRight,

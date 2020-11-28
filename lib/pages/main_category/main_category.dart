@@ -313,8 +313,9 @@ class _MainCategoryState extends State<MainCategory> {
                             ),
                           ),
                         ),
-                        child: FilterSortBar(
-                          queryCubit: _queryCubit,
+                        child: BlocProvider.value(
+                          value: _queryCubit,
+                          child: FilterSortBar(),
                         ),
                       ),
                     ),
@@ -353,10 +354,12 @@ class _MainCategoryState extends State<MainCategory> {
                   ),
                 ],
               ),
-              ProductFilter(
-                scrollController: _scrollController,
-                position: 422,
-                queryCubit: _queryCubit,
+              BlocProvider.value(
+                value: _queryCubit,
+                child: ProductFilter(
+                  scrollController: _scrollController,
+                  position: 422,
+                ),
               ),
               Align(
                 alignment: Alignment.bottomRight,

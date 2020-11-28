@@ -141,8 +141,9 @@ class _SearchProductPageState extends State<SearchProductPage> {
                             ),
                           ),
                         ),
-                        child: FilterSortBar(
-                          queryCubit: _queryCubit,
+                        child: BlocProvider.value(
+                          value: _queryCubit,
+                          child: FilterSortBar(),
                         ),
                       ),
                     ),
@@ -181,10 +182,12 @@ class _SearchProductPageState extends State<SearchProductPage> {
                   ),
                 ],
               ),
-              ProductFilter(
-                scrollController: _scrollController,
-                position: 0,
-                queryCubit: _queryCubit,
+              BlocProvider.value(
+                value: _queryCubit,
+                child: ProductFilter(
+                  scrollController: _scrollController,
+                  position: 0,
+                ),
               ),
               Align(
                 alignment: Alignment.bottomRight,

@@ -957,8 +957,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                           ),
                         ),
                       ),
-                      child: FilterSortBar(
-                        queryCubit: queryCubit,
+                      child: BlocProvider.value(
+                        value: queryCubit,
+                        child: FilterSortBar(),
                       ),
                     ),
                   ),
@@ -997,10 +998,12 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                 ),
               ],
             ),
-            ProductFilter(
-              scrollController: _scrollController,
-              position: 1100,
-              queryCubit: queryCubit,
+            BlocProvider.value(
+              value: queryCubit,
+              child: ProductFilter(
+                scrollController: _scrollController,
+                position: 1100,
+              ),
             ),
             Align(
               alignment: Alignment.bottomRight,

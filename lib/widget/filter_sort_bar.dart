@@ -7,15 +7,20 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 
 class FilterSortBar extends StatefulWidget {
-  final QueryCubit queryCubit;
-
-  FilterSortBar({@required this.queryCubit});
-
   @override
   _FilterSortBarState createState() => _FilterSortBarState();
 }
 
 class _FilterSortBarState extends State<FilterSortBar> {
+  QueryCubit _queryCubit;
+
+  @override
+  void initState() {
+    _queryCubit = context.bloc<QueryCubit>();
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -31,8 +36,7 @@ class _FilterSortBarState extends State<FilterSortBar> {
                   context: context,
                   useRootNavigator: true,
                   duration: Duration(milliseconds: 200),
-                  builder: (context, scrollController) => BlocProvider.value(
-                      value: widget.queryCubit, child: FilterPage()),
+                  builder: (context, scrollController) => BlocProvider.value(value: _queryCubit, child: FilterPage()),
                 );
               },
               child: Ink(
@@ -76,8 +80,7 @@ class _FilterSortBarState extends State<FilterSortBar> {
                   context: context,
                   useRootNavigator: true,
                   duration: Duration(milliseconds: 200),
-                  builder: (context, scrollController) => BlocProvider.value(
-                      value: widget.queryCubit, child: SortingPage()),
+                  builder: (context, scrollController) => BlocProvider.value(value: _queryCubit, child: SortingPage()),
                 );
               },
               splashColor: Theme.of(context).accentColor.withOpacity(0.3),
