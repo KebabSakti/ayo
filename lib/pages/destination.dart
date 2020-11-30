@@ -238,7 +238,9 @@ class _SearchLocationWidgetState extends State<SearchLocationWidget> {
                 decoration: new InputDecoration(
                     border:
                         new OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(20)),
+                    isDense: true,
                     filled: true,
+                    contentPadding: EdgeInsets.all(10),
                     fillColor: Colors.grey[100],
                     hintText: 'Ketik nama jalan',
                     hintStyle: TextStyle(
