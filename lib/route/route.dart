@@ -1,3 +1,6 @@
+import 'package:ayo/bloc/delivery_detail_cubit.dart';
+import 'package:ayo/bloc/order_detail_cubit.dart';
+import 'package:ayo/bloc/order_summary_cubit.dart';
 import 'package:ayo/bloc/product_action_cubit.dart';
 import 'package:ayo/bloc/product_cubit.dart';
 import 'package:ayo/bloc/search/history_search_cubit.dart';
@@ -134,7 +137,20 @@ class RouteGenerator {
 
       case '/destination':
         return PageTransition(
-          child: Destination(),
+          child: MultiBlocProvider(
+            providers: [
+              BlocProvider<OrderSummaryCubit>(
+                create: (context) => OrderSummaryCubit(),
+              ),
+              BlocProvider<OrderDetailCubit>(
+                create: (context) => OrderDetailCubit(),
+              ),
+              BlocProvider<DeliveryDetailCubit>(
+                create: (context) => DeliveryDetailCubit(),
+              ),
+            ],
+            child: Destination(orderDetail: settings.arguments),
+          ),
           type: PageTransitionType.rightToLeft,
           duration: _duration,
           settings: settings,

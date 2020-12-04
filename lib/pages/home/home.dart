@@ -693,23 +693,25 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                         ),
                                                         child: Row(
                                                           children: [
-                                                            Flexible(
-                                                              flex: 2,
-                                                              child: Ink(
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.grey[200],
-                                                                  image: DecorationImage(
-                                                                    fit: BoxFit.cover,
-                                                                    image: CachedNetworkImageProvider(
-                                                                        state.searchs[0].image),
-                                                                  ),
-                                                                  borderRadius: BorderRadius.only(
-                                                                    topLeft: Radius.circular(10),
-                                                                    bottomLeft: Radius.circular(10),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
+                                                            (state.searchs[0].image != null)
+                                                                ? Flexible(
+                                                                    flex: 2,
+                                                                    child: Ink(
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.grey[200],
+                                                                        image: DecorationImage(
+                                                                          fit: BoxFit.cover,
+                                                                          image: CachedNetworkImageProvider(
+                                                                              state.searchs[0].image),
+                                                                        ),
+                                                                        borderRadius: BorderRadius.only(
+                                                                          topLeft: Radius.circular(10),
+                                                                          bottomLeft: Radius.circular(10),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : SizedBox.shrink(),
                                                             Flexible(
                                                               flex: 3,
                                                               child: Ink(
@@ -785,23 +787,25 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                                 ),
                                                               ),
                                                             ),
-                                                            Flexible(
-                                                              flex: 2,
-                                                              child: Ink(
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.grey[200],
-                                                                  image: DecorationImage(
-                                                                    fit: BoxFit.cover,
-                                                                    image: CachedNetworkImageProvider(
-                                                                        state.searchs[1].image),
-                                                                  ),
-                                                                  borderRadius: BorderRadius.only(
-                                                                    topRight: Radius.circular(10),
-                                                                    bottomRight: Radius.circular(10),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
+                                                            (state.searchs[1].image != null)
+                                                                ? Flexible(
+                                                                    flex: 2,
+                                                                    child: Ink(
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.grey[200],
+                                                                        image: DecorationImage(
+                                                                          fit: BoxFit.cover,
+                                                                          image: CachedNetworkImageProvider(
+                                                                              state.searchs[1].image),
+                                                                        ),
+                                                                        borderRadius: BorderRadius.only(
+                                                                          topRight: Radius.circular(10),
+                                                                          bottomRight: Radius.circular(10),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : SizedBox.shrink(),
                                                           ],
                                                         ),
                                                       ),
@@ -835,23 +839,25 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                         ),
                                                         child: Row(
                                                           children: [
-                                                            Flexible(
-                                                              flex: 2,
-                                                              child: Ink(
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.grey[200],
-                                                                  image: DecorationImage(
-                                                                    fit: BoxFit.cover,
-                                                                    image: CachedNetworkImageProvider(
-                                                                        state.searchs[2].image),
-                                                                  ),
-                                                                  borderRadius: BorderRadius.only(
-                                                                    topLeft: Radius.circular(10),
-                                                                    bottomLeft: Radius.circular(10),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
+                                                            (state.searchs[2].image != null)
+                                                                ? Flexible(
+                                                                    flex: 2,
+                                                                    child: Ink(
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.grey[200],
+                                                                        image: DecorationImage(
+                                                                          fit: BoxFit.cover,
+                                                                          image: CachedNetworkImageProvider(
+                                                                              state.searchs[2].image),
+                                                                        ),
+                                                                        borderRadius: BorderRadius.only(
+                                                                          topLeft: Radius.circular(10),
+                                                                          bottomLeft: Radius.circular(10),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : SizedBox.shrink(),
                                                             Flexible(
                                                               flex: 3,
                                                               child: Ink(
@@ -927,23 +933,25 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
                                                                 ),
                                                               ),
                                                             ),
-                                                            Flexible(
-                                                              flex: 2,
-                                                              child: Ink(
-                                                                decoration: BoxDecoration(
-                                                                  color: Colors.grey[200],
-                                                                  image: DecorationImage(
-                                                                    fit: BoxFit.cover,
-                                                                    image: CachedNetworkImageProvider(
-                                                                        state.searchs[3].image),
-                                                                  ),
-                                                                  borderRadius: BorderRadius.only(
-                                                                    topRight: Radius.circular(10),
-                                                                    bottomRight: Radius.circular(10),
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ),
+                                                            (state.searchs[3].image != null)
+                                                                ? Flexible(
+                                                                    flex: 2,
+                                                                    child: Ink(
+                                                                      decoration: BoxDecoration(
+                                                                        color: Colors.grey[200],
+                                                                        image: DecorationImage(
+                                                                          fit: BoxFit.cover,
+                                                                          image: CachedNetworkImageProvider(
+                                                                              state.searchs[3].image),
+                                                                        ),
+                                                                        borderRadius: BorderRadius.only(
+                                                                          topRight: Radius.circular(10),
+                                                                          bottomRight: Radius.circular(10),
+                                                                        ),
+                                                                      ),
+                                                                    ),
+                                                                  )
+                                                                : SizedBox.shrink(),
                                                           ],
                                                         ),
                                                       ),

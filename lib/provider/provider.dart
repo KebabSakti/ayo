@@ -47,7 +47,7 @@ class DioInstance {
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate = (HttpClient client) {
       client.findProxy = (uri) {
         //proxy all request to 192.168.3.249:8001
-        return "PROXY 192.168.3.249:8001";
+        return "PROXY 192.168.43.81:8001";
       };
       client.badCertificateCallback = (X509Certificate cert, String host, int port) => true;
     };

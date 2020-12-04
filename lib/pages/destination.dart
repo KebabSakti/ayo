@@ -1,4 +1,10 @@
+import 'package:ayo/bloc/delivery_detail_cubit.dart';
+import 'package:ayo/bloc/order_detail_cubit.dart';
+import 'package:ayo/bloc/order_summary_cubit.dart';
 import 'package:ayo/bloc/reverse_geo_cubit.dart';
+import 'package:ayo/model/ordersummary/delivery_detail_model.dart';
+import 'package:ayo/model/ordersummary/order_detail_model.dart';
+import 'package:ayo/model/ordersummary/order_summary.dart';
 import 'package:ayo/pages/pengiriman/bloc/suggest_autocomplete_cubit.dart';
 import 'package:ayo/widget/shimmer/box_radius_shimmer.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,23 +15,27 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class Destination extends StatefulWidget {
+  final List<OrderDetail> orderDetail;
+
+  Destination({@required this.orderDetail});
+
   @override
   _DestinationState createState() => _DestinationState();
 }
 
 class _DestinationState extends State<Destination> with TickerProviderStateMixin {
   ReverseGeoCubit _reverseGeoCubit;
-  Coordinates _coordinates;
+  OrderSummaryCubit _orderSummaryCubit;
+  DeliveryDetailCubit _deliveryDetailCubit;
+  OrderDetailCubit _orderDetailCubit;
 
-  AnimationController _animationControllerAddress;
-  AnimationController _animationControllerSuggest;
+  Coordinates _coordinates;
+  GoogleMapController _controller;
 
   static final CameraPosition _samarinda = CameraPosition(
     target: LatLng(-0.495951, 117.135010),
     zoom: 9,
   );
-
-  GoogleMapController _controller;
 
   void _initGmap() async {
     Position position = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
@@ -40,8 +50,6 @@ class _DestinationState extends State<Destination> with TickerProviderStateMixin
   }
 
   void _mapCameraMoveStartListener() {
-    _animationControllerAddress.forward();
-
     _reverseGeoCubit.loadingAddress();
   }
 
@@ -53,106 +61,129 @@ class _DestinationState extends State<Destination> with TickerProviderStateMixin
     _coordinates = Coordinates(position.target.latitude, position.target.longitude);
   }
 
-  void _suggestionWindow() {
-    _animationControllerSuggest.reverse();
+  void _setOrderSummary(OrderSummary orderSummary) {
+    _orderSummaryCubit.addOrderSummary(orderSummary);
+  }
+
+  void _setOrderDetail(List<OrderDetail> orderDetails) {
+    _orderDetailCubit.setOrderDetail(orderDetails: orderDetails);
+  }
+
+  void _setDeliveryDetail(List<DeliveryDetail> deliveryDetail) {
+    _deliveryDetailCubit.setDeliveryDetail(deliveryDetails: deliveryDetail);
   }
 
   void _popRule() {
-    if (_animationControllerSuggest.status == AnimationStatus.completed) {
-      Navigator.of(context).pop();
-    } else {
-      _animationControllerSuggest.forward();
-    }
+    // if (_animationControllerSuggest.status == AnimationStatus.completed) {
+    //   Navigator.of(context).pop();
+    // } else {
+    //   _animationControllerSuggest.forward();
+    // }
+    Navigator.of(context).pop();
   }
 
   @override
   void initState() {
-    _animationControllerAddress = AnimationController(vsync: this, duration: Duration(milliseconds: 100));
-    _animationControllerSuggest = AnimationController(vsync: this, duration: Duration(milliseconds: 100));
-
-    _animationControllerSuggest.forward();
-
     _reverseGeoCubit = context.bloc<ReverseGeoCubit>();
+    _orderSummaryCubit = context.bloc<OrderSummaryCubit>();
+    _deliveryDetailCubit = context.bloc<DeliveryDetailCubit>();
+    _orderDetailCubit = context.bloc<OrderDetailCubit>();
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      _setOrderDetail(widget.orderDetail);
+    });
 
     super.initState();
   }
 
   @override
   void dispose() {
-    _animationControllerAddress.dispose();
-    _animationControllerSuggest.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        _popRule();
-        return false;
-      },
-      child: MultiBlocListener(
-        listeners: [
-          BlocListener<ReverseGeoCubit, ReverseGeoState>(
-            listener: (context, state) {
-              if (state is ReverseGeoComplete) {
-                _animationControllerAddress.reverse();
-              }
-            },
-          ),
-        ],
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          backgroundColor: Colors.white,
-          resizeToAvoidBottomPadding: false,
-          body: Stack(
-            children: [
-              GoogleMap(
-                mapType: MapType.normal,
-                initialCameraPosition: _samarinda,
-                myLocationEnabled: true,
-                myLocationButtonEnabled: false,
-                mapToolbarEnabled: false,
-                rotateGesturesEnabled: false,
-                tiltGesturesEnabled: false,
-                zoomControlsEnabled: false,
-                compassEnabled: false,
-                onCameraMoveStarted: _mapCameraMoveStartListener,
-                onCameraIdle: _mapCameraStopListener,
-                onCameraMove: (position) {
-                  _mapCameraMoveListener(position);
-                },
-                onMapCreated: (GoogleMapController controller) {
-                  this._controller = controller;
-                  Future.delayed(Duration(seconds: 1), () {
-                    _initGmap();
-                  });
-                },
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: Icon(
-                  Icons.radio_button_checked,
-                  color: Theme.of(context).primaryColor,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<OrderDetailCubit, OrderDetailState>(
+          listener: (context, state) {
+            if (state is OrderDetailComplete) {
+              _setOrderSummary(OrderSummary(orderDetails: state.orderDetails));
+            }
+          },
+        ),
+        BlocListener<DeliveryDetailCubit, DeliveryDetailState>(
+          listener: (context, state) {
+            if (state is DeliveryDetailComplete) {
+              _setOrderSummary(OrderSummary(deliveryDetails: state.deliveryDetails));
+            }
+          },
+        ),
+      ],
+      child: WillPopScope(
+        onWillPop: () async {
+          _popRule();
+          return false;
+        },
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<ReverseGeoCubit, ReverseGeoState>(
+              listener: (context, state) {
+                if (state is ReverseGeoComplete) {
+                  // _animationControllerAddress.reverse();
+                }
+              },
+            ),
+          ],
+          child: Scaffold(
+            extendBodyBehindAppBar: true,
+            backgroundColor: Colors.white,
+            resizeToAvoidBottomPadding: false,
+            body: Stack(
+              children: [
+                GoogleMap(
+                  mapType: MapType.normal,
+                  initialCameraPosition: _samarinda,
+                  myLocationEnabled: true,
+                  myLocationButtonEnabled: false,
+                  mapToolbarEnabled: false,
+                  rotateGesturesEnabled: false,
+                  tiltGesturesEnabled: false,
+                  zoomControlsEnabled: false,
+                  compassEnabled: false,
+                  onCameraMoveStarted: _mapCameraMoveStartListener,
+                  onCameraIdle: _mapCameraStopListener,
+                  onCameraMove: (position) {
+                    _mapCameraMoveListener(position);
+                  },
+                  onMapCreated: (GoogleMapController controller) {
+                    this._controller = controller;
+                    Future.delayed(Duration(seconds: 1), () {
+                      _initGmap();
+                    });
+                  },
                 ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: AddressMapWindow(
-                  suggestWindow: _suggestionWindow,
-                  animationController: _animationControllerAddress,
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: BlocProvider<SuggestAutocompleteCubit>(
-                  create: (context) => SuggestAutocompleteCubit(),
-                  child: SearchLocationWidget(
-                    animationController: _animationControllerSuggest,
+                Align(
+                  alignment: Alignment.center,
+                  child: Icon(
+                    Icons.radio_button_checked,
+                    color: Theme.of(context).primaryColor,
                   ),
                 ),
-              ),
-            ],
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: BlocProvider<SuggestAutocompleteCubit>(
+                    create: (context) => SuggestAutocompleteCubit(),
+                    child: BlocProvider.value(
+                      value: _deliveryDetailCubit,
+                      child: SearchLocationWidget(
+                        setOrderSummary: _setOrderSummary,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -161,207 +192,235 @@ class _DestinationState extends State<Destination> with TickerProviderStateMixin
 }
 
 class SearchLocationWidget extends StatefulWidget {
-  final AnimationController animationController;
+  final ValueSetter<OrderSummary> setOrderSummary;
 
-  SearchLocationWidget({@required this.animationController});
+  SearchLocationWidget({@required this.setOrderSummary});
 
   @override
   _SearchLocationWidgetState createState() => _SearchLocationWidgetState();
 }
 
 class _SearchLocationWidgetState extends State<SearchLocationWidget> {
-  Animation<Offset> _animationOffset;
+  final FocusNode _focusNode = FocusNode();
+  DeliveryDetailCubit _deliveryDetailCubit;
   SuggestAutocompleteCubit _suggestAutocompleteCubit;
+  double _offset = 0.6;
 
   void _suggestTextField(String value) {
     _suggestAutocompleteCubit.searchKeyword(value);
   }
 
+  void _setOffset(double value) {
+    setState(() {
+      _offset = value;
+    });
+  }
+
+  void _focusNodeListener() {
+    if (_focusNode.hasFocus) _setOffset(0.0);
+  }
+
   @override
   void initState() {
-    _animationOffset = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 1.0)).animate(widget.animationController);
     _suggestAutocompleteCubit = context.bloc<SuggestAutocompleteCubit>();
+    _focusNode.addListener(_focusNodeListener);
+    _deliveryDetailCubit = context.bloc<DeliveryDetailCubit>();
 
     super.initState();
   }
 
   @override
+  void dispose() {
+    _focusNode.dispose();
+
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _animationOffset,
-      child: Container(
-        padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
-        color: Colors.white,
-        height: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: EdgeInsets.only(
-                top: 20,
-                bottom: 10,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      widget.animationController.forward();
-                    },
-                    icon: Icon(
-                      Icons.close,
-                      color: Colors.grey[800],
-                    ),
-                  ),
-                  Text(
-                    'Cari lokasi pengiriman',
-                    style: TextStyle(
-                      color: Colors.grey[800],
-                      fontWeight: FontWeight.bold,
-                      fontSize: 17,
-                    ),
-                  ),
-                ],
-              ),
+    return SafeArea(
+      child: TweenAnimationBuilder(
+        duration: Duration(milliseconds: 300),
+        tween: Tween<Offset>(begin: Offset(0.0, 0.6), end: Offset(0.0, _offset)),
+        child: Container(
+          padding: const EdgeInsets.only(left: 15, right: 15, top: 10, bottom: 10),
+          height: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15),
+              topRight: Radius.circular(15),
             ),
-            Theme(
-              data: new ThemeData(
-                primaryColor: Colors.transparent,
-                primaryColorDark: Colors.transparent,
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.grey[350],
+                blurRadius: 16.0,
+                spreadRadius: 0.5,
+                offset: Offset(0.0, 1),
               ),
-              child: new TextField(
-                onChanged: (value) => _suggestTextField(value),
-                autofocus: false,
-                style: TextStyle(color: Colors.grey[800]),
-                cursorColor: Colors.grey[800],
-                cursorWidth: 1,
-                decoration: new InputDecoration(
-                    border:
-                        new OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(20)),
-                    isDense: true,
-                    filled: true,
-                    contentPadding: EdgeInsets.all(10),
-                    fillColor: Colors.grey[100],
-                    hintText: 'Ketik nama jalan',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[400],
-                      fontSize: 14,
-                    ),
-                    prefixIcon: const Icon(
-                      Icons.radio_button_checked,
-                      color: Colors.redAccent,
-                    ),
-                    suffixStyle: const TextStyle(color: Colors.green)),
-              ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            GestureDetector(
-              onTap: () {
-                widget.animationController.forward();
-              },
-              child: Padding(
-                padding: const EdgeInsets.only(left: 4),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(left: 10, right: 10, bottom: 15, top: 10),
                 child: Text(
-                  'Pilih dari peta',
+                  'Set lokasi pengiriman',
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.secondary,
-                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[800],
+                    fontWeight: FontWeight.bold,
+                    fontSize: 17,
                   ),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Container(
-              color: Colors.grey[100],
-              height: 1,
-            ),
-            Expanded(child: BlocBuilder<SuggestAutocompleteCubit, SuggestAutocompleteState>(
-              builder: (context, state) {
-                print(state);
-                if (state.placesAutocompleteResponse != null) {
-                  var suggestion = state.placesAutocompleteResponse.predictions;
-                  return (suggestion.length > 0)
-                      ? ListView.builder(
-                          itemCount: (suggestion.length > 0) ? suggestion.length : 5,
-                          itemBuilder: (context, index) {
-                            var name =
-                                suggestion[index].description.substring(0, suggestion[index].description.indexOf(','));
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 10, bottom: 10),
-                              child: (state is SuggestAutoCompleteComplete)
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        print(suggestion[index].placeId);
-                                      },
-                                      child: Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          CircleAvatar(
-                                            backgroundColor: Colors.grey[200],
-                                            radius: 20,
-                                            child: Icon(
-                                              Icons.location_on,
-                                              color: Theme.of(context).primaryColor,
+              Theme(
+                data: new ThemeData(
+                  primaryColor: Colors.transparent,
+                  primaryColorDark: Colors.transparent,
+                ),
+                child: new TextField(
+                  onChanged: (value) => _suggestTextField(value),
+                  focusNode: _focusNode,
+                  autofocus: false,
+                  style: TextStyle(color: Colors.grey[800]),
+                  cursorColor: Colors.grey[800],
+                  cursorWidth: 1,
+                  decoration: new InputDecoration(
+                      border:
+                          new OutlineInputBorder(borderSide: BorderSide.none, borderRadius: BorderRadius.circular(20)),
+                      isDense: true,
+                      filled: true,
+                      contentPadding: EdgeInsets.all(10),
+                      fillColor: Colors.grey[100],
+                      hintText: 'Cari di sini',
+                      hintStyle: TextStyle(
+                        color: Colors.grey[400],
+                        fontSize: 14,
+                      ),
+                      prefixIcon: const Icon(
+                        Icons.radio_button_checked,
+                        color: Colors.redAccent,
+                      ),
+                      suffixStyle: const TextStyle(color: Colors.green)),
+                ),
+              ),
+              (_offset == 0.0)
+                  ? GestureDetector(
+                      onTap: () {
+                        _focusNode.unfocus();
+                        _setOffset(1.0);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 4, top: 10),
+                        child: Text(
+                          'Pilih dari peta',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    )
+                  : SizedBox.shrink(),
+              SizedBox(
+                height: 20,
+              ),
+              // Container(
+              //   color: Colors.grey[100],
+              //   height: 1,
+              // ),
+              Expanded(child: BlocBuilder<SuggestAutocompleteCubit, SuggestAutocompleteState>(
+                builder: (context, state) {
+                  if (state.placesAutocompleteResponse != null) {
+                    var suggestion = state.placesAutocompleteResponse.predictions;
+                    return (suggestion.length > 0)
+                        ? ListView.builder(
+                            itemCount: (suggestion.length > 0) ? suggestion.length : 5,
+                            itemBuilder: (context, index) {
+                              var name = suggestion[index]
+                                  .description
+                                  .substring(0, suggestion[index].description.indexOf(','));
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 10, bottom: 10),
+                                child: (state is SuggestAutoCompleteComplete)
+                                    ? GestureDetector(
+                                        onTap: () {
+                                          // widget.setOrderSummary(OrderSummary(deliveryDetails: ));
+                                          _setOffset(1.0);
+                                        },
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            CircleAvatar(
+                                              backgroundColor: Colors.grey[200],
+                                              radius: 20,
+                                              child: Icon(
+                                                Icons.location_on,
+                                                color: Theme.of(context).primaryColor,
+                                              ),
                                             ),
-                                          ),
-                                          SizedBox(
-                                            width: 20,
-                                          ),
-                                          Flexible(
-                                            fit: FlexFit.loose,
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  '$name',
-                                                  style: TextStyle(
-                                                    color: Colors.grey[800],
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 5,
-                                                ),
-                                                Text(
-                                                  '${suggestion[index].description}',
-                                                  style: TextStyle(
-                                                    color: Colors.grey[800],
-                                                    fontSize: 12,
-                                                  ),
-                                                ),
-                                                SizedBox(
-                                                  height: 20,
-                                                ),
-                                                (index + 1 != suggestion.length)
-                                                    ? Container(
-                                                        color: Colors.grey[100],
-                                                        height: 1,
-                                                      )
-                                                    : SizedBox.shrink(),
-                                              ],
+                                            SizedBox(
+                                              width: 20,
                                             ),
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  : _suggestionShimmer(),
-                            );
-                          },
-                        )
-                      : SizedBox.shrink();
-                }
+                                            Flexible(
+                                              fit: FlexFit.loose,
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    '$name',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[800],
+                                                      fontWeight: FontWeight.bold,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 5,
+                                                  ),
+                                                  Text(
+                                                    '${suggestion[index].description}',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[800],
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    height: 20,
+                                                  ),
+                                                  (index + 1 != suggestion.length)
+                                                      ? Container(
+                                                          color: Colors.grey[100],
+                                                          height: 1,
+                                                        )
+                                                      : SizedBox.shrink(),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    : _suggestionShimmer(),
+                              );
+                            },
+                          )
+                        : SizedBox.shrink();
+                  }
 
-                return SizedBox.shrink();
-              },
-            )),
-          ],
+                  return SizedBox.shrink();
+                },
+              )),
+            ],
+          ),
         ),
+        builder: (context, value, child) {
+          return FractionalTranslation(
+            translation: value,
+            child: child,
+          );
+        },
       ),
     );
   }
@@ -385,7 +444,8 @@ class _AddressMapWindowState extends State<AddressMapWindow> {
 
   @override
   void initState() {
-    _animationOffset = Tween<Offset>(begin: Offset.zero, end: Offset(0.0, 0.4)).animate(widget.animationController);
+    _animationOffset =
+        Tween<Offset>(begin: Offset(0.0, 0.6), end: Offset(0.0, 0.6)).animate(widget.animationController);
 
     super.initState();
   }
@@ -397,132 +457,134 @@ class _AddressMapWindowState extends State<AddressMapWindow> {
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: _animationOffset,
-      child: Container(
-        padding: EdgeInsets.all(15),
-        height: 230,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(20),
-            topRight: Radius.circular(20),
-          ),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-              color: Colors.grey[350],
-              blurRadius: 16.0,
-              spreadRadius: 0.5,
-              offset: Offset(0.0, 1),
+    return SafeArea(
+      child: SlideTransition(
+        position: _animationOffset,
+        child: Container(
+          padding: EdgeInsets.all(15),
+          height: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(10),
+              topRight: Radius.circular(10),
             ),
-          ],
-        ),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Set lokasi tujuan',
-                  style: TextStyle(
-                    color: Colors.grey[800],
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: widget.suggestWindow,
-                  child: Text(
-                    'Edit',
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                color: Colors.grey[350],
+                blurRadius: 16.0,
+                spreadRadius: 0.5,
+                offset: Offset(0.0, 1),
+              ),
+            ],
+          ),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Set lokasi tujuan',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontWeight: FontWeight.w600,
+                      color: Colors.grey[800],
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
                     ),
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            BlocBuilder<ReverseGeoCubit, ReverseGeoState>(
-              builder: (context, state) {
-                if (state is ReverseGeoComplete) {
-                  var addr = state.addresses.first;
-                  var name = addr.addressLine.substring(0, addr.addressLine.indexOf(','));
-                  return Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.grey[200],
-                            radius: 20,
-                            child: Icon(
-                              Icons.location_on,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          ),
-                          SizedBox(
-                            width: 20,
-                          ),
-                          Flexible(
-                            fit: FlexFit.loose,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  '$name',
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  '${addr.addressLine}',
-                                  maxLines: 4,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.grey[800],
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
+                  GestureDetector(
+                    onTap: widget.suggestWindow,
+                    child: Text(
+                      'Edit',
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontWeight: FontWeight.w600,
                       ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      FlatButton(
-                        onPressed: () {
-                          Navigator.of(context).pushNamed('/pengiriman');
-                        },
-                        minWidth: double.infinity,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                        color: Theme.of(context).primaryColor,
-                        child: Text(
-                          'Set lokasi',
-                          style: TextStyle(
-                            color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              BlocBuilder<ReverseGeoCubit, ReverseGeoState>(
+                builder: (context, state) {
+                  if (state is ReverseGeoComplete) {
+                    var addr = state.addresses.first;
+                    var name = addr.addressLine.substring(0, addr.addressLine.indexOf(','));
+                    return Column(
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              backgroundColor: Colors.grey[200],
+                              radius: 20,
+                              child: Icon(
+                                Icons.location_on,
+                                color: Theme.of(context).primaryColor,
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20,
+                            ),
+                            Flexible(
+                              fit: FlexFit.loose,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '$name',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 5,
+                                  ),
+                                  Text(
+                                    '${addr.addressLine}',
+                                    maxLines: 4,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.grey[800],
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        FlatButton(
+                          onPressed: () {
+                            Navigator.of(context).pushNamed('/pengiriman');
+                          },
+                          minWidth: double.infinity,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          color: Theme.of(context).primaryColor,
+                          child: Text(
+                            'Set lokasi',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  );
-                }
+                      ],
+                    );
+                  }
 
-                return _addressShimmer();
-              },
-            ),
-          ],
+                  return _addressShimmer();
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

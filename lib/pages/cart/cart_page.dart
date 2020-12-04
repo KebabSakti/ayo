@@ -1,6 +1,7 @@
 import 'package:ayo/bloc/authentication_cubit.dart';
 import 'package:ayo/bloc/cart_cubit.dart';
 import 'package:ayo/model/cart/cart.dart';
+import 'package:ayo/model/ordersummary/order_detail_model.dart';
 import 'package:ayo/util/dialog.dart';
 import 'package:ayo/util/helper.dart';
 import 'package:ayo/widget/scroll_top.dart';
@@ -270,7 +271,19 @@ class _CartPageState extends State<CartPage> {
                               FlatButton(
                                 onPressed: () async {
                                   if (await Permission.location.request().isGranted) {
-                                    Navigator.of(context).pushNamed('/destination');
+                                    Navigator.of(context).pushNamed(
+                                      '/destination',
+                                      arguments: List<OrderDetail>.from(state.carts
+                                          .map((item) => OrderDetail(
+                                                saleDetailId: Helper().generateRandomId(),
+                                                saleId: Helper().generateRandomId(),
+                                                productId: item.product.productId,
+                                                qty: item.qty,
+                                                total: item.total,
+                                                product: item.product,
+                                              ))
+                                          .toList()),
+                                    );
                                   } else {
                                     Fluttertoast.showToast(
                                         msg: 'Izin penggunaan lokasi diperlukan', gravity: ToastGravity.BOTTOM);
